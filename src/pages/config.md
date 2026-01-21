@@ -1,5 +1,5 @@
 - pathPrefix:
-    - /dev-docs-template/
+    - /workfront-fusion-apis/
 
 - pages:
     - [Analytics](index.md)
