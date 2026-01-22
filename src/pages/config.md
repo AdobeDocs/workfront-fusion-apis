@@ -2,22 +2,19 @@
     - /workfront-fusion-apis/
 
 - pages:
-    - [Analytics](index.md)
-    - [Guides](guides/index.md)
+    - [Workfront Fusion API](index.md)
+    - [Getting Started](getting-started/index.md)
     - API Reference
-        - [Reference v2.0](api/index.md)
-        - [Reference v1.4](api/1-4.md)
-    - [Support](support/index.md)
+        - [V3 API (experimental)](api/index.md)
+    - [Product Documentation](https://experienceleague.adobe.com/en/docs/workfront-fusion/using/home)
 
 - subPages:
-    - [Get Started](guides/index.md) 
-        - [Dummy an OAuth Client](guides/dummy_oauth_client/index.md) 
-        - [Dummy OAuth using POSTMAN](guides/dummy_using_postman/index.md) 
-    - [Metrics API](guides/dummy_metrics_api/index.md) 
-    - [Migrating](guides/migrating/index.md) 
-    - [Overview](support/index.md) 
-        - [Help](support/index.md) 
-        - [FAQ](support/FAQ/index.md) 
-        - [How to contribute](support/contribute/index.md) 
-    - [Community](support/community/index.md) 
-        - [Information](support/community/index.md) 
+    - [Authentication](getting-started/index.md) 
+        - [Create Credentials](getting-started/dummy_oauth_client/index.md)
+        - [Technical account in Fusion](getting-started/dummy_oauth_client/index.md)
+        - [Fusion API domain](getting-started/dummy_using_postman/index.md) 
+    - [Technical Usage Notes](getting-started/dummy_metrics_api/index.md) 
+    - [Help](getting-started/index.md) 
+        - [Troubleshooting](getting-started/index.md) 
+        - [FAQ](getting-started/index.md) 
+        - [How to provide feedback](getting-started/index.md)
