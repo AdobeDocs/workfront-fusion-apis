@@ -1,0 +1,650 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v3/activity-logs/{orgId}": {
+      "get": {
+        "description": "Returns a paged list of activity logs using cursor-based paging and property filters.",
+        "operationId": "ActivityLogsV3Controller_getActivityLogs",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "description": "Organization ID",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "property",
+            "required": false,
+            "in": "query",
+            "description": "\n                Property filters. Can be repeated and are AND-ed together.\n                \n                Allowed fields:\n                - timestamp\n                - entity\n                - entityId\n                - action\n                - teamId\n                - teamName\n                - userId\n                - userName\n                - messageId\n                - message\n                \n                Supported operators:\n                - ==  (equals)\n                - !=  (not equals)\n                - >   (greater than)\n                - >=  (greater than or equal)\n                - <   (less than)\n                - <=  (less than or equal)\n                - ~   (case-insensitive regex match)\n                \n                Special cases:\n                - field           → field exists\n                - !field          → field does not exist\n                ",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of items to return",
+            "schema": {
+              "minimum": 1,
+              "maximum": 1000,
+              "example": 50,
+              "type": "number"
+            }
+          },
+          {
+            "name": "start",
+            "required": false,
+            "in": "query",
+            "description": "Paging cursor. Must be a timestamp (UTC) corresponding to the \"timestamp\" field. Used only when orderby is set.",
+            "schema": {
+              "example": "2025-12-09T11:39:34.834Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "orderby",
+            "required": false,
+            "in": "query",
+            "description": "Sort order. Only timestamp (UTC) is supported. Prefix with \"-\" for descending or \"+\" for ascending",
+            "schema": {
+              "example": "-timestamp",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paged activity logs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivityLogsResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "Paging parameters require orderby to be specified",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Access denied",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "API Key": []
+          },
+          {
+            "IMS Org ID": []
+          },
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Get activity logs",
+        "tags": [
+          "Activity Logs"
+        ]
+      }
+    },
+    "/api/v3/activity-logs/{orgId}/export": {
+      "get": {
+        "description": "Exports activity logs as CSV or XLSX based on the Accept header.",
+        "operationId": "ActivityLogsV3Controller_exportActivityLogs",
+        "parameters": [
+          {
+            "name": "orgId",
+            "required": true,
+            "in": "path",
+            "description": "Organization ID",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "accept",
+            "required": false,
+            "in": "header",
+            "description": "Response media type. Supported values: text/csv (default) or application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "property",
+            "required": false,
+            "in": "query",
+            "description": "\n                Property filters. Can be repeated and are AND-ed together.\n                \n                Allowed fields:\n                - timestamp\n                - entity\n                - entityId\n                - action\n                - teamId\n                - teamName\n                - userId\n                - userName\n                - messageId\n                - message\n                \n                Supported operators:\n                - ==  (equals)\n                - !=  (not equals)\n                - >   (greater than)\n                - >=  (greater than or equal)\n                - <   (less than)\n                - <=  (less than or equal)\n                - ~   (case-insensitive regex match)\n                \n                Special cases:\n                - field           → field exists\n                - !field          → field does not exist\n                ",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "orderby",
+            "required": false,
+            "in": "query",
+            "description": "Sort order. Only timestamp (UTC) is supported. Prefix with \"-\" for descending or \"+\" for ascending",
+            "schema": {
+              "example": "-timestamp",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Access denied",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                  }
+                }
+              }
+            }
+          },
+          "406": {
+            "description": "Not acceptable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "NotAcceptable",
+                  "status": 406,
+                  "title": "Supported formats: text/csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "API Key": []
+          },
+          {
+            "IMS Org ID": []
+          },
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Export activity logs",
+        "tags": [
+          "Activity Logs"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Workfront Fusion API",
+    "description": "APIs for interacting with Fusion resources.",
+    "version": "v3",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "Activity Logs",
+      "description": "Endpoints for getting and exporting log of activities, such as creating a scenario or inviting a user, for your organization.",
+      "externalDocs": {
+        "description": "Find out more",
+        "url": "https://experienceleague.adobe.com/en/docs/workfront-fusion/using/set-up-and-manage-fusion/set-up-and-manage-orgs-and-teams/set-up-orgs-teams-and-users/view-activity-logs-for-an-org"
+      }
+    }
+  ],
+  "servers": [
+    {
+      "url": "https://fusion.adobe.io",
+      "description": "Production server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "Authorization": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http",
+        "description": "Required. The IMS token for the user. Bearer prefix is automatically added."
+      },
+      "IMS Org ID": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-gw-ims-org-id",
+        "description": "Required. IMS Organization ID"
+      },
+      "API Key": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key",
+        "description": "IMS client ID"
+      }
+    },
+    "schemas": {
+      "ErrorReportDto": {
+        "type": "object",
+        "properties": {
+          "request-id": {
+            "type": "string",
+            "description": "Request ID from headers",
+            "example": "req-123"
+          },
+          "x-gw-ims-org-id": {
+            "type": "string",
+            "description": "Organization ID from headers",
+            "example": "org-456"
+          },
+          "errors": {
+            "description": "Validation errors (only present for validation failures)",
+            "example": [
+              "email must be a valid email address",
+              "password must be at least 8 characters"
+            ],
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "ErrorResponseDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Error type based on HTTP status or validation error",
+            "example": "BadRequest"
+          },
+          "status": {
+            "type": "number",
+            "description": "HTTP status code",
+            "example": 400,
+            "minimum": 400,
+            "maximum": 599
+          },
+          "title": {
+            "type": "string",
+            "description": "Human-readable error message",
+            "examples": {
+              "badRequest": {
+                "value": "Invalid request"
+              },
+              "unauthorized": {
+                "value": "Authentication required"
+              },
+              "forbidden": {
+                "value": "Access denied"
+              },
+              "notFound": {
+                "value": "Resource not found"
+              },
+              "serverError": {
+                "value": "Server error"
+              },
+              "validationError": {
+                "value": "Validation failed"
+              }
+            }
+          },
+          "report": {
+            "description": "Error report with request tracking and additional details",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ErrorReportDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "type",
+          "status",
+          "title",
+          "report"
+        ]
+      },
+      "ActivityLogDto": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "description": "Timestamp when the activity occurred (UTC)",
+            "example": "2025-12-09T11:39:34.834Z",
+            "format": "date-time"
+          },
+          "userId": {
+            "type": "number",
+            "description": "User ID who triggered the activity",
+            "example": 2555
+          },
+          "userName": {
+            "type": "string",
+            "description": "User display name",
+            "example": "John Snow"
+          },
+          "messageId": {
+            "type": "string",
+            "description": "Unique message identifier",
+            "example": "5833b3d8-1215-4dc0-aa51-423a1993f7d1"
+          },
+          "teamId": {
+            "type": "number",
+            "description": "Team ID associated with the activity",
+            "example": 34
+          },
+          "entityId": {
+            "type": "number",
+            "description": "Entity ID related to the activity",
+            "example": 38641
+          },
+          "teamName": {
+            "type": "string",
+            "description": "Team name",
+            "example": "My Team"
+          },
+          "orgId": {
+            "type": "number",
+            "description": "Organization ID",
+            "example": 2245
+          },
+          "entity": {
+            "type": "string",
+            "description": "Entity type that was affected",
+            "enum": [
+              "team",
+              "scenario",
+              "webhook",
+              "connection",
+              "data structure",
+              "data store",
+              "organization",
+              "folder",
+              "user",
+              "key",
+              "keys"
+            ],
+            "example": "scenario"
+          },
+          "action": {
+            "type": "string",
+            "description": "Action performed on the entity",
+            "enum": [
+              "created",
+              "deleted",
+              "renamed",
+              "disabled",
+              "enabled",
+              "deactivated",
+              "reauthorized",
+              "activated",
+              "updated",
+              "moved",
+              "cloned",
+              "invited",
+              "transferred ownership",
+              "changed organization role",
+              "changed team role"
+            ],
+            "example": "updated"
+          },
+          "message": {
+            "type": "string",
+            "description": "Human-readable activity message",
+            "example": "John Snow updated \"Update Project tasks (Data Store Project)\" scenario"
+          }
+        },
+        "required": [
+          "timestamp",
+          "userId",
+          "userName",
+          "messageId",
+          "teamName",
+          "orgId",
+          "entity",
+          "action",
+          "message"
+        ]
+      },
+      "Page": {
+        "type": "object",
+        "properties": {
+          "orderby": {
+            "type": "string",
+            "description": "Comma-separated list of sort properties",
+            "example": "-timestamp"
+          },
+          "start": {
+            "type": "object",
+            "description": "First sort value on this page",
+            "example": "2025-12-09T11:39:34.834Z",
+            "nullable": true
+          },
+          "next": {
+            "type": "object",
+            "description": "Start value for the next page",
+            "example": "2025-12-09T10:12:01.000Z",
+            "nullable": true
+          },
+          "property": {
+            "type": "object",
+            "description": "Applied property filters",
+            "example": [
+              "entity==scenario"
+            ]
+          },
+          "count": {
+            "type": "number",
+            "description": "Number of items in this page",
+            "example": 50
+          }
+        },
+        "required": [
+          "orderby",
+          "start",
+          "next",
+          "count"
+        ]
+      },
+      "Link": {
+        "type": "object",
+        "properties": {
+          "href": {
+            "type": "string",
+            "description": "URL"
+          }
+        },
+        "required": [
+          "href"
+        ]
+      },
+      "Links": {
+        "type": "object",
+        "properties": {
+          "next": {
+            "description": "Link to the next page",
+            "example": "/api/v3/activity-logs/2245?orderby=-timestamp&start=2025-12-09T10%3A43%3A58.530Z&limit=2&property=entity==scenario",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Link"
+              }
+            ]
+          },
+          "page": {
+            "description": "Templated paging link",
+            "example": "/api/v3/activity-logs/2245{?orderby,limit,start,property}",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Link"
+              }
+            ]
+          }
+        },
+        "required": [
+          "page"
+        ]
+      },
+      "ActivityLogsResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "description": "Activity log entries for the current page",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ActivityLogDto"
+            }
+          },
+          "_page": {
+            "description": "Paging metadata",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Page"
+              }
+            ]
+          },
+          "_links": {
+            "description": "Navigation links",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Links"
+              }
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "_page",
+          "_links"
+        ]
+      }
+    }
+  }
+}
