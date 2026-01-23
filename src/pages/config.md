@@ -10,11 +10,10 @@
 
 - subPages:
     - [Authentication](getting-started/index.md) 
-        - [Create Credentials](getting-started/dummy_oauth_client/index.md)
-        - [Technical account in Fusion](getting-started/dummy_oauth_client/index.md)
-        - [Fusion API domain](getting-started/dummy_using_postman/index.md) 
-    - [Technical Usage Notes](getting-started/dummy_metrics_api/index.md) 
-    - [Help](getting-started/index.md) 
-        - [Troubleshooting](getting-started/index.md) 
+        - [Create Credentials](getting-started/credentials/index.md)
+        - [Technical account in Fusion](getting-started/technical_accounts/index.md)
+        - [Fusion API domain](getting-started/api_domain/index.md) 
+    - [Technical Usage Notes](getting-started/usage_notes/index.md) 
+    - [Help](getting-started/index.md)
         - [FAQ](getting-started/index.md) 
         - [How to provide feedback](getting-started/index.md)

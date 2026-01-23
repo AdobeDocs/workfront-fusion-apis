@@ -17,7 +17,7 @@ keywords:
   - Fusion API
   - Workfront Automation
 contributors:
-  - 'https://github.com/bishoysefin'
+  - 'https://github.com/annieTechno'
 hideBreadcrumbNav: true
 og:
   title: Authentication
@@ -61,7 +61,7 @@ curl --location 'https://ims-na1.adobelogin.com/ims/token/v3' \
 --data-urlencode 'grant_type=client_credentials' \
 --data-urlencode "client_id=$FUSION_CLIENT_ID" \
 --data-urlencode "client_secret=$FUSION_CLIENT_SECRET" \
---data-urlencode 'scope=openid,AdobeID,session,additional_info,read_organizations,workfront_fusion_api'
+--data-urlencode 'scope=openid,AdobeID,profile,additional_info.projectedProductContext'
 ```
 
 The response will look like this:
