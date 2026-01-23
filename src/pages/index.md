@@ -10,8 +10,9 @@ contributors:
     - 'https://github.com/annieTechno'
 hideBreadcrumbNav: true
 ---
+<Hero slots="image, heading, text" background="rgb(64, 34, 138)"/>
 
-<HeroSimple slots="heading, text"/>
+![Hero image](./image.png)
 
 # Workfront Fusion API
 
