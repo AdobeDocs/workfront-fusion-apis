@@ -7,8 +7,8 @@
     "url": "https://github.com/AdobeDocs/workfront-fusion-apis"
   },
   "author": {
-    "name": "Stephan Ringel",
-    "url": "https://github.com/icaraps"
+    "name": "Ani Mheryan",
+    "url": "https://github.com/annieTechno"
   },
   "scripts": {
     "dev": "node ./dev.mjs",

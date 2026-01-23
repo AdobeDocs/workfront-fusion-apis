@@ -28,7 +28,7 @@ twitter:
   description: Learn how to authenticate requests to Workfront Fusion APIs
 ---
 
-# Getting Started   
+# Authentication
 
 Learn how to authenticate requests to Workfront Fusion APIs
 
