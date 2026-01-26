@@ -150,13 +150,10 @@
         },
         "security": [
           {
-            "API Key": []
-          },
-          {
-            "IMS Org ID": []
-          },
-          {
-            "Authorization": []
+            "Authorization": [],
+            "API Key": [],
+            "IMS Org ID": [],
+            "Region": []
           }
         ],
         "summary": "Get activity logs",
@@ -291,13 +288,10 @@
         },
         "security": [
           {
-            "API Key": []
-          },
-          {
-            "IMS Org ID": []
-          },
-          {
-            "Authorization": []
+            "Authorization": [],
+            "API Key": [],
+            "IMS Org ID": [],
+            "Region": []
           }
         ],
         "summary": "Export activity logs",
@@ -335,19 +329,25 @@
         "scheme": "bearer",
         "bearerFormat": "JWT",
         "type": "http",
-        "description": "Required. The IMS token for the user. Bearer prefix is automatically added."
+        "description": "Required. IMS access token for authenticating the user or technical account making the request. Must be a valid access token with appropriate Fusion permissions. The Bearer prefix is automatically added. See the Authentication guide for instructions on obtaining access tokens."
       },
       "IMS Org ID": {
         "type": "apiKey",
         "in": "header",
         "name": "x-gw-ims-org-id",
-        "description": "Required. IMS Organization ID"
+        "description": "Required. Your IMS Organization ID. This validates that the Fusion product is provisioned for your organization and that the user or technical account has appropriate access. Find this in Developer Console > Your Project > Credentials > Organization ID."
       },
       "API Key": {
         "type": "apiKey",
         "in": "header",
         "name": "x-api-key",
-        "description": "IMS client ID"
+        "description": "Required. Your application's Client ID from Adobe Developer Console. This identifies your application and is the same value used for IMS authentication. Find this in Developer Console > Your Project > Credentials > Client ID."
+      },
+      "Region": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-gw-region",
+        "description": "Required. Routes requests to the correct Fusion regional instance. To find your region: (1) Log in to Fusion, (2) Click profile icon and visit Fusion Profile, (3) Locate the Adobe region identifier next to your username (e.g., 'or2'), (4) Use this value in the header."
       }
     },
     "schemas": {

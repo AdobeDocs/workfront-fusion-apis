@@ -10,8 +10,8 @@
 
 - subPages:
     - [Getting Started](getting-started/index.md)
+    - [API headers](getting-started/api_headers/index.md)
     - [Authentication](getting-started/authentication/index.md) 
         - [Create Credentials](getting-started/credentials/index.md)
         - [Technical Account in Fusion](getting-started/technical_accounts/index.md)
-    - [API headers](getting-started/api_headers/index.md) 
     - [Usage Notes](getting-started/usage_notes/index.md)
