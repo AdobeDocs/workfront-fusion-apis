@@ -7,8 +7,8 @@ By default, technical accounts created from server-to-server projects are added 
 When you create a project in Adobe Developer Console with server-to-server credentials, a Fusion user is automatically created behind the scenes. The technical account email is visible on the project's **Credentials** page in Adobe Developer Console inside **Technical Account Email** field.
 
 
-![technical user](./email.png)
-For example, here the techncial account user created in Fusion will have email 19647e9d-4209-4770-9550-834d1d52ed7d@techacct.adobe.com as in the screenshot.
+![technical user](../credentials.png)
+For example, here the technical account user created in Fusion will have email 19647e9d-4209-4770-9550-834d1d52ed7d@techacct.adobe.com as in the screenshot.
 
 ![technical user](./users.png)
 Here is the same user inside Fusion automatically created after project creation. 
