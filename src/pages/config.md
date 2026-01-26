@@ -15,4 +15,3 @@
         - [Technical Account in Fusion](getting-started/technical_accounts/index.md)
     - [API headers](getting-started/api_headers/index.md) 
     - [Usage Notes](getting-started/usage_notes/index.md)
-    - [FAQ](getting-started/help/index.md)
