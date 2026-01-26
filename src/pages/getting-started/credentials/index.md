@@ -46,7 +46,8 @@ Once you can see the Fusion API product card, click the __Create project__ butto
 
 1. Let's start by registering your project name. This will help you find your project in the Developer Console later. You will be able to modify this name later.
 2. Click on __Save configured API__ in the following modal. On the next screen, you will be able to see your __client ID__ (API key).
-3. From the left navigation, select __OAuth Server-to-Server__ and you can click __Retrieve client secret__ to get your client secret.
+3. If the IMS Org has multiple instances, then select the instance you want the API client to be associated with.
+4. From the left navigation, select __OAuth Server-to-Server__ and you can click __Retrieve client secret__ to get your client secret.
 
 __To make calls to the Fusion API, developer(s) need a valid client ID (API key) and an access token__. Since organization admins are the only ones who can access these projects in the Console, using the __Generate access token__ button on the credential overview page is not ideal.
 

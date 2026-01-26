@@ -1,83 +1,58 @@
 ---
-title: Authentication
-description: Learn how to authenticate requests to Workfront Fusion APIs
+title: Getting Started
+description: Learn what is Workfront Fusion APIs and how to use
 keywords:
-  - Workfront Fusion API Authentication
-  - Server-to-Server Authentication
-  - OAuth
-  - API Security
-  - Access Tokens
-  - Client ID
-  - Client Secret
-  - Identity Management
-  - Secure API Access
-  - Token-Based Authentication
-  - Generate Access Token
-  - Authentication Best Practices
-  - Fusion API
-  - Workfront Automation
+  - Workfront Fusion API
 contributors:
   - 'https://github.com/annieTechno'
 hideBreadcrumbNav: true
-og:
-  title: Authentication
-  description: Learn how to authenticate requests to Workfront Fusion APIs
-twitter:
-  card: summary
-  title: Authentication
-  description: Learn how to authenticate requests to Workfront Fusion APIs
 ---
 
 # Getting Started   
 
-Learn how to authenticate requests to Workfront Fusion APIs
+## Introducing the Workfront Fusion API
 
-## Overview
+The Workfront Fusion API marks an exciting milestone as **public API release** for programmatically managing and automating Fusion workflows. Built on **API version 3**, the Fusion API enables developers to integrate Fusion capabilities directly into their applications, automate scenario management, and build custom automation solutions.
 
-Every request made to Workfront Fusion APIs must include an encrypted access token. Your secure, server-side application retrieves an access token by making a request to the [Adobe Identity Management System (IMS)](https://www.adobe.com/content/dam/cc/en/trust-center/ungated/whitepapers/corporate/adobe-identity-management-services-security-overview.pdf) with your **Client ID** and **Client Secret**.
+## Experimental Phase
 
-## Prerequisites
+<InlineAlert variant="info" slots="text" />
 
-This tutorial assumes you have worked with your Adobe Representative and have the following:
+The Fusion API is currently in an **experimental phase** as we actively develop and refine the platform. This designation means that while the API is functional and ready for integration, endpoints, request/response structures, and features may evolve based on user feedback and technical requirements. We recommend staying updated with the latest documentation.
 
-* An [Adobe Developer Console](https://developer.adobe.com/) account.
-* A project with Workfront Fusion API [OAuth Server-to-Server credentials set up](https://developer.adobe.com/developer-console/docs/guides/services/services-add-api-oauth-s2s/). For more instructions on project creation, see [Create Credentials page](credentials/index.md)
-* Access to your Client ID and Client Secret from the [Adobe Developer Console project](https://developer.adobe.com/developer-console/docs/guides/services/services-add-api-oauth-s2s/#api-overview). Securely store these credentials and never expose them in client-side or public code.
+### Upcoming Features
 
-## Retrieve an access token
+The Fusion API roadmap includes expanded functionality for:
 
-First, open a secure terminal and `export` your **Client ID** and **Client Secret** as environment variables so that your later commands can access them:
+- **Operations Reporting**: Detailed insights into scenario operations and performance metrics
+- **Execution History**: Comprehensive access to scenario execution logs and historical data
+- Additional endpoints for advanced workflow management
 
-```bash
-export FUSION_CLIENT_ID=<your_client_id>
-export FUSION_CLIENT_SECRET=<your_client_secret>
-```
+### Share Your Feedback
 
-Next, run the following command to generate an access token:
+We value your input as we develop the Fusion API. If you encounter issues, have feature requests, or want to share your integration experience, please visit our [help page](./help/index.md) to provide feedback.
 
-```bash
-curl --location 'https://ims-na1.adobelogin.com/ims/token/v3' \
---header 'Content-Type: application/x-www-form-urlencoded' \
---data-urlencode 'grant_type=client_credentials' \
---data-urlencode "client_id=$FUSION_CLIENT_ID" \
---data-urlencode "client_secret=$FUSION_CLIENT_SECRET" \
---data-urlencode 'scope=openid,AdobeID,profile,additional_info.projectedProductContext'
-```
+## Getting Started with Integration
 
-The response will look like this:
+To begin integrating with the Workfront Fusion API, follow these steps:
 
-```json
-{"access_token":"yourExampleToken","token_type":"bearer","expires_in":86399}
-```
+1. **[Create Credentials](./credentials/index.md)** - Organization admins set up OAuth Server-to-Server authentication through the Adobe Developer Console
 
-Notice how the response includes an `expires_in` field, which informs you of how many more seconds the access token is valid for. Each access token is valid for 24 hours, after which your secure server-side application will need to request a new token. A best practice is securely store the token and refresh it before it expires.
+2. **[Authentication Guide](./authentication/index.md)** - Learn how to generate and use access tokens to securely call the Fusion API
 
-Export your access token as an environment variable:
+3. **[API Headers](./api_headers/index.md)** - Understand the required headers for properly formatting your API requests
 
-```bash
-export FUSION_ACCESS_TOKEN=yourExampleToken
-```
+4. **[Technical Accounts](./technical_accounts/index.md)** - Configure permissions for technical accounts to control access
 
-Ready to put your API authentication to use? Continue to the [API Reference][1] to explore available endpoints.
+5. **[Usage Notes](./usage_notes/index.md)** - Review API usage guidelines and best practices
 
-[1]: ../api/index.md
+## Next Steps
+
+Once you've completed the setup process, you'll be ready to:
+
+- Explore available endpoints in the [API Reference](../api/index.md)
+- Build automations to manage scenarios programmatically
+- Integrate Fusion capabilities into your applications
+- Create custom tooling for your Fusion workflows
+
+Let's get started building with the Workfront Fusion API!
