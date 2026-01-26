@@ -28,10 +28,6 @@ The Fusion API roadmap includes expanded functionality for:
 - **Execution History**: Comprehensive access to scenario execution logs and historical data
 - Additional endpoints for advanced workflow management
 
-### Share Your Feedback
-
-We value your input as we develop the Fusion API. If you encounter issues, have feature requests, or want to share your integration experience, please visit our [help page](./help/index.md) to provide feedback.
-
 ## Getting Started with Integration
 
 To begin integrating with the Workfront Fusion API, follow these steps:
