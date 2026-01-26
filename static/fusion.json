@@ -3,7 +3,7 @@
   "paths": {
     "/api/v3/activity-logs/{orgId}": {
       "get": {
-        "description": "Returns a paged list of activity logs using cursor-based paging and property filters.",
+        "description": "Returns a paged list of activity logs using cursor-based paging and property filters.\n\n**Common Use Cases:**\n- Audit user actions across your organization\n- Monitor scenario changes and deployments\n- Track team membership changes\n- Generate compliance reports\n\n**Pagination:** Use the `next` value from `_page` as the `start` parameter for subsequent requests to iterate through all results.",
         "operationId": "ActivityLogsV3Controller_getActivityLogs",
         "parameters": [
           {
@@ -19,11 +19,25 @@
             "name": "property",
             "required": false,
             "in": "query",
-            "description": "\n                Property filters. Can be repeated and are AND-ed together.\n                \n                Allowed fields:\n                - timestamp\n                - entity\n                - entityId\n                - action\n                - teamId\n                - teamName\n                - userId\n                - userName\n                - messageId\n                - message\n                \n                Supported operators:\n                - ==  (equals)\n                - !=  (not equals)\n                - >   (greater than)\n                - >=  (greater than or equal)\n                - <   (less than)\n                - <=  (less than or equal)\n                - ~   (case-insensitive regex match)\n                \n                Special cases:\n                - field           → field exists\n                - !field          → field does not exist\n                ",
+            "description": "Property filters for refining results. Multiple filters can be specified and are AND-ed together.\n\n**Example Usage:**\n- Single filter: `property=entity==scenario`\n- Multiple filters: `property=entity==scenario&property=action==created`\n\n**Allowed Fields:**\n`timestamp`, `entity`, `entityId`, `action`, `teamId`, `teamName`, `userId`, `userName`, `messageId`, `message`\n\n**Operators:**\n- `==` equals\n- `!=` not equals\n- `>` greater than\n- `>=` greater than or equal to\n- `<` less than\n- `<=` less than or equal to\n- `~` case-insensitive regex match\n\n**Field Existence:**\n- `field` - field exists\n- `!field` - field does not exist",
             "schema": {
               "type": "array",
               "items": {
                 "type": "string"
+              }
+            },
+            "examples": {
+              "entityFilter": {
+                "summary": "Filter by entity type",
+                "value": ["entity==scenario"]
+              },
+              "dateRange": {
+                "summary": "Filter by date range",
+                "value": ["timestamp>=2025-01-01T00:00:00Z", "timestamp<=2025-01-31T23:59:59Z"]
+              },
+              "multipleFilters": {
+                "summary": "Multiple conditions",
+                "value": ["entity==scenario", "action==created", "userName~John"]
               }
             }
           },
@@ -62,29 +76,91 @@
         ],
         "responses": {
           "200": {
-            "description": "Paged activity logs",
+            "description": "Successfully retrieved paged activity logs",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ActivityLogsResponseDto"
+                },
+                "example": {
+                  "items": [
+                    {
+                      "timestamp": "2025-12-09T11:39:34.834Z",
+                      "userId": 2555,
+                      "userName": "John Snow",
+                      "messageId": "5833b3d8-1215-4dc0-aa51-423a1993f7d1",
+                      "teamId": 34,
+                      "entityId": 38641,
+                      "teamName": "My Team",
+                      "orgId": 2245,
+                      "entity": "scenario",
+                      "action": "updated",
+                      "message": "John Snow updated \"Update Project tasks (Data Store Project)\" scenario"
+                    },
+                    {
+                      "timestamp": "2025-12-09T10:12:01.000Z",
+                      "userId": 2556,
+                      "userName": "Jane Doe",
+                      "messageId": "7a44c5e9-3426-5ed1-bb62-534b2aa4g8f2",
+                      "teamId": 34,
+                      "entityId": 38642,
+                      "teamName": "My Team",
+                      "orgId": 2245,
+                      "entity": "scenario",
+                      "action": "created",
+                      "message": "Jane Doe created \"New Integration\" scenario"
+                    }
+                  ],
+                  "_page": {
+                    "orderby": "-timestamp",
+                    "start": "2025-12-09T11:39:34.834Z",
+                    "next": "2025-12-09T09:45:22.100Z",
+                    "property": ["entity==scenario"],
+                    "count": 2
+                  },
+                  "_links": {
+                    "next": {
+                      "href": "/api/v3/activity-logs/2245?orderby=-timestamp&start=2025-12-09T09:45:22.100Z&limit=50&property=entity==scenario"
+                    },
+                    "page": {
+                      "href": "/api/v3/activity-logs/2245{?orderby,limit,start,property}"
+                    }
+                  }
                 }
               }
             }
           },
           "400": {
-            "description": "Bad request",
+            "description": "Bad request - Invalid parameters or filters",
             "content": {
               "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponseDto"
                 },
-                "example": {
-                  "type": "BadRequest",
-                  "status": 400,
-                  "title": "Paging parameters require orderby to be specified",
-                  "report": {
-                    "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                "examples": {
+                  "missingOrderby": {
+                    "summary": "Missing orderby with pagination",
+                    "value": {
+                      "type": "BadRequest",
+                      "status": 400,
+                      "title": "Paging parameters require orderby to be specified",
+                      "report": {
+                        "request-id": "abc-123-def-456",
+                        "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                      }
+                    }
+                  },
+                  "invalidProperty": {
+                    "summary": "Invalid property filter syntax",
+                    "value": {
+                      "type": "BadRequest",
+                      "status": 400,
+                      "title": "Invalid property filter: unknown field 'invalidField'",
+                      "report": {
+                        "request-id": "abc-123-def-456",
+                        "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                      }
+                    }
                   }
                 }
               }
@@ -159,12 +235,19 @@
         "summary": "Get activity logs",
         "tags": [
           "Activity Logs"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "curl",
+            "label": "cURL",
+            "source": "curl -X GET 'https://fusion.adobe.io/api/v3/activity-logs/2245?limit=50&orderby=-timestamp&property=entity==scenario' \\\n  -H 'Authorization: Bearer YOUR_ACCESS_TOKEN' \\\n  -H 'x-api-key: YOUR_CLIENT_ID' \\\n  -H 'x-gw-ims-org-id: YOUR_ORG_ID@AdobeOrg' \\\n  -H 'x-gw-region: YOUR_REGION'"
+          }
         ]
       }
     },
     "/api/v3/activity-logs/{orgId}/export": {
       "get": {
-        "description": "Exports activity logs as CSV or XLSX based on the Accept header.",
+        "description": "Exports activity logs as CSV or XLSX based on the Accept header. Use this endpoint to download activity logs for offline analysis, compliance reporting, or integration with external tools.\n\n**Export Formats:**\n- CSV: Set `Accept: text/csv` (default)\n- Excel: Set `Accept: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`\n\n**Note:** Large exports may take several seconds to generate.",
         "operationId": "ActivityLogsV3Controller_exportActivityLogs",
         "parameters": [
           {
@@ -180,20 +263,46 @@
             "name": "accept",
             "required": false,
             "in": "header",
-            "description": "Response media type. Supported values: text/csv (default) or application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "description": "Response media type for the exported file.\n\n**Supported values:**\n- `text/csv` - Export as CSV (default)\n- `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet` - Export as Excel (.xlsx)",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "enum": ["text/csv", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"],
+              "default": "text/csv"
+            },
+            "examples": {
+              "csv": {
+                "summary": "Export as CSV",
+                "value": "text/csv"
+              },
+              "excel": {
+                "summary": "Export as Excel",
+                "value": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+              }
             }
           },
           {
             "name": "property",
             "required": false,
             "in": "query",
-            "description": "\n                Property filters. Can be repeated and are AND-ed together.\n                \n                Allowed fields:\n                - timestamp\n                - entity\n                - entityId\n                - action\n                - teamId\n                - teamName\n                - userId\n                - userName\n                - messageId\n                - message\n                \n                Supported operators:\n                - ==  (equals)\n                - !=  (not equals)\n                - >   (greater than)\n                - >=  (greater than or equal)\n                - <   (less than)\n                - <=  (less than or equal)\n                - ~   (case-insensitive regex match)\n                \n                Special cases:\n                - field           → field exists\n                - !field          → field does not exist\n                ",
+            "description": "Property filters for refining results. Multiple filters can be specified and are AND-ed together.\n\n**Example Usage:**\n- Single filter: `property=entity==scenario`\n- Multiple filters: `property=entity==scenario&property=action==created`\n\n**Allowed Fields:**\n`timestamp`, `entity`, `entityId`, `action`, `teamId`, `teamName`, `userId`, `userName`, `messageId`, `message`\n\n**Operators:**\n- `==` equals\n- `!=` not equals\n- `>` greater than\n- `>=` greater than or equal to\n- `<` less than\n- `<=` less than or equal to\n- `~` case-insensitive regex match\n\n**Field Existence:**\n- `field` - field exists\n- `!field` - field does not exist",
             "schema": {
               "type": "array",
               "items": {
                 "type": "string"
+              }
+            },
+            "examples": {
+              "entityFilter": {
+                "summary": "Filter by entity type",
+                "value": ["entity==scenario"]
+              },
+              "dateRange": {
+                "summary": "Filter by date range",
+                "value": ["timestamp>=2025-01-01T00:00:00Z", "timestamp<=2025-01-31T23:59:59Z"]
+              },
+              "multipleFilters": {
+                "summary": "Multiple conditions",
+                "value": ["entity==scenario", "action==created", "userName~John"]
               }
             }
           },
@@ -209,6 +318,25 @@
           }
         ],
         "responses": {
+          "200": {
+            "description": "Successfully exported activity logs",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                },
+                "example": "timestamp,userId,userName,teamId,teamName,entity,entityId,action,message\n2025-12-09T11:39:34.834Z,2555,John Snow,34,My Team,scenario,38641,updated,\"John Snow updated 'Update Project tasks' scenario\"\n2025-12-09T10:12:01.000Z,2556,Jane Doe,34,My Team,scenario,38642,created,\"Jane Doe created 'New Integration' scenario\""
+              },
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary",
+                  "description": "Excel file containing activity logs"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Authentication required",
             "content": {
@@ -297,15 +425,30 @@
         "summary": "Export activity logs",
         "tags": [
           "Activity Logs"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "curl",
+            "label": "cURL (CSV)",
+            "source": "curl -X GET 'https://fusion.adobe.io/api/v3/activity-logs/2245/export?orderby=-timestamp' \\\n  -H 'Authorization: Bearer YOUR_ACCESS_TOKEN' \\\n  -H 'x-api-key: YOUR_CLIENT_ID' \\\n  -H 'x-gw-ims-org-id: YOUR_ORG_ID@AdobeOrg' \\\n  -H 'x-gw-region: YOUR_REGION' \\\n  -H 'Accept: text/csv' \\\n  -o activity-logs.csv"
+          },
+          {
+            "lang": "curl",
+            "label": "cURL (Excel)",
+            "source": "curl -X GET 'https://fusion.adobe.io/api/v3/activity-logs/2245/export?orderby=-timestamp' \\\n  -H 'Authorization: Bearer YOUR_ACCESS_TOKEN' \\\n  -H 'x-api-key: YOUR_CLIENT_ID' \\\n  -H 'x-gw-ims-org-id: YOUR_ORG_ID@AdobeOrg' \\\n  -H 'x-gw-region: YOUR_REGION' \\\n  -H 'Accept: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' \\\n  -o activity-logs.xlsx"
+          }
         ]
       }
     }
   },
   "info": {
     "title": "Workfront Fusion API",
-    "description": "APIs for interacting with Fusion resources.",
+    "description": "REST APIs for managing and monitoring your Workfront Fusion resources. Use these APIs to programmatically access activity logs, scenarios, connections, and other Fusion components.\n\n**Base URL:** https://fusion.adobe.io\n\n**Getting Started:**\n1. Set up authentication in Adobe Developer Console\n2. Obtain required headers (Authorization, x-api-key, x-gw-ims-org-id, x-gw-region)\n3. Make your first API call\n\nFor detailed setup instructions, visit the Getting Started guide.",
     "version": "v3",
-    "contact": {}
+    "contact": {
+      "name": "Workfront Fusion Support",
+      "url": "https://experienceleague.adobe.com/en/docs/workfront-fusion"
+    }
   },
   "tags": [
     {
@@ -329,25 +472,25 @@
         "scheme": "bearer",
         "bearerFormat": "JWT",
         "type": "http",
-        "description": "Required. IMS access token for authenticating the user or technical account making the request. Must be a valid access token with appropriate Fusion permissions. The Bearer prefix is automatically added. See the Authentication guide for instructions on obtaining access tokens."
+        "description": "**Required.** IMS access token for authenticating the user or technical account making the request.\n\n**How to obtain:**\n1. Create a project in Adobe Developer Console\n2. Add Workfront Fusion API credentials\n3. Generate JWT or OAuth credentials\n4. Exchange for access token\n\n**Important Notes:**\n- Access tokens expire after 24 hours and must be refreshed\n- The Bearer prefix is automatically added\n- Token must have appropriate Fusion permissions\n\nSee the Authentication guide for detailed instructions on obtaining access tokens."
       },
       "IMS Org ID": {
         "type": "apiKey",
         "in": "header",
         "name": "x-gw-ims-org-id",
-        "description": "Required. Your IMS Organization ID. This validates that the Fusion product is provisioned for your organization and that the user or technical account has appropriate access. Find this in Developer Console > Your Project > Credentials > Organization ID."
+        "description": "**Required.** Your IMS Organization ID. This validates that the Fusion product is provisioned for your organization and that the user or technical account has appropriate access.\n\n**How to find:**\n1. Go to Adobe Developer Console\n2. Navigate to Your Project > Credentials\n3. Copy the Organization ID (format: `1234567890ABCDEF@AdobeOrg`)\n\n**Example:** `1234567890ABCDEF@AdobeOrg`"
       },
       "API Key": {
         "type": "apiKey",
         "in": "header",
         "name": "x-api-key",
-        "description": "Required. Your application's Client ID from Adobe Developer Console. This identifies your application and is the same value used for IMS authentication. Find this in Developer Console > Your Project > Credentials > Client ID."
+        "description": "**Required.** Your application's Client ID from Adobe Developer Console. This identifies your application and is the same value used for IMS authentication.\n\n**How to find:**\n1. Go to Adobe Developer Console\n2. Navigate to Your Project > Credentials\n3. Copy the Client ID\n\n**Note:** This is the same as your OAuth Client ID or Service Account Client ID."
       },
       "Region": {
         "type": "apiKey",
         "in": "header",
         "name": "x-gw-region",
-        "description": "Required. Routes requests to the correct Fusion regional instance. To find your region: (1) Log in to Fusion, (2) Click profile icon and visit Fusion Profile, (3) Locate the Adobe region identifier next to your username (e.g., 'or2'), (4) Use this value in the header."
+        "description": "**Required.** Routes requests to the correct Fusion regional instance.\n\n**How to find your region:**\n1. Log in to Fusion at https://fusion.adobe.com\n2. Click your profile icon in the top right\n3. Select 'Fusion Profile'\n4. Locate the Adobe region identifier next to your username (e.g., `or2`, `eu1`, `apac1`)\n5. Use this exact value in the header\n\n**Common regions:** `or2` (US Oregon), `eu1` (Europe), `apac1` (Asia-Pacific)\n\n**Example:** `or2`"
       }
     },
     "schemas": {
@@ -434,10 +577,11 @@
       },
       "ActivityLogDto": {
         "type": "object",
+        "description": "Represents a single activity event in your Fusion organization. Each log entry captures who performed what action on which entity at a specific time.",
         "properties": {
           "timestamp": {
             "type": "string",
-            "description": "Timestamp when the activity occurred (UTC)",
+            "description": "UTC timestamp when the activity occurred. Use this field for time-based filtering and sorting.",
             "example": "2025-12-09T11:39:34.834Z",
             "format": "date-time"
           },
@@ -453,7 +597,7 @@
           },
           "messageId": {
             "type": "string",
-            "description": "Unique message identifier",
+            "description": "Unique identifier for this activity log entry (UUID format). Use for deduplication and tracking.",
             "example": "5833b3d8-1215-4dc0-aa51-423a1993f7d1"
           },
           "teamId": {
@@ -463,7 +607,7 @@
           },
           "entityId": {
             "type": "number",
-            "description": "Entity ID related to the activity",
+            "description": "Unique identifier of the specific entity that was affected (e.g., scenario ID, connection ID)",
             "example": 38641
           },
           "teamName": {
@@ -536,6 +680,7 @@
       },
       "Page": {
         "type": "object",
+        "description": "Pagination metadata for cursor-based paging. Use the `next` value as the `start` parameter in your next request to retrieve the following page.",
         "properties": {
           "orderby": {
             "type": "string",
@@ -550,7 +695,7 @@
           },
           "next": {
             "type": "object",
-            "description": "Start value for the next page",
+            "description": "Cursor value to use as the `start` parameter for the next page. If null, you've reached the last page.",
             "example": "2025-12-09T10:12:01.000Z",
             "nullable": true
           },
@@ -614,6 +759,7 @@
       },
       "ActivityLogsResponseDto": {
         "type": "object",
+        "description": "Response containing a page of activity logs with navigation links and metadata for cursor-based pagination.",
         "properties": {
           "items": {
             "description": "Activity log entries for the current page",
