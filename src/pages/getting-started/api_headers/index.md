@@ -1,4 +1,4 @@
-# API Request Headers
+# API Headers
 
 All API requests must be sent to `fusion.adobe.io` with the required headers described below. These headers are used for request validation, authentication, and routing to the correct Fusion instance.
 
