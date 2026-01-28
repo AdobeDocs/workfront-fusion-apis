@@ -12,13 +12,13 @@ hideBreadcrumbNav: true
 
 ## Introducing the Workfront Fusion API
 
-The **public API release** for the Workfront Fusion API marks an exciting milestone for programmatically managing and automating Fusion workflows. Built on **API version 3**, the Fusion API enables developers to integrate Fusion capabilities directly into their applications, automate scenario management, and build custom automation solutions.
+The **public API release** for the Workfront Fusion API marks an exciting milestone for programmatically managing and automating Fusion workflows. Built on **API version 3**, the Fusion API will enable developers to integrate Fusion capabilities directly into their applications, automate scenario management, and build custom automation solutions.
 
 ## Experimental Phase
 
 <InlineAlert variant="info" slots="text" />
 
-The Fusion API is currently in an **experimental phase** as we actively develop and refine the platform. This designation means that while the API is functional and ready for integration, endpoints, request/response structures, and features may evolve based on user feedback and technical requirements. We recommend staying updated with the latest documentation.
+The Fusion API is currently in an **experimental phase** as we actively develop and refine the capabilities. This designation means that while the API is functional and ready for integration, endpoints, request/response structures, and features may evolve based on user feedback and technical requirements. We recommend staying updated with the latest documentation.
 
 ### Upcoming Features
 

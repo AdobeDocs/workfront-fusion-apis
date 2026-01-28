@@ -1,6 +1,6 @@
 ---
-title: Overview - Adobe Firefly API
-description: An overview of the Adobe Firefly API
+title: Overview - Adobe Fusion API
+description: An overview of the Adobe Fusion API
 keywords:
     - Adobe Workfront Fusion
     - Fusion API
@@ -29,7 +29,7 @@ The Adobe Workfront Fusion APIs enable you to programmatically build, manage, an
 
 ## Overview
 
-The Adobe Workfront Fusion APIs allow you to programmatically interact with Fusion to build, manage, and operate automations at scale. Using these APIs, you can perform many of the same actions available in the Fusion user interface, including managing connections, hooks, scenarios, executions, logs, and other core automation resources.
+The Adobe Workfront Fusion APIs allow you to programmatically interact with Fusion to build, manage, and operate automations at scale. As capabilities are expanded, these APIs will enable many of the same actions available in the Fusion user interface, including managing connections, hooks, scenarios, executions, logs, and other core automation resources.
 
 The APIs are being released incrementally and are currently marked as experimental. This documentation covers the initial public release, with additional endpoints and capabilities planned for future releases. The Fusion team is actively developing and expanding the API surface, and updates will be published as new functionality becomes available.
 

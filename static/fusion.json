@@ -443,19 +443,15 @@
   },
   "info": {
     "title": "Workfront Fusion API",
-    "description": "REST APIs for managing and monitoring your Workfront Fusion resources. Use these APIs to programmatically access activity logs, scenarios, connections, and other Fusion components.\n\n**Base URL:** https://fusion.adobe.io\n\n**Getting Started:**\n1. Set up authentication in Adobe Developer Console\n2. Obtain required headers (Authorization, x-api-key, x-gw-ims-org-id, x-gw-region)\n3. Make your first API call\n\nFor detailed setup instructions, visit the Getting Started guide.",
-    "version": "v3",
-    "contact": {
-      "name": "Workfront Fusion Support",
-      "url": "https://experienceleague.adobe.com/en/docs/workfront-fusion"
-    }
+    "description": "REST APIs for managing and monitoring your Workfront Fusion resources. Use these APIs to programmatically access activity logs and other Fusion components coming soon.\n\n**Base URL:** https://fusion.adobe.io\n\n**Getting Started:**\n\n For detailed setup instructions, make sure to visit the [Getting Started guide](https://developer-stage.adobe.com/workfront-fusion-apis/getting-started/). \n1. Set up authentication in Adobe Developer Console, as documented [here](https://developer-stage.adobe.com/workfront-fusion-apis/getting-started/authentication/). \n2. Obtain required headers (Authorization, x-api-key, x-gw-ims-org-id, x-gw-region). More details [here](https://developer-stage.adobe.com/workfront-fusion-apis/getting-started/api_headers/). \n3. Update permissions for the technical account, as documented [here](https://developer-stage.adobe.com/workfront-fusion-apis/getting-started/technical_accounts/). \n4. Make your first API call.",
+    "version": "v3"
   },
   "tags": [
     {
       "name": "Activity Logs",
-      "description": "Endpoints for getting and exporting log of activities, such as creating a scenario or inviting a user, for your organization.",
+      "description": "Endpoints for getting and exporting log of activities, such as creating a scenario or inviting a user, for your organization. Please note, for accessing activity logs, user must be a Workfront Fusion administrator for the organization.",
       "externalDocs": {
-        "description": "Find out more",
+        "description": "Find out more in product documentation.",
         "url": "https://experienceleague.adobe.com/en/docs/workfront-fusion/using/set-up-and-manage-fusion/set-up-and-manage-orgs-and-teams/set-up-orgs-teams-and-users/view-activity-logs-for-an-org"
       }
     }
