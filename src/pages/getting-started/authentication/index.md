@@ -41,7 +41,7 @@ Every request made to Workfront Fusion APIs must include an encrypted access tok
 This tutorial assumes you have worked with your Adobe Representative and have the following:
 
 * An [Adobe Developer Console](https://developer.adobe.com/) account.
-* A project with Workfront Fusion API [OAuth Server-to-Server credentials set up](https://developer.adobe.com/developer-console/docs/guides/services/services-add-api-oauth-s2s/). For more instructions on project creation, see [Create Credentials page](credentials/index.md)
+* A project with Workfront Fusion API [OAuth Server-to-Server credentials set up](https://developer.adobe.com/developer-console/docs/guides/services/services-add-api-oauth-s2s/). For more instructions on project creation, see [Create Credentials page](credentials/index.md).
 * Access to your Client ID and Client Secret from the [Adobe Developer Console project](https://developer.adobe.com/developer-console/docs/guides/services/services-add-api-oauth-s2s/#api-overview). Securely store these credentials and never expose them in client-side or public code.
 
 ## Retrieve an access token
@@ -70,7 +70,7 @@ The response will look like this:
 {"access_token":"yourExampleToken","token_type":"bearer","expires_in":86399}
 ```
 
-Notice how the response includes an `expires_in` field, which informs you of how many more seconds the access token is valid for. Each access token is valid for 24 hours, after which your secure server-side application will need to request a new token. A best practice is securely store the token and refresh it before it expires.
+Notice how the response includes an `expires_in` field, which informs you of how many more seconds the access token is valid for. Each access token is valid for 24 hours, after which your secure server-side application will need to request a new token. A best practice is to securely store the token and refresh it before it expires.
 
 Export your access token as an environment variable:
 

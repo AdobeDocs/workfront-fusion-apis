@@ -12,7 +12,7 @@ hideBreadcrumbNav: true
 
 ## Introducing the Workfront Fusion API
 
-The Workfront Fusion API marks an exciting milestone as **public API release** for programmatically managing and automating Fusion workflows. Built on **API version 3**, the Fusion API enables developers to integrate Fusion capabilities directly into their applications, automate scenario management, and build custom automation solutions.
+The **public API release** for the Workfront Fusion API marks an exciting milestone for programmatically managing and automating Fusion workflows. Built on **API version 3**, the Fusion API enables developers to integrate Fusion capabilities directly into their applications, automate scenario management, and build custom automation solutions.
 
 ## Experimental Phase
 
@@ -32,7 +32,7 @@ The Fusion API roadmap includes expanded functionality for:
 
 To begin integrating with the Workfront Fusion API, follow these steps:
 
-1. **[Create Credentials](./credentials/index.md)** - Organization admins set up OAuth Server-to-Server authentication through the Adobe Developer Console
+1. **[Credentials](./credentials/index.md)** - Set up OAuth Server-to-Server authentication through the Adobe Developer Console
 
 2. **[Authentication Guide](./authentication/index.md)** - Learn how to generate and use access tokens to securely call the Fusion API
 
@@ -44,11 +44,6 @@ To begin integrating with the Workfront Fusion API, follow these steps:
 
 ## Next Steps
 
-Once you've completed the setup process, you'll be ready to:
-
-- Explore available endpoints in the [API Reference](../api/index.md)
-- Build automations to manage scenarios programmatically
-- Integrate Fusion capabilities into your applications
-- Create custom tooling for your Fusion workflows
+Once you've completed the setup process, you'll be ready to explore available endpoints in the [API Reference](../api/index.md). Additional capabilities for building automations, integrating Fusion into your applications, and creating custom tooling will become available as the API continues to evolve.
 
 Let's get started building with the Workfront Fusion API!

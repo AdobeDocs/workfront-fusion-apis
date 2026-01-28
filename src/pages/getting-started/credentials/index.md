@@ -30,24 +30,23 @@ twitter:
 
 <InlineAlert variant="info" slots="text" />
 
-This page contains instructions for **IMS organization admins  only** to create project credentials for their teams. If you are a developer and your admin has shared a valid key with you, head over to the [quickstart guide](../index.md)
+This page contains instructions for **IMS organization admins  only** to create project credentials for their teams. If you are a developer and your admin has shared a valid key with you, head over to the [quickstart guide](../index.md).
 
 ## Access Adobe Developer Console
 
-Navigate to the __API and services__ section. Search for __Workfront Fusion API__.
+Navigate to the __API and services__ section. Search for __"Adobe Fusion"__ API.
 
 ![API and services page - Fusion API card](./devconsole.png)
 
-Can't find the Workfront Fusion API? Make sure you are accessing from the organization that has Fusion product license. 
+Can't find the Adobe Fusion? Make sure you are accessing the Developer Console from the organization that has a Workfront Fusion product license. 
 
 ## Create a new project
 
-Once you can see the Fusion API product card, click the __Create project__ button.
-
-1. Let's start by registering your project name. This will help you find your project in the Developer Console later. You will be able to modify this name later.
-2. Click on __Save configured API__ in the following modal. On the next screen, you will be able to see your __client ID__ (API key).
-3. If the IMS Org has multiple instances, then select the instance you want the API client to be associated with.
-4. From the left navigation, select __OAuth Server-to-Server__ and you can click __Retrieve client secret__ to get your client secret.
+1. On the Fusion API product card, click Create project.
+2. On the modal that opens, click Save configured API.
+3. On the next screen you can see your client ID (API key).
+4. If the IMS org has multiple instances, select the instance that you want the API client to be associated with.
+5. To get your client secret, select **OAuth Server-to-Server** in the left navigation, then click **Retrieve client secret**.
 
 __To make calls to the Fusion API, developer(s) need a valid client ID (API key) and an access token__. Since organization admins are the only ones who can access these projects in the Console, using the __Generate access token__ button on the credential overview page is not ideal.
 
@@ -79,4 +78,4 @@ Once your developers have their credentials, they can:
 - Build automations using the Fusion API to manage scenarios, connections, hooks, and executions
 
 <InlineAlert variant="info" slots="text" />
-To manage technical account permissions and assign them to specific Fusion teams, refer to the [Technical Accounts￼ guide](../technical_accounts/index.md).
+To manage technical account permissions and assign them to specific Fusion teams, refer to the [Technical Accounts guide](../technical_accounts/index.md).

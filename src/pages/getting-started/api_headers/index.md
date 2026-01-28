@@ -10,12 +10,12 @@ All API requests must be sent to `fusion.adobe.io` with the required headers des
 
 **Description:** The Fusion platform requires requests to be directed to the appropriate regional instance. To find your organization's region identifier:
 
-1. Log in to Fusion as any user
-2. Click on your profile icon in right corner, then visit Fusion Profile
-3. Locate the **Adobe region** identifier next to your username (e.g., `or2`)
-4. Use this value in the `x-gw-region` header
+1. Log in to Fusion as any user.
+2. Click on your profile icon in right corner, then visit Fusion Profile.
+3. Locate the **Adobe region** identifier next to your username (e.g., `or2`).
+4. Use this value in the `x-gw-region` header.
 ![Example of profile with a region](./region.png)
-**Example:** If your region identifier is `or2`, set the header value as `or2`
+**Example:** If your region identifier is `or2`, set the header value as `or2`.
 This header is required for proper request routing.
 
 ### x-api-key

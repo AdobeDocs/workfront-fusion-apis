@@ -1,6 +1,6 @@
 # Usage notes
 
-Common patterns used across all Workfront Fusion API endpoints. For more details view API reference for specific resources.
+These common patterns are used across all Workfront Fusion API endpoints. For more information, see the API reference for specific resources
 
 ## Error Structure
 
@@ -13,7 +13,7 @@ All API errors follow RFC 7807 Problem Details format with `application/problem+
 | `type` | string | Error type (e.g., "BadRequest", "Unauthorized", "Forbidden") |
 | `status` | number | HTTP status code (400-599) |
 | `title` | string | Human-readable error message |
-| `report` | object | Contains `request-id`, `x-gw-ims-org-id`, and optional `errors` array |
+| `report` | object | Contains `request-id`, `x-gw-ims-org-id`, and optional `errors` array. May also include additional error-specific fields.
 
 **Example:**
 
@@ -91,12 +91,12 @@ Cursor-based pagination with items, metadata, and navigation links.
 
 **Pagination Flow:**
 
-1. Make initial request: `GET /api/v3/resource?orderby=-createdAt&limit=50`
-2. Check if `_links.next` exists for more pages
-3. Use `_page.next` value or `_links.next.href` for next request
-4. When `_page.next` is `null`, you've reached the last page
+1. Make initial request: `GET /api/v3/resource?orderby=-createdAt&limit=50`.
+2. Check if `_links.next` exists for more pages.
+3. Use `_page.next` value or `_links.next.href` for next request.
+4. When `_page.next` is `null`, you've reached the last page.
 
 **Notes:**
-- `start` parameter type must match the `orderby` field type
-- Timestamps must be ISO 8601 format (UTC)
-- `orderby` is required when using `start` or `limit`
+- `start` parameter type must match the `orderby` field type.
+- Timestamps must be ISO 8601 format (UTC).
+- `orderby` is required when using `start` or `limit`.

@@ -46,7 +46,7 @@ For APIs that manage Workfront work management objects (projects, tasks, and iss
 
 <DiscoverBlock slots="link, text"/>
 
-[Quickstart Guide](getting-started/)
+[Quickstart Guide](getting-started/index.md)
 
 A quickstart guide to making your first successful Workfront Fusion API call.
 
