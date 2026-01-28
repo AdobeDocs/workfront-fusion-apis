@@ -468,25 +468,25 @@
         "scheme": "bearer",
         "bearerFormat": "JWT",
         "type": "http",
-        "description": "**Required.** IMS access token for authenticating the user or technical account making the request.\n\n**How to obtain:**\n1. Create a project in Adobe Developer Console\n2. Add Workfront Fusion API credentials\n3. Generate JWT or OAuth credentials\n4. Exchange for access token\n\n**Important Notes:**\n- Access tokens expire after 24 hours and must be refreshed\n- The Bearer prefix is automatically added\n- Token must have appropriate Fusion permissions\n\nSee the Authentication guide for detailed instructions on obtaining access tokens."
+        "description": "**Required.** IMS access token for authenticating the user or technical account making the request.\n\nSee the [Authentication guide](https://developer-stage.adobe.com/workfront-fusion-apis/getting-started/authentication/) for detailed instructions on obtaining access tokens.\n\n[API Headers Documentation](https://developer-stage.adobe.com/workfront-fusion-apis/getting-started/api_headers/)"
       },
       "IMS Org ID": {
         "type": "apiKey",
         "in": "header",
         "name": "x-gw-ims-org-id",
-        "description": "**Required.** Your IMS Organization ID. This validates that the Fusion product is provisioned for your organization and that the user or technical account has appropriate access.\n\n**How to find:**\n1. Go to Adobe Developer Console\n2. Navigate to Your Project > Credentials\n3. Copy the Organization ID (format: `1234567890ABCDEF@AdobeOrg`)\n\n**Example:** `1234567890ABCDEF@AdobeOrg`"
+        "description": "**Required.** Your IMS Organization ID. This validates that the Fusion product is provisioned for your organization and that the user or technical account has appropriate access.\n\n**Example:** `1234567890ABCDEF@AdobeOrg`\n\n[API Headers Documentation](https://developer-stage.adobe.com/workfront-fusion-apis/getting-started/api_headers/)"
       },
       "API Key": {
         "type": "apiKey",
         "in": "header",
         "name": "x-api-key",
-        "description": "**Required.** Your application's Client ID from Adobe Developer Console. This identifies your application and is the same value used for IMS authentication.\n\n**How to find:**\n1. Go to Adobe Developer Console\n2. Navigate to Your Project > Credentials\n3. Copy the Client ID\n\n**Note:** This is the same as your OAuth Client ID or Service Account Client ID."
+        "description": "**Required.** Your application's Client ID from Adobe Developer Console. This identifies your application and is the same value used for IMS authentication.\n\n[API Headers Documentation](https://developer-stage.adobe.com/workfront-fusion-apis/getting-started/api_headers/)"
       },
       "Region": {
         "type": "apiKey",
         "in": "header",
         "name": "x-gw-region",
-        "description": "**Required.** Routes requests to the correct Fusion regional instance.\n\n**How to find your region:**\n1. Log in to Fusion at https://fusion.adobe.com\n2. Click your profile icon in the top right\n3. Select 'Fusion Profile'\n4. Locate the Adobe region identifier next to your username (e.g., `or2`, `eu1`, `apac1`)\n5. Use this exact value in the header\n\n**Common regions:** `or2` (US Oregon), `eu1` (Europe), `apac1` (Asia-Pacific)\n\n**Example:** `or2`"
+        "description": "**Required.** Routes requests to the correct Fusion regional instance.\n\n**Example:** `or2`\n\n[API Headers Documentation](https://developer-stage.adobe.com/workfront-fusion-apis/getting-started/api_headers/)"
       }
     },
     "schemas": {
