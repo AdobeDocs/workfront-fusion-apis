@@ -1,6 +1,193 @@
 {
   "openapi": "3.0.0",
   "paths": {
+    "/api/v3/operations": {
+      "get": {
+        "description": "Retrieves operation counts for an organization, optionally filtered by team and/or scenario, with optional grouping by time period. Results are sorted by timestamp in descending order (newest first).",
+        "operationId": "OperationsV3Controller_getOperations",
+        "parameters": [
+          {
+            "name": "groupBy",
+            "required": false,
+            "in": "query",
+            "description": "Group results by time period (optional)",
+            "schema": {
+              "enum": [
+                "module",
+                "package",
+                "scenario",
+                "team"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": true,
+            "in": "query",
+            "description": "End date in ISO format (e.g., 2025-02-01T12:00:00.000Z). Date range cannot exceed 1 year.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "required": true,
+            "in": "query",
+            "description": "Start date in ISO format (e.g., 2025-01-01T12:00:00.000Z). Date range cannot exceed 1 year.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "package",
+            "required": false,
+            "in": "query",
+            "description": "Package name (optional, requires scenarioId)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "scenarioId",
+            "required": false,
+            "in": "query",
+            "description": "Scenario ID (optional, requires teamId)",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "teamId",
+            "required": false,
+            "in": "query",
+            "description": "Team ID (optional)",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "organizationId",
+            "required": true,
+            "in": "query",
+            "description": "Organization ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved operations count",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationsResponseV3Dto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "API Key": [],
+            "IMS Org ID": [],
+            "Region": []
+          }
+        ],
+        "summary": "Get operations count",
+        "tags": [
+          "Operations"
+        ]
+      }
+    },
+    "/api/v3/operations/summary": {
+      "get": {
+        "description": "Retrieves a summary of operation counts for an organization, optionally filtered by team, scenario, and/or package",
+        "operationId": "OperationsV3Controller_getSummaryByOrg",
+        "parameters": [
+          {
+            "name": "to",
+            "required": true,
+            "in": "query",
+            "description": "End date in ISO format (e.g., 2025-02-01T12:00:00.000Z). Date range cannot exceed 1 year.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "required": true,
+            "in": "query",
+            "description": "Start date in ISO format (e.g., 2025-01-01T12:00:00.000Z). Date range cannot exceed 1 year.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "package",
+            "required": false,
+            "in": "query",
+            "description": "Package name (optional)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "scenarioId",
+            "required": false,
+            "in": "query",
+            "description": "Scenario ID (optional)",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "teamId",
+            "required": false,
+            "in": "query",
+            "description": "Team ID (optional)",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "organizationId",
+            "required": true,
+            "in": "query",
+            "description": "Organization ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved operations summary",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationsV3SummaryResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "API Key": [],
+            "IMS Org ID": [],
+            "Region": []
+          }
+        ],
+        "summary": "Get operations summary",
+        "tags": [
+          "Operations"
+        ]
+      }
+    },
     "/api/v3/activity-logs/{orgId}": {
       "get": {
         "description": "Returns a paged list of activity logs using cursor-based paging and property filters.\n\n**Common Use Cases:**\n- Audit user actions across your organization\n- Monitor scenario changes and deployments\n- Track team membership changes\n- Generate compliance reports\n\n**Pagination:** Use the `next` value from `_page` as the `start` parameter for subsequent requests to iterate through all results.",
@@ -454,6 +641,10 @@
         "description": "Find out more in product documentation.",
         "url": "https://experienceleague.adobe.com/en/docs/workfront-fusion/using/set-up-and-manage-fusion/set-up-and-manage-orgs-and-teams/set-up-orgs-teams-and-users/view-activity-logs-for-an-org"
       }
+    },
+    {
+      "name": "Operations",
+      "description": ""
     }
   ],
   "servers": [
@@ -785,6 +976,199 @@
           "items",
           "_page",
           "_links"
+        ]
+      },
+      "ScenarioItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 12345,
+            "description": "Scenario ID"
+          },
+          "operations": {
+            "type": "number",
+            "example": 100,
+            "description": "Number of operations for this scenario"
+          }
+        },
+        "required": [
+          "id",
+          "operations"
+        ]
+      },
+      "TeamItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 67890,
+            "description": "Team ID"
+          },
+          "operations": {
+            "type": "number",
+            "example": 200,
+            "description": "Number of operations for this team"
+          }
+        },
+        "required": [
+          "id",
+          "operations"
+        ]
+      },
+      "PackageItemDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "package-name",
+            "description": "Package name"
+          },
+          "operations": {
+            "type": "number",
+            "example": 50,
+            "description": "Number of operations for this package"
+          }
+        },
+        "required": [
+          "name",
+          "operations"
+        ]
+      },
+      "ModuleItemDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "module-name",
+            "description": "Module name"
+          },
+          "operations": {
+            "type": "number",
+            "example": 75,
+            "description": "Number of operations for this module"
+          }
+        },
+        "required": [
+          "name",
+          "operations"
+        ]
+      },
+      "OperationsV3ItemDto": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "example": "2025-01-15",
+            "description": "Timestamp for this data point"
+          },
+          "scenarios": {
+            "description": "Operations grouped by scenario (present when grouped by scenario)",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ScenarioItemDto"
+            }
+          },
+          "teams": {
+            "description": "Operations grouped by team (present when grouped by team)",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TeamItemDto"
+            }
+          },
+          "packages": {
+            "description": "Operations grouped by package (present when grouped by package)",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PackageItemDto"
+            }
+          },
+          "modules": {
+            "description": "Operations grouped by module (present when grouped by module)",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModuleItemDto"
+            }
+          },
+          "operations": {
+            "type": "number",
+            "example": 500,
+            "description": "Total operations count (present when no grouping is applied)"
+          }
+        },
+        "required": [
+          "timestamp"
+        ]
+      },
+      "OperationsResponseV3Dto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "description": "Array of operation count data points, sorted by timestamp in descending order (newest first)",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OperationsV3ItemDto"
+            }
+          },
+          "timeUnit": {
+            "type": "string",
+            "enum": [
+              "day",
+              "month"
+            ],
+            "example": "day",
+            "description": "Time unit used for grouping the results"
+          }
+        },
+        "required": [
+          "items",
+          "timeUnit"
+        ]
+      },
+      "OperationsV3SummaryItemDto": {
+        "type": "object",
+        "properties": {
+          "scenarioId": {
+            "type": "number",
+            "example": 12345,
+            "description": "Scenario ID"
+          },
+          "teamId": {
+            "type": "number",
+            "example": 67890,
+            "description": "Team ID"
+          },
+          "operations": {
+            "type": "number",
+            "example": 150,
+            "description": "Number of operations for this scenario and team combination"
+          }
+        },
+        "required": [
+          "scenarioId",
+          "teamId",
+          "operations"
+        ]
+      },
+      "OperationsV3SummaryResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "description": "Array of operation summaries by scenario and team",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OperationsV3SummaryItemDto"
+            }
+          },
+          "totalOperations": {
+            "type": "number",
+            "example": 1500,
+            "description": "Total sum of all operations across all scenarios and teams"
+          }
+        },
+        "required": [
+          "items",
+          "totalOperations"
         ]
       }
     }
