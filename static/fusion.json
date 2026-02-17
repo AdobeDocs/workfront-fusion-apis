@@ -3,14 +3,14 @@
   "paths": {
     "/api/v3/activity-logs/{orgId}": {
       "get": {
-        "description": "Returns a paged list of activity logs using cursor-based paging and property filters.\n\n**Common Use Cases:**\n- Audit user actions across your organization\n- Monitor scenario changes and deployments\n- Track team membership changes\n- Generate compliance reports\n\n**Pagination:** Use the `next` value from `_page` as the `start` parameter for subsequent requests to iterate through all results.",
+        "description": "Returns a paged list of activity logs using cursor-based paging and property filters.\n\n**Common Use Cases:**\n- Audit user actions across your organization\n- Monitor scenario changes and deletion\n- Track team membership changes\n\n**Pagination:** Use the `next` value from `_page` as the `start` parameter for subsequent requests to iterate through all results.",
         "operationId": "ActivityLogsV3Controller_getActivityLogs",
         "parameters": [
           {
             "name": "orgId",
             "required": true,
             "in": "path",
-            "description": "Organization ID",
+            "description": "Fusion organization ID",
             "schema": {
               "type": "number"
             }
@@ -265,7 +265,7 @@
             "name": "orgId",
             "required": true,
             "in": "path",
-            "description": "Organization ID",
+            "description": "Fusion organization ID",
             "schema": {
               "type": "number"
             }
@@ -465,14 +465,14 @@
     },
     "/api/v3/operations": {
       "get": {
-        "description": "Retrieves operation counts for an organization, optionally filtered by team and/or scenario, with optional grouping by time period. Results are sorted by timestamp in descending order (newest first).",
+        "description": "Retrieves operation counts for an organization, optionally filtered by team, scenario, and/or package, with optional grouping by dimension.\n\n**Common Use Cases:**\n- Monitor daily or monthly operation consumption across your organization\n- Track operation usage per team or scenario\n- Identify high-volume scenarios consuming the most operations\n- Generate usage reports grouped by module or package\n\n**Grouping:** Use the `groupBy` parameter to break down operation counts by `team`, `scenario`, `package`, or `module`. When set, each time-period entry in the response includes a nested array broken down by the chosen group.\n\n**Filtering:** Use the `property` parameter to filter results by operation count (e.g., only show entries with 100+ operations).\n\n**Date Range:** The `from` and `to` parameters define the time window. The maximum allowed range is 1 year. Results are automatically grouped by `day` or `month` depending on the range.",
         "operationId": "OperationsV3Controller_getOperations",
         "parameters": [
           {
             "name": "from",
             "required": true,
             "in": "query",
-            "description": "Start date in ISO format (e.g., 2025-01-01T12:00:00.000Z). Date range cannot exceed 1 year.",
+            "description": "Start date in ISO 8601 format (UTC). Defines the beginning of the date range for operation counts.\n\n**Note:** Date range between `from` and `to` cannot exceed 1 year.",
             "schema": {
               "example": "2025-01-01T12:00:00.000Z",
               "type": "string"
@@ -482,7 +482,7 @@
             "name": "to",
             "required": true,
             "in": "query",
-            "description": "End date in ISO format (e.g., 2025-02-01T12:00:00.000Z). Date range cannot exceed 1 year.",
+            "description": "End date in ISO 8601 format (UTC). Defines the end of the date range for operation counts.\n\n**Note:** Date range between `from` and `to` cannot exceed 1 year.",
             "schema": {
               "example": "2025-02-01T12:00:00.000Z",
               "type": "string"
@@ -492,7 +492,7 @@
             "name": "organizationId",
             "required": true,
             "in": "query",
-            "description": "Organization ID",
+            "description": "Fusion organization ID. All results are scoped to this organization.",
             "schema": {
               "example": 12345,
               "type": "number"
@@ -502,7 +502,7 @@
             "name": "teamId",
             "required": false,
             "in": "query",
-            "description": "Team ID (optional)",
+            "description": "Filter results to a specific team. When provided, only operations for this team are returned.",
             "schema": {
               "example": 67890,
               "type": "number"
@@ -512,7 +512,7 @@
             "name": "scenarioId",
             "required": false,
             "in": "query",
-            "description": "Scenario ID (optional, requires teamId)",
+            "description": "Filter results to a specific scenario.\n\n**Note:** Requires `teamId` to also be specified.",
             "schema": {
               "example": 11111,
               "type": "number"
@@ -522,7 +522,7 @@
             "name": "package",
             "required": false,
             "in": "query",
-            "description": "Package name (optional, requires scenarioId)",
+            "description": "Filter results to a specific package name.\n\n**Note:** Requires `scenarioId` to also be specified.",
             "schema": {
               "example": "workfront-workfront",
               "type": "string"
@@ -532,7 +532,7 @@
             "name": "groupBy",
             "required": false,
             "in": "query",
-            "description": "Group results by time period (optional)",
+            "description": "Group operation counts by a specific dimension. When set, each time-period entry in the response includes a nested array broken down by the chosen group.\n\n**Available Groups:**\n- `module` - Group by module name\n- `package` - Group by package name\n- `scenario` - Group by scenario ID\n- `team` - Group by team ID",
             "schema": {
               "enum": [
                 "module",
@@ -541,57 +541,208 @@
                 "team"
               ],
               "type": "string"
+            },
+            "examples": {
+              "groupByTeam": {
+                "summary": "Group by team",
+                "value": "team"
+              },
+              "groupByScenario": {
+                "summary": "Group by scenario",
+                "value": "scenario"
+              },
+              "groupByPackage": {
+                "summary": "Group by package",
+                "value": "package"
+              },
+              "groupByModule": {
+                "summary": "Group by module",
+                "value": "module"
+              }
             }
           },
           {
             "name": "orderBy",
             "required": false,
             "in": "query",
-            "description": "Sort items by timestamp. Use + or - prefix: +timestamp (ascending), -timestamp (descending). Default: oldest first.",
+            "description": "Sort results by timestamp. Prefix with `+` for ascending or `-` for descending.\n\n**Values:**\n- `+timestamp` - Oldest first (ascending)\n- `-timestamp` - Newest first (descending)\n\n**Default:** Oldest first (`+timestamp`).",
             "schema": {
               "example": "-timestamp",
               "type": "string"
+            },
+            "examples": {
+              "descending": {
+                "summary": "Newest first",
+                "value": "-timestamp"
+              },
+              "ascending": {
+                "summary": "Oldest first",
+                "value": "+timestamp"
+              }
             }
           },
           {
             "name": "property",
             "required": false,
             "in": "query",
-            "description": "Filter by operations count. Format: operations operator value. Operators: ==, !=, >, <, >=, <=. With groupBy: filters nested arrays by operations.",
+            "description": "Filter results by operations count. When `groupBy` is used, filters the nested arrays by their operations value.\n\n**Format:** `operations<operator><value>`\n\n**Operators:**\n- `==` equals\n- `!=` not equals\n- `>` greater than\n- `>=` greater than or equal to\n- `<` less than\n- `<=` less than or equal to",
             "schema": {
               "example": "operations>=100",
               "type": "string"
+            },
+            "examples": {
+              "minimumOps": {
+                "summary": "At least 100 operations",
+                "value": "operations>=100"
+              },
+              "exactCount": {
+                "summary": "Exactly 500 operations",
+                "value": "operations==500"
+              },
+              "highVolume": {
+                "summary": "More than 1000 operations",
+                "value": "operations>1000"
+              }
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved operations count",
+            "description": "Successfully retrieved operation counts",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/OperationsResponseV3Dto"
+                },
+                "examples": {
+                  "ungrouped": {
+                    "summary": "Operation counts without grouping",
+                    "value": {
+                      "items": [
+                        {
+                          "timestamp": "2025-01-15",
+                          "operations": 1250
+                        },
+                        {
+                          "timestamp": "2025-01-14",
+                          "operations": 980
+                        },
+                        {
+                          "timestamp": "2025-01-13",
+                          "operations": 1100
+                        }
+                      ],
+                      "timeUnit": "day",
+                      "orderBy": "-timestamp"
+                    }
+                  },
+                  "groupedByTeam": {
+                    "summary": "Operation counts grouped by team",
+                    "value": {
+                      "items": [
+                        {
+                          "timestamp": "2025-01-15",
+                          "teams": [
+                            {
+                              "id": 67890,
+                              "operations": 750
+                            },
+                            {
+                              "id": 67891,
+                              "operations": 500
+                            }
+                          ]
+                        },
+                        {
+                          "timestamp": "2025-01-14",
+                          "teams": [
+                            {
+                              "id": 67890,
+                              "operations": 600
+                            },
+                            {
+                              "id": 67891,
+                              "operations": 380
+                            }
+                          ]
+                        }
+                      ],
+                      "timeUnit": "day",
+                      "orderBy": "-timestamp"
+                    }
+                  },
+                  "groupedByScenario": {
+                    "summary": "Operation counts grouped by scenario",
+                    "value": {
+                      "items": [
+                        {
+                          "timestamp": "2025-01-15",
+                          "scenarios": [
+                            {
+                              "id": 11111,
+                              "operations": 400
+                            },
+                            {
+                              "id": 11112,
+                              "operations": 350
+                            }
+                          ]
+                        }
+                      ],
+                      "timeUnit": "day",
+                      "orderBy": "-timestamp"
+                    }
+                  }
                 }
               }
             }
           },
           "400": {
-            "description": "Bad request",
+            "description": "Bad request - Invalid parameters or date range",
             "content": {
               "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponseDto"
                 },
-                "example": {
-                  "type": "BadRequest",
-                  "status": 400,
-                  "title": "Validation failed",
-                  "report": {
-                    "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg",
-                    "errors": [
-                      "teamId must be a number conforming to the specified constraints"
-                    ]
+                "examples": {
+                  "validationError": {
+                    "summary": "Parameter validation failure",
+                    "value": {
+                      "type": "BadRequest",
+                      "status": 400,
+                      "title": "Validation failed",
+                      "report": {
+                        "request-id": "abc-123-def-456",
+                        "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg",
+                        "errors": [
+                          "teamId must be a number conforming to the specified constraints"
+                        ]
+                      }
+                    }
+                  },
+                  "dateRangeExceeded": {
+                    "summary": "Date range exceeds maximum",
+                    "value": {
+                      "type": "BadRequest",
+                      "status": 400,
+                      "title": "Date range cannot exceed 1 year",
+                      "report": {
+                        "request-id": "abc-123-def-456",
+                        "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                      }
+                    }
+                  },
+                  "missingDependency": {
+                    "summary": "Missing required dependency parameter",
+                    "value": {
+                      "type": "BadRequest",
+                      "status": 400,
+                      "title": "scenarioId requires teamId to be specified",
+                      "report": {
+                        "request-id": "abc-123-def-456",
+                        "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                      }
+                    }
                   }
                 }
               }
@@ -666,19 +817,31 @@
         "summary": "Get operations count",
         "tags": [
           "Operations"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "curl",
+            "label": "cURL",
+            "source": "curl -X GET 'https://fusion.adobe.io/api/v3/operations?organizationId=12345&from=2025-01-01T12:00:00.000Z&to=2025-02-01T12:00:00.000Z&orderBy=-timestamp' \\\n  -H 'Authorization: Bearer YOUR_ACCESS_TOKEN' \\\n  -H 'x-api-key: YOUR_CLIENT_ID' \\\n  -H 'x-gw-ims-org-id: YOUR_ORG_ID@AdobeOrg' \\\n  -H 'x-gw-region: YOUR_REGION'"
+          },
+          {
+            "lang": "curl",
+            "label": "cURL (grouped by team)",
+            "source": "curl -X GET 'https://fusion.adobe.io/api/v3/operations?organizationId=12345&from=2025-01-01T12:00:00.000Z&to=2025-02-01T12:00:00.000Z&groupBy=team&orderBy=-timestamp' \\\n  -H 'Authorization: Bearer YOUR_ACCESS_TOKEN' \\\n  -H 'x-api-key: YOUR_CLIENT_ID' \\\n  -H 'x-gw-ims-org-id: YOUR_ORG_ID@AdobeOrg' \\\n  -H 'x-gw-region: YOUR_REGION'"
+          }
         ]
       }
     },
     "/api/v3/operations/summary": {
       "get": {
-        "description": "Retrieves a summary of operation counts for an organization, optionally filtered by team, scenario, and/or package",
+        "description": "Retrieves a summary of total operation counts for an organization, broken down by scenario and team. Use this endpoint to get a high-level overview of operation consumption without time-series data.\n\n**Common Use Cases:**\n- Identify which scenarios consume the most operations\n- Compare operation usage across teams\n- Find underperforming or overloaded scenarios\n\n**Sorting:** Use the `orderBy` parameter to sort results by `scenarioId`, `teamId`, or `operations` count in ascending or descending order.\n\n**Filtering:** Use the `property` parameter to filter scenarios by their total operation count (e.g., only show scenarios with 100+ operations).\n\n**Date Range:** The `from` and `to` parameters define the time window for aggregation. The maximum allowed range is 1 year.",
         "operationId": "OperationsV3Controller_getSummaryByOrg",
         "parameters": [
           {
             "name": "from",
             "required": true,
             "in": "query",
-            "description": "Start date in ISO format (e.g., 2025-01-01T12:00:00.000Z). Date range cannot exceed 1 year.",
+            "description": "Start date in ISO 8601 format (UTC). Defines the beginning of the date range for the summary.\n\n**Note:** Date range between `from` and `to` cannot exceed 1 year.",
             "schema": {
               "example": "2025-01-01T12:00:00.000Z",
               "type": "string"
@@ -688,7 +851,7 @@
             "name": "to",
             "required": true,
             "in": "query",
-            "description": "End date in ISO format (e.g., 2025-02-01T12:00:00.000Z). Date range cannot exceed 1 year.",
+            "description": "End date in ISO 8601 format (UTC). Defines the end of the date range for the summary.\n\n**Note:** Date range between `from` and `to` cannot exceed 1 year.",
             "schema": {
               "example": "2025-02-01T12:00:00.000Z",
               "type": "string"
@@ -698,7 +861,7 @@
             "name": "organizationId",
             "required": true,
             "in": "query",
-            "description": "Organization ID",
+            "description": "Fusion organization ID. All results are scoped to this organization.",
             "schema": {
               "example": 12345,
               "type": "number"
@@ -708,7 +871,7 @@
             "name": "teamId",
             "required": false,
             "in": "query",
-            "description": "Team ID (optional)",
+            "description": "Filter results to a specific team. When provided, only scenarios belonging to this team are included in the summary.",
             "schema": {
               "example": 67890,
               "type": "number"
@@ -718,7 +881,7 @@
             "name": "scenarioId",
             "required": false,
             "in": "query",
-            "description": "Scenario ID (optional)",
+            "description": "Filter results to a specific scenario. Returns the operation count for this single scenario.",
             "schema": {
               "example": 11111,
               "type": "number"
@@ -728,9 +891,9 @@
             "name": "package",
             "required": false,
             "in": "query",
-            "description": "Package name (optional)",
+            "description": "Filter results to a specific package name.",
             "schema": {
-              "example": "my-package",
+              "example": "workfront-workfront",
               "type": "string"
             }
           },
@@ -738,20 +901,52 @@
             "name": "orderBy",
             "required": false,
             "in": "query",
-            "description": "Sort scenarios by field. Use + or - prefix for ascending/descending: +scenarioId, -scenarioId, +teamId, -teamId, +operations, -operations. Default: -operations",
+            "description": "Sort summary results by field. Prefix with `+` for ascending or `-` for descending.\n\n**Sortable Fields:**\n- `scenarioId` - Sort by scenario ID\n- `teamId` - Sort by team ID\n- `operations` - Sort by operation count\n\n**Default:** `-operations` (highest operation count first).",
             "schema": {
               "example": "-operations",
               "type": "string"
+            },
+            "examples": {
+              "mostOperations": {
+                "summary": "Highest operations first",
+                "value": "-operations"
+              },
+              "leastOperations": {
+                "summary": "Lowest operations first",
+                "value": "+operations"
+              },
+              "byScenario": {
+                "summary": "Sort by scenario ID ascending",
+                "value": "+scenarioId"
+              },
+              "byTeam": {
+                "summary": "Sort by team ID descending",
+                "value": "-teamId"
+              }
             }
           },
           {
             "name": "property",
             "required": false,
             "in": "query",
-            "description": "Filter scenarios by operations count. Format: operations operator value. Operators: ==, !=, >, <, >=, <=. Example: operations>=100",
+            "description": "Filter scenarios by their total operations count within the specified date range.\n\n**Format:** `operations<operator><value>`\n\n**Operators:**\n- `==` equals\n- `!=` not equals\n- `>` greater than\n- `>=` greater than or equal to\n- `<` less than\n- `<=` less than or equal to",
             "schema": {
               "example": "operations>=100",
               "type": "string"
+            },
+            "examples": {
+              "minimumOps": {
+                "summary": "At least 100 operations",
+                "value": "operations>=100"
+              },
+              "exactCount": {
+                "summary": "Exactly 500 operations",
+                "value": "operations==500"
+              },
+              "highVolume": {
+                "summary": "More than 1000 operations",
+                "value": "operations>1000"
+              }
             }
           }
         ],
@@ -762,27 +957,77 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/OperationsV3SummaryResponseDto"
+                },
+                "example": {
+                  "items": [
+                    {
+                      "scenarioId": 11111,
+                      "teamId": 67890,
+                      "operations": 4500
+                    },
+                    {
+                      "scenarioId": 11112,
+                      "teamId": 67890,
+                      "operations": 2300
+                    },
+                    {
+                      "scenarioId": 22222,
+                      "teamId": 67891,
+                      "operations": 1800
+                    }
+                  ],
+                  "totalOperations": 8600,
+                  "orderBy": "-operations"
                 }
               }
             }
           },
           "400": {
-            "description": "Bad request",
+            "description": "Bad request - Invalid parameters or date range",
             "content": {
               "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponseDto"
                 },
-                "example": {
-                  "type": "BadRequest",
-                  "status": 400,
-                  "title": "Validation failed",
-                  "report": {
-                    "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg",
-                    "errors": [
-                      "teamId must be a number conforming to the specified constraints"
-                    ]
+                "examples": {
+                  "validationError": {
+                    "summary": "Parameter validation failure",
+                    "value": {
+                      "type": "BadRequest",
+                      "status": 400,
+                      "title": "Validation failed",
+                      "report": {
+                        "request-id": "abc-123-def-456",
+                        "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg",
+                        "errors": [
+                          "teamId must be a number conforming to the specified constraints"
+                        ]
+                      }
+                    }
+                  },
+                  "dateRangeExceeded": {
+                    "summary": "Date range exceeds maximum",
+                    "value": {
+                      "type": "BadRequest",
+                      "status": 400,
+                      "title": "Date range cannot exceed 1 year",
+                      "report": {
+                        "request-id": "abc-123-def-456",
+                        "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                      }
+                    }
+                  },
+                  "invalidOrderBy": {
+                    "summary": "Invalid sort field",
+                    "value": {
+                      "type": "BadRequest",
+                      "status": 400,
+                      "title": "Invalid orderBy field. Supported: scenarioId, teamId, operations",
+                      "report": {
+                        "request-id": "abc-123-def-456",
+                        "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                      }
+                    }
                   }
                 }
               }
@@ -857,6 +1102,18 @@
         "summary": "Get operations summary",
         "tags": [
           "Operations"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "curl",
+            "label": "cURL",
+            "source": "curl -X GET 'https://fusion.adobe.io/api/v3/operations/summary?organizationId=12345&from=2025-01-01T12:00:00.000Z&to=2025-02-01T12:00:00.000Z&orderBy=-operations' \\\n  -H 'Authorization: Bearer YOUR_ACCESS_TOKEN' \\\n  -H 'x-api-key: YOUR_CLIENT_ID' \\\n  -H 'x-gw-ims-org-id: YOUR_ORG_ID@AdobeOrg' \\\n  -H 'x-gw-region: YOUR_REGION'"
+          },
+          {
+            "lang": "curl",
+            "label": "cURL (filtered by team)",
+            "source": "curl -X GET 'https://fusion.adobe.io/api/v3/operations/summary?organizationId=12345&from=2025-01-01T12:00:00.000Z&to=2025-02-01T12:00:00.000Z&teamId=67890&orderBy=-operations&property=operations>=100' \\\n  -H 'Authorization: Bearer YOUR_ACCESS_TOKEN' \\\n  -H 'x-api-key: YOUR_CLIENT_ID' \\\n  -H 'x-gw-ims-org-id: YOUR_ORG_ID@AdobeOrg' \\\n  -H 'x-gw-region: YOUR_REGION'"
+          }
         ]
       }
     }
@@ -1041,7 +1298,7 @@
           },
           "orgId": {
             "type": "number",
-            "description": "Organization ID",
+            "description": "Fusion organization ID",
             "example": 2245
           },
           "entity": {
