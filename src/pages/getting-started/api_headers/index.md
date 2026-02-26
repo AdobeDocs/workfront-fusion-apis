@@ -47,7 +47,7 @@ See the [Authentication guide](../credentials/) for detailed instructions on obt
 Authorization: Bearer {access_token}
 ```
 
-See the [Authentication guide](../credentials/) for detailed instructions on obtaining access tokens.
+See the [Authentication guide](/workfront-fusion-apis/getting-started/credentials/) for detailed instructions on obtaining access tokens.
 
 ## Common Error Responses
 
