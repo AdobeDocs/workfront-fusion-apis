@@ -1,0 +1,1264 @@
+{
+    "openapi": "3.0.0",
+    "paths": {
+        "/v3/scenarios/{scenarioId}": {
+            "get": {
+                "operationId": "ScenariosControllerV3_getScenario_v3",
+                "parameters": [
+                    {
+                        "name": "scenarioId",
+                        "required": true,
+                        "in": "path",
+                        "description": "Scenario id",
+                        "schema": {
+                            "example": 123,
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Scenario details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ScenarioPublicBlueprintDto"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                },
+                                "example": {
+                                    "type": "BadRequest",
+                                    "status": 400,
+                                    "title": "scenarioId must be a number string",
+                                    "report": {
+                                        "request-id": "abc-123-def-456",
+                                        "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                },
+                                "example": {
+                                    "type": "Unauthorized",
+                                    "status": 401,
+                                    "title": "Authentication required",
+                                    "report": {
+                                        "request-id": "abc-123-def-456",
+                                        "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Access denied",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                },
+                                "example": {
+                                    "type": "Forbidden",
+                                    "status": 403,
+                                    "title": "Access denied",
+                                    "report": {
+                                        "request-id": "abc-123-def-456",
+                                        "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                },
+                                "example": {
+                                    "type": "InternalServerError",
+                                    "status": 500,
+                                    "title": "Server error",
+                                    "report": {
+                                        "request-id": "abc-123-def-456",
+                                        "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "IMS Org ID": []
+                    },
+                    {
+                        "Authorization": []
+                    }
+                ],
+                "summary": "Get scenario by id",
+                "tags": [
+                    "Scenarios V3"
+                ]
+            }
+        },
+        "/v3/scenarios": {
+            "get": {
+                "description": "Retrieves a paginated list of scenarios for a team.",
+                "operationId": "ScenariosControllerV3_getScenarios_v3",
+                "parameters": [
+                    {
+                        "name": "property",
+                        "required": false,
+                        "in": "query",
+                        "description": "\n                Property filters. Can be repeated and are AND-ed together.\n                \n                Allowed fields:\n                - id\n                - folderId\n                - hookId\n                - teamId\n                - name\n                - description\n                - isActive\n                - isInvalid\n                - isLocked\n                - isPaused\n                - isWaiting \n                - lastEdit                 \n                \n                Supported operators:\n                - ==  (equals)\n                - !=  (not equals)\n                - >   (greater than)\n                - >=  (greater than or equal)\n                - <   (less than)\n                - <=  (less than or equal)\n                - ~   (case-insensitive regex match)\n                \n                Special cases:\n                - field           → field exists\n                - !field          → field does not exist\n                ",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "required": false,
+                        "in": "query",
+                        "description": "Maximum number of items to return",
+                        "schema": {
+                            "minimum": 1,
+                            "maximum": 100,
+                            "example": 50,
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "start",
+                        "required": false,
+                        "in": "query",
+                        "description": "Paging cursor. Must correspond to \"orderby\" field and used only when it is set.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "orderby",
+                        "required": false,
+                        "in": "query",
+                        "description": "Sort property and direction, e.g. +name (ascending) or -name (descending). Allowed fields: id, name, lastEdit",
+                        "schema": {
+                            "example": "-name",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "teamId",
+                        "required": true,
+                        "in": "query",
+                        "description": "Team ID to list scenarios for",
+                        "schema": {
+                            "example": 88,
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated list of scenarios",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetScenariosListResponseDto"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                },
+                                "example": {
+                                    "type": "BadRequest",
+                                    "status": 400,
+                                    "title": "Paging parameters require orderby to be specified",
+                                    "report": {
+                                        "request-id": "abc-123-def-456",
+                                        "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                },
+                                "example": {
+                                    "type": "Unauthorized",
+                                    "status": 401,
+                                    "title": "Authentication required",
+                                    "report": {
+                                        "request-id": "abc-123-def-456",
+                                        "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Access denied",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                },
+                                "example": {
+                                    "type": "Forbidden",
+                                    "status": 403,
+                                    "title": "Access denied",
+                                    "report": {
+                                        "request-id": "abc-123-def-456",
+                                        "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                },
+                                "example": {
+                                    "type": "InternalServerError",
+                                    "status": 500,
+                                    "title": "Server error",
+                                    "report": {
+                                        "request-id": "abc-123-def-456",
+                                        "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "IMS Org ID": []
+                    },
+                    {
+                        "Authorization": []
+                    }
+                ],
+                "summary": "List scenarios",
+                "tags": [
+                    "Scenarios V3"
+                ]
+            }
+        },
+        "/v3/scenarios/{scenarioId}/dependencies": {
+            "get": {
+                "description": "Returns connections, keys, data stores, hooks, and data structures used by the scenario.",
+                "operationId": "ScenariosControllerV3_getScenarioDependency_v3",
+                "parameters": [
+                    {
+                        "name": "scenarioId",
+                        "required": true,
+                        "in": "path",
+                        "description": "Scenario id",
+                        "schema": {
+                            "example": 123,
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "teamId",
+                        "required": true,
+                        "in": "query",
+                        "description": "Team ID to list scenarios for",
+                        "schema": {
+                            "example": 88,
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Scenario dependencies (connections, keys, data stores, data structures)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ScenarioDependenciesResponseDto"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                },
+                                "example": {
+                                    "type": "Unauthorized",
+                                    "status": 401,
+                                    "title": "Authentication required",
+                                    "report": {
+                                        "request-id": "abc-123-def-456",
+                                        "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Access denied",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                },
+                                "example": {
+                                    "type": "Forbidden",
+                                    "status": 403,
+                                    "title": "Access denied",
+                                    "report": {
+                                        "request-id": "abc-123-def-456",
+                                        "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                },
+                                "example": {
+                                    "type": "InternalServerError",
+                                    "status": 500,
+                                    "title": "Server error",
+                                    "report": {
+                                        "request-id": "abc-123-def-456",
+                                        "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "IMS Org ID": []
+                    },
+                    {
+                        "Authorization": []
+                    }
+                ],
+                "summary": "Get scenario dependencies",
+                "tags": [
+                    "Scenarios V3"
+                ]
+            }
+        },
+        "/v3/scenarios/{scenarioId}/clone": {
+            "post": {
+                "description": "Creates a copy of the scenario in the specified team with the provided replacements.  \n                      Returns the ID of the newly created scenario and sets the `Location` header.\n                      \nRules:\n                      \n- **Same team**: existing connections may be reused and can be omitted from the request body.\n                      \n- **Different team**: connections cannot be reused and must be provided.\n                      \n- If the source scenario contains a **hook**, an unused hook must to be provided.\n                      \n- If **data store / data structure / key IDs** are provided, they are used; otherwise they are duplicated.\n        ",
+                "operationId": "ScenariosControllerV3_cloneScenario_v3",
+                "parameters": [
+                    {
+                        "name": "scenarioId",
+                        "required": true,
+                        "in": "path",
+                        "description": "Scenario id to clone",
+                        "schema": {
+                            "example": 123,
+                            "type": "number"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CloneScenarioRequestDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Scenario cloned; id of the new scenario",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CloneScenarioResponseDto"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                },
+                                "example": {
+                                    "type": "BadRequest",
+                                    "status": 400,
+                                    "title": "Correct hook should be provided",
+                                    "report": {
+                                        "request-id": "abc-123-def-456",
+                                        "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                },
+                                "example": {
+                                    "type": "Unauthorized",
+                                    "status": 401,
+                                    "title": "Authentication required",
+                                    "report": {
+                                        "request-id": "abc-123-def-456",
+                                        "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Access denied",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                },
+                                "example": {
+                                    "type": "Forbidden",
+                                    "status": 403,
+                                    "title": "Access denied",
+                                    "report": {
+                                        "request-id": "abc-123-def-456",
+                                        "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                },
+                                "example": {
+                                    "type": "InternalServerError",
+                                    "status": 500,
+                                    "title": "Server error",
+                                    "report": {
+                                        "request-id": "abc-123-def-456",
+                                        "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "API Key": []
+                    },
+                    {
+                        "IMS Org ID": []
+                    },
+                    {
+                        "Authorization": []
+                    }
+                ],
+                "summary": "Clone scenario",
+                "tags": [
+                    "Scenarios V3"
+                ]
+            }
+        }
+    },
+    "info": {
+        "title": "Automations V3 API",
+        "description": "Documentation for Automations Service.",
+        "version": "3.0",
+        "contact": {}
+    },
+    "tags": [
+        {
+            "name": "Scenarios V3",
+            "description": ""
+        }
+    ],
+    "servers": [],
+    "components": {
+        "securitySchemes": {
+            "Authorization": {
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+                "type": "http",
+                "description": "Required. The IMS token for the user. Bearer prefix is automatically added."
+            },
+            "IMS Org ID": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-gw-ims-org-id",
+                "description": "Required. IMS Organization ID"
+            },
+            "API Key": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-api-key",
+                "description": "IMS client ID"
+            }
+        },
+        "schemas": {
+            "ErrorReportDto": {
+                "type": "object",
+                "properties": {
+                    "request-id": {
+                        "type": "string",
+                        "description": "Request ID from headers or auto-generated UUID",
+                        "example": "req-123"
+                    },
+                    "x-gw-ims-org-id": {
+                        "type": "string",
+                        "description": "Organization ID from headers",
+                        "example": "org-456"
+                    },
+                    "errors": {
+                        "description": "Validation errors (only present for validation failures)",
+                        "example": [
+                            "email must be a valid email address",
+                            "password must be at least 8 characters"
+                        ],
+                        "type": "array",
+                        "items": {
+                            "type": "object"
+                        }
+                    }
+                },
+                "required": [
+                    "request-id"
+                ]
+            },
+            "ErrorResponseDto": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "description": "Error type based on HTTP status or validation error",
+                        "example": "BadRequest"
+                    },
+                    "status": {
+                        "type": "number",
+                        "description": "HTTP status code",
+                        "example": 400,
+                        "minimum": 400,
+                        "maximum": 599
+                    },
+                    "title": {
+                        "type": "string",
+                        "description": "Human-readable error message",
+                        "examples": {
+                            "badRequest": {
+                                "value": "Invalid request"
+                            },
+                            "unauthorized": {
+                                "value": "Authentication required"
+                            },
+                            "forbidden": {
+                                "value": "Access denied"
+                            },
+                            "notFound": {
+                                "value": "Resource not found"
+                            },
+                            "serverError": {
+                                "value": "Server error"
+                            },
+                            "validationError": {
+                                "value": "Validation failed"
+                            }
+                        }
+                    },
+                    "report": {
+                        "description": "Error report with request tracking and additional details",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/ErrorReportDto"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "type",
+                    "status",
+                    "title",
+                    "report"
+                ]
+            },
+            "ScenarioPublicBlueprintDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "number",
+                        "description": "Scenario id",
+                        "example": 123
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Scenario name",
+                        "example": "Daily data sync"
+                    },
+                    "teamId": {
+                        "type": "number",
+                        "description": "Team ID that owns the scenario",
+                        "example": 88
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Scenario description",
+                        "example": "Generate an image."
+                    },
+                    "folderId": {
+                        "type": "number",
+                        "description": "Folder id where the scenario is stored",
+                        "example": 10
+                    },
+                    "usedPackages": {
+                        "description": "List of packages used by the scenario",
+                        "example": [
+                            "adobe-firefly"
+                        ],
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "isInvalid": {
+                        "type": "boolean",
+                        "description": "Whether the scenario is invalid. A scenario is marked invalid when it is disabled due to consecutive errors",
+                        "example": false
+                    },
+                    "isActive": {
+                        "type": "boolean",
+                        "description": "Whether the scenario is activated",
+                        "example": false
+                    },
+                    "isLocked": {
+                        "type": "boolean",
+                        "description": "Whether the scenario is locked. A locked scenario is not ready to execute.",
+                        "example": false
+                    },
+                    "isPaused": {
+                        "type": "boolean",
+                        "description": "Whether the scenario is paused due to error",
+                        "example": false
+                    },
+                    "isWaiting": {
+                        "type": "boolean",
+                        "description": "Whether the scenario is waiting, meaning that a sequential scenario has incomplete executions and is waiting to process them",
+                        "example": false
+                    },
+                    "sequential": {
+                        "type": "boolean",
+                        "description": "Whether scenario runs sequentially",
+                        "example": true
+                    },
+                    "lastEdit": {
+                        "type": "string",
+                        "description": "Last edit timestamp",
+                        "example": "2026-03-05T15:20:00.000Z",
+                        "format": "date-time"
+                    },
+                    "scheduling": {
+                        "type": "object",
+                        "description": "Scheduling configuration",
+                        "example": {
+                            "time": "07:53",
+                            "type": "daily"
+                        }
+                    },
+                    "hookId": {
+                        "type": "number",
+                        "description": "Hook id associated with the scenario (if any)",
+                        "example": 555
+                    },
+                    "blueprint": {
+                        "type": "object",
+                        "description": "Blueprint definition for the scenario",
+                        "example": {
+                            "flow": [
+                                {
+                                    "id": 1,
+                                    "mapper": {
+                                        "n": "1",
+                                        "style": {
+                                            "imageReference": {}
+                                        },
+                                        "locale": "en-US",
+                                        "prompt": "ocean and pineapple cocktail",
+                                        "extension": "default",
+                                        "structure": {
+                                            "imageReference": {}
+                                        }
+                                    },
+                                    "module": "adobe-firefly:generateAnImage2",
+                                    "version": 1,
+                                    "metadata": {
+                                        "expect": [
+                                            {
+                                                "name": "prompt",
+                                                "type": "text",
+                                                "label": "Prompt",
+                                                "required": true
+                                            },
+                                            {
+                                                "name": "modelVersion",
+                                                "type": "select",
+                                                "label": "Model version",
+                                                "validate": {
+                                                    "enum": [
+                                                        "image3",
+                                                        "image3_custom",
+                                                        "image4_standard",
+                                                        "image4_ultra",
+                                                        "image4_custom"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "name": "n",
+                                                "type": "number",
+                                                "label": "Number of variations"
+                                            },
+                                            {
+                                                "name": "extension",
+                                                "type": "select",
+                                                "label": "Generated image format",
+                                                "required": true,
+                                                "validate": {
+                                                    "enum": [
+                                                        "jpeg",
+                                                        "png",
+                                                        "webp",
+                                                        "default"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "name": "negativePrompt",
+                                                "type": "text",
+                                                "label": "Negative prompt"
+                                            },
+                                            {
+                                                "name": "contentClass",
+                                                "type": "select",
+                                                "label": "Content class",
+                                                "validate": {
+                                                    "enum": [
+                                                        "photo",
+                                                        "art"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "name": "seeds",
+                                                "type": "array",
+                                                "label": "Seeds"
+                                            },
+                                            {
+                                                "name": "size",
+                                                "type": "select",
+                                                "label": "Size",
+                                                "validate": {
+                                                    "enum": [
+                                                        "2048,2048",
+                                                        "1024,1024",
+                                                        "2304,1792",
+                                                        "1792,2304",
+                                                        "2688,1536",
+                                                        "1344,768",
+                                                        "1152,896",
+                                                        "896,1152"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "name": "visualIntensity",
+                                                "type": "number",
+                                                "label": "Visual intensity"
+                                            },
+                                            {
+                                                "name": "locale",
+                                                "type": "text",
+                                                "label": "Locale"
+                                            },
+                                            {
+                                                "name": "tileable",
+                                                "type": "boolean",
+                                                "label": "Tileable"
+                                            },
+                                            {
+                                                "name": "structure",
+                                                "spec": [
+                                                    {
+                                                        "name": "imageReference",
+                                                        "spec": [
+                                                            {
+                                                                "name": "source",
+                                                                "type": "select",
+                                                                "label": "Source",
+                                                                "validate": {
+                                                                    "enum": [
+                                                                        "file",
+                                                                        "presignedUrl"
+                                                                    ]
+                                                                }
+                                                            },
+                                                            {
+                                                                "name": "strength",
+                                                                "type": "number",
+                                                                "label": "Strength"
+                                                            }
+                                                        ],
+                                                        "type": "collection",
+                                                        "label": "Image reference"
+                                                    }
+                                                ],
+                                                "type": "collection",
+                                                "label": "Structure"
+                                            },
+                                            {
+                                                "name": "style",
+                                                "spec": [
+                                                    {
+                                                        "name": "imageReference",
+                                                        "spec": [
+                                                            {
+                                                                "name": "source",
+                                                                "type": "select",
+                                                                "label": "Source",
+                                                                "validate": {
+                                                                    "enum": [
+                                                                        "file",
+                                                                        "presignedUrl"
+                                                                    ]
+                                                                }
+                                                            },
+                                                            {
+                                                                "name": "strength",
+                                                                "type": "number",
+                                                                "label": "Strength"
+                                                            },
+                                                            {
+                                                                "name": "presets",
+                                                                "type": "array",
+                                                                "label": "Presets"
+                                                            }
+                                                        ],
+                                                        "type": "collection",
+                                                        "label": "Image reference"
+                                                    }
+                                                ],
+                                                "type": "collection",
+                                                "label": "Style"
+                                            }
+                                        ],
+                                        "restore": {
+                                            "size": {
+                                                "mode": "chose",
+                                                "label": ""
+                                            },
+                                            "seeds": {
+                                                "mode": "chose",
+                                                "items": []
+                                            },
+                                            "style": {
+                                                "nested": {
+                                                    "imageReference": {
+                                                        "nested": {
+                                                            "source": {
+                                                                "mode": "chose",
+                                                                "label": ""
+                                                            },
+                                                            "presets": {
+                                                                "mode": "chose",
+                                                                "items": []
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "tileable": {
+                                                "mode": "chose"
+                                            },
+                                            "extension": {
+                                                "mode": "chose",
+                                                "label": "Default"
+                                            },
+                                            "structure": {
+                                                "nested": {
+                                                    "imageReference": {
+                                                        "nested": {
+                                                            "source": {
+                                                                "mode": "chose",
+                                                                "label": ""
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "connection": {
+                                                "label": "My Adobe Firefly Connection connection"
+                                            },
+                                            "contentClass": {
+                                                "mode": "chose",
+                                                "label": ""
+                                            },
+                                            "modelVersion": {
+                                                "mode": "chose",
+                                                "label": ""
+                                            }
+                                        },
+                                        "designer": {
+                                            "x": 0,
+                                            "y": 0
+                                        },
+                                        "parameters": [
+                                            {
+                                                "name": "connection",
+                                                "type": "account",
+                                                "label": "Connection",
+                                                "required": true
+                                            }
+                                        ]
+                                    },
+                                    "parameters": {
+                                        "connection": 23252
+                                    }
+                                }
+                            ],
+                            "name": "Integration Adobe Firefly",
+                            "metadata": {
+                                "instant": false,
+                                "version": 1,
+                                "designer": {
+                                    "orphans": [],
+                                    "samples": {
+                                        "1": {
+                                            "data": "IMTBuffer(1032427, binary, 101231cde69182e66345b914ecf31f65d4141489): ffd8ffe000104a4649460001010000...",
+                                            "details": {
+                                                "url": "https://pre-signed-firefly-stage.s3-accelerate.amazonaws.com/images/ca17c73e-bf03-4c38-8a3d-29ac28f5...",
+                                                "seed": 1663688808
+                                            },
+                                            "filename": "generated_result.jpeg..."
+                                        }
+                                    }
+                                },
+                                "scenario": {
+                                    "dlq": false,
+                                    "dataloss": false,
+                                    "maxErrors": 3,
+                                    "autoCommit": true,
+                                    "roundtrips": 1,
+                                    "sequential": false,
+                                    "confidential": false,
+                                    "autoCommitTriggerLast": true
+                                }
+                            }
+                        }
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "teamId",
+                    "isInvalid",
+                    "isActive",
+                    "isLocked",
+                    "isPaused",
+                    "isWaiting",
+                    "sequential",
+                    "blueprint"
+                ]
+            },
+            "PageMetadataDto": {
+                "type": "object",
+                "properties": {
+                    "orderby": {
+                        "type": "string",
+                        "description": "The sort specification used for this page",
+                        "example": "-createdAt"
+                    },
+                    "start": {
+                        "type": "string",
+                        "description": "The starting value used for this page"
+                    },
+                    "next": {
+                        "type": "string",
+                        "description": "The starting value for the next page"
+                    },
+                    "property": {
+                        "description": "The property filters applied",
+                        "example": [
+                            "name~^Test",
+                            "createdAt>=2023-01-01"
+                        ],
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            }
+                        ]
+                    },
+                    "type": {
+                        "type": "string",
+                        "description": "The type filter applied, e.g. template, scenario, agent"
+                    },
+                    "count": {
+                        "type": "number",
+                        "description": "The number of items in this page"
+                    }
+                },
+                "required": [
+                    "count"
+                ]
+            },
+            "PageLinksDto": {
+                "type": "object",
+                "properties": {
+                    "next": {
+                        "type": "string",
+                        "description": "Non-templated URI for the next page",
+                        "example": "/v3/automations?orderby=name&start=Smith&limit=10"
+                    },
+                    "page": {
+                        "type": "string",
+                        "description": "Templated URI for constructing page requests",
+                        "example": "/v3/automations{?orderby,start,limit,property,type}"
+                    }
+                },
+                "required": [
+                    "page"
+                ]
+            },
+            "GetScenariosListResponseDto": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "description": "Array of scenarios",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ScenarioPublicBlueprintDto"
+                        }
+                    },
+                    "_page": {
+                        "description": "Page metadata (for v3 standard response)",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/PageMetadataDto"
+                            }
+                        ]
+                    },
+                    "_links": {
+                        "description": "Navigation links (for v3 standard response)",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/PageLinksDto"
+                            }
+                        ]
+                    },
+                    "total": {
+                        "type": "number",
+                        "description": "DEPRECATED: Total count of items (for legacy v2 response)",
+                        "example": 100,
+                        "deprecated": true
+                    }
+                },
+                "required": [
+                    "items"
+                ]
+            },
+            "ScenarioDependencyItemDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "number",
+                        "description": "Dependency id",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Dependency name",
+                        "example": "Firefly connection"
+                    },
+                    "kind": {
+                        "type": "string",
+                        "description": "Type of dependency",
+                        "enum": [
+                            "hook",
+                            "dataStore",
+                            "dataStructure",
+                            "connection",
+                            "key"
+                        ],
+                        "example": "connection"
+                    },
+                    "type": {
+                        "type": "string",
+                        "description": "Optional subtype for hook, connection, and key",
+                        "example": "workfront-workfront"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "kind"
+                ]
+            },
+            "ScenarioDependenciesResponseDto": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "description": "List of scenario dependencies (connections, keys, data stores, hooks, and data structures)",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ScenarioDependencyItemDto"
+                        }
+                    }
+                },
+                "required": [
+                    "items"
+                ]
+            },
+            "ReplacementDto": {
+                "type": "object",
+                "properties": {
+                    "kind": {
+                        "type": "string",
+                        "description": "Type of dependency to replace",
+                        "enum": [
+                            "hook",
+                            "dataStore",
+                            "dataStructure",
+                            "connection",
+                            "key"
+                        ]
+                    },
+                    "sourceId": {
+                        "type": "number",
+                        "description": "Source dependency id (in the original scenario)",
+                        "example": 100
+                    },
+                    "targetId": {
+                        "type": "number",
+                        "description": "Target dependency id (replacement in the clone)",
+                        "example": 200
+                    }
+                },
+                "required": [
+                    "kind",
+                    "sourceId",
+                    "targetId"
+                ]
+            },
+            "CloneScenarioRequestDto": {
+                "type": "object",
+                "properties": {
+                    "teamId": {
+                        "type": "number",
+                        "description": "Team ID where the cloned scenario will be created",
+                        "example": 88
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Name for the cloned scenario (max 255 characters)",
+                        "example": "My copied scenario",
+                        "maxLength": 255
+                    },
+                    "replacements": {
+                        "description": "Dependency replacements (e.g. connection, key, data store)",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ReplacementDto"
+                        }
+                    }
+                },
+                "required": [
+                    "teamId",
+                    "replacements"
+                ]
+            },
+            "CloneScenarioResponseDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "number",
+                        "description": "Id of the newly created (cloned) scenario",
+                        "example": 456
+                    }
+                },
+                "required": [
+                    "id"
+                ]
+            }
+        }
+    }
+}
