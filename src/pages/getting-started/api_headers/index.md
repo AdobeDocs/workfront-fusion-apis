@@ -26,7 +26,7 @@ This header is required for proper request routing.
 
 **Where to find:** Developer Console > Your Project > Credentials > Client ID
 
-See the [Authentication guide](/workfront-fusion-apis/getting-started/credentials/) for detailed instructions on obtaining your Client ID.
+See the [Authentication guide](/getting-started/credentials/index.md) for detailed instructions on obtaining your Client ID.
 
 ### x-gw-ims-org-id
 
@@ -47,7 +47,7 @@ See the [Authentication guide](/workfront-fusion-apis/getting-started/credential
 Authorization: Bearer {access_token}
 ```
 
-See the [Authentication guide](/workfront-fusion-apis/getting-started/credentials/) for detailed instructions on obtaining access tokens.
+See the [Authentication guide](/getting-started/credentials/index.md) for detailed instructions on obtaining access tokens.
 
 ## Common Error Responses
 
