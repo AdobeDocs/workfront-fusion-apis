@@ -1117,7 +1117,7 @@
         ]
       }
     },
-    "/v3/scenarios/{scenarioId}": {
+    "/api/v3/scenarios/{scenarioId}": {
       "get": {
         "operationId": "ScenariosControllerV3_getScenario_v3",
         "parameters": [
@@ -1234,33 +1234,32 @@
         ]
       }
     },
-    "/v3/scenarios": {
+    "/api/v3/scenarios": {
       "get": {
         "description": "Retrieves a paginated list of scenarios for a team.",
         "operationId": "ScenariosControllerV3_getScenarios_v3",
         "parameters": [
           {
+            "name": "x-organization-id",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "property",
             "required": false,
             "in": "query",
-            "description": "\n                Property filters. Can be repeated and are AND-ed together.\n                \n                Allowed fields:\n                - id\n                - folderId\n                - hookId\n                - teamId\n                - name\n                - description\n                - isActive\n                - isInvalid\n                - isLocked\n                - isPaused\n                - isWaiting \n                - lastEdit                 \n                \n                Supported operators:\n                - ==  (equals)\n                - !=  (not equals)\n                - >   (greater than)\n                - >=  (greater than or equal)\n                - <   (less than)\n                - <=  (less than or equal)\n                - ~   (case-insensitive regex match)\n                \n                Special cases:\n                - field           → field exists\n                - !field          → field does not exist\n                ",
+            "description": "```\nProperty filters. Can be repeated and are AND-ed together.\n\nAllowed fields:\n- id\n- name\n- teamId\n- description\n- folderId\n- isInvalid\n- isActive\n- isLocked\n- isPaused\n- lastEdit\n- hookId\n\nSupported operators:\n- ==  (equals)\n- !=  (not equals)\n- >   (greater than)\n- >=  (greater than or equal)\n- <   (less than)\n- <=  (less than or equal)\n- ~   (case-insensitive regex match)\n\nSpecial cases:\n- field           \u2192 field exists\n- !field          \u2192 field does not exist\n```",
             "schema": {
+              "example": [
+                "teamId==3849"
+              ],
               "type": "array",
               "items": {
                 "type": "string"
               }
-            }
-          },
-          {
-            "name": "limit",
-            "required": false,
-            "in": "query",
-            "description": "Maximum number of items to return",
-            "schema": {
-              "minimum": 1,
-              "maximum": 100,
-              "example": 50,
-              "type": "number"
             }
           },
           {
@@ -1269,27 +1268,30 @@
             "in": "query",
             "description": "Paging cursor. Must correspond to \"orderby\" field and used only when it is set.",
             "schema": {
+              "example": "123",
               "type": "string"
             }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            },
+            "description": "Maximum number of items to return. Must be a positive integer. Range 1\u2013200."
           },
           {
             "name": "orderby",
             "required": false,
             "in": "query",
-            "description": "Sort property and direction, e.g. +name (ascending) or -name (descending). Allowed fields: id, name, lastEdit",
+            "description": "Sort property and direction, e.g. +id (ascending) or -id (descending). Allowed fields: id, name, lastEdit.",
             "schema": {
-              "example": "-name",
+              "example": "+id",
               "type": "string"
-            }
-          },
-          {
-            "name": "teamId",
-            "required": true,
-            "in": "query",
-            "description": "Team ID to list scenarios for",
-            "schema": {
-              "example": 88,
-              "type": "number"
             }
           }
         ],
@@ -1395,7 +1397,7 @@
         ]
       }
     },
-    "/v3/scenarios/{scenarioId}/dependencies": {
+    "/api/v3/scenarios/{scenarioId}/dependencies": {
       "get": {
         "description": "Returns connections, keys, data stores, hooks, and data structures used by the scenario.",
         "operationId": "ScenariosControllerV3_getScenarioDependency_v3",
@@ -1504,7 +1506,7 @@
         ]
       }
     },
-    "/v3/scenarios/{scenarioId}/clone": {
+    "/api/v3/scenarios/{scenarioId}/clone": {
       "post": {
         "description": "Creates a copy of the scenario in the specified team with the provided replacements.  \n                      Returns the ID of the newly created scenario and sets the `Location` header.\n                      \nRules:\n                      \n- **Same team**: existing connections may be reused and can be omitted from the request body.\n                      \n- **Different team**: connections cannot be reused and must be provided.\n                      \n- If the source scenario contains a **hook**, an unused hook must to be provided.\n                      \n- If **data store / data structure / key IDs** are provided, they are used; otherwise they are duplicated.\n        ",
         "operationId": "ScenariosControllerV3_cloneScenario_v3",
@@ -1699,7 +1701,7 @@
         "properties": {
           "request-id": {
             "type": "string",
-            "description": "Request ID from headers",
+            "description": "Request ID from headers or auto-generated UUID",
             "example": "req-123"
           },
           "x-gw-ims-org-id": {
@@ -1718,7 +1720,10 @@
               "type": "object"
             }
           }
-        }
+        },
+        "required": [
+          "request-id"
+        ]
       },
       "ErrorResponseDto": {
         "type": "object",
@@ -2252,11 +2257,6 @@
             "description": "Whether the scenario is paused due to error",
             "example": false
           },
-          "isWaiting": {
-            "type": "boolean",
-            "description": "Whether the scenario is waiting, meaning that a sequential scenario has incomplete executions and is waiting to process them",
-            "example": false
-          },
           "sequential": {
             "type": "boolean",
             "description": "Whether scenario runs sequentially",
@@ -2575,7 +2575,6 @@
           "isActive",
           "isLocked",
           "isPaused",
-          "isWaiting",
           "sequential",
           "blueprint"
         ]
@@ -2585,22 +2584,23 @@
         "properties": {
           "orderby": {
             "type": "string",
-            "description": "The sort specification used for this page",
-            "example": "-createdAt"
+            "description": "Sort order expression",
+            "example": "+id"
           },
           "start": {
             "type": "string",
-            "description": "The starting value used for this page"
+            "description": "Cursor value of the first item in the current page",
+            "example": "123"
           },
           "next": {
             "type": "string",
-            "description": "The starting value for the next page"
+            "description": "Cursor value for retrieving the next page",
+            "example": "124"
           },
           "property": {
-            "description": "The property filters applied",
+            "description": "Applied `property` filter expression(s) from the request",
             "example": [
-              "name~^Test",
-              "createdAt>=2023-01-01"
+              "teamId==304"
             ],
             "oneOf": [
               {
@@ -2616,11 +2616,12 @@
           },
           "type": {
             "type": "string",
-            "description": "The type filter applied, e.g. template, scenario, agent"
+            "description": "Resource type filter"
           },
           "count": {
             "type": "number",
-            "description": "The number of items in this page"
+            "description": "Number of items in the current page",
+            "example": 100
           }
         },
         "required": [
@@ -2632,13 +2633,13 @@
         "properties": {
           "next": {
             "type": "string",
-            "description": "Non-templated URI for the next page",
-            "example": "/v3/automations?orderby=name&start=Smith&limit=10"
+            "description": "URL to the next page of results",
+            "example": "/v3/{{resource}}?orderby=+id&start=123&property=teamId==304"
           },
           "page": {
             "type": "string",
-            "description": "Templated URI for constructing page requests",
-            "example": "/v3/automations{?orderby,start,limit,property,type}"
+            "description": "URI template for pagination",
+            "example": "/v3/{{resource}}{?orderby,start,limit,property,type}"
           }
         },
         "required": [
@@ -2648,15 +2649,8 @@
       "GetScenariosListResponseDto": {
         "type": "object",
         "properties": {
-          "items": {
-            "description": "Array of scenarios",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ScenarioPublicBlueprintDto"
-            }
-          },
           "_page": {
-            "description": "Page metadata (for v3 standard response)",
+            "description": "Pagination metadata",
             "allOf": [
               {
                 "$ref": "#/components/schemas/PageMetadataDto"
@@ -2664,21 +2658,24 @@
             ]
           },
           "_links": {
-            "description": "Navigation links (for v3 standard response)",
+            "description": "Pagination links",
             "allOf": [
               {
                 "$ref": "#/components/schemas/PageLinksDto"
               }
             ]
           },
-          "total": {
-            "type": "number",
-            "description": "DEPRECATED: Total count of items (for legacy v2 response)",
-            "example": 100,
-            "deprecated": true
+          "items": {
+            "description": "Array of scenarios",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ScenarioBaseDto"
+            }
           }
         },
         "required": [
+          "_page",
+          "_links",
           "items"
         ]
       },
@@ -2785,6 +2782,11 @@
             "items": {
               "$ref": "#/components/schemas/ReplacementDto"
             }
+          },
+          "folderId": {
+            "type": "number",
+            "description": "Folder ID where the cloned scenario will be created",
+            "example": 88
           }
         },
         "required": [
@@ -2803,6 +2805,100 @@
         },
         "required": [
           "id"
+        ]
+      },
+      "ScenarioBaseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Scenario id",
+            "example": 123
+          },
+          "name": {
+            "type": "string",
+            "description": "Scenario name",
+            "example": "Daily data sync"
+          },
+          "teamId": {
+            "type": "number",
+            "description": "Team ID that owns the scenario",
+            "example": 88
+          },
+          "description": {
+            "type": "string",
+            "description": "Scenario description",
+            "example": "Generate an image."
+          },
+          "folderId": {
+            "type": "number",
+            "description": "Folder id where the scenario is stored",
+            "example": 10
+          },
+          "usedPackages": {
+            "description": "List of packages used by the scenario",
+            "example": [
+              "adobe-firefly"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "isInvalid": {
+            "type": "boolean",
+            "description": "Whether the scenario is invalid. A scenario is marked invalid when it is disabled due to consecutive errors",
+            "example": false
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Whether the scenario is activated",
+            "example": false
+          },
+          "isLocked": {
+            "type": "boolean",
+            "description": "Whether the scenario is locked. A locked scenario is not ready to execute.",
+            "example": false
+          },
+          "isPaused": {
+            "type": "boolean",
+            "description": "Whether the scenario is paused due to error",
+            "example": false
+          },
+          "sequential": {
+            "type": "boolean",
+            "description": "Whether scenario runs sequentially",
+            "example": true
+          },
+          "lastEdit": {
+            "type": "string",
+            "description": "Last edit timestamp",
+            "example": "2026-03-05T15:20:00.000Z",
+            "format": "date-time"
+          },
+          "scheduling": {
+            "type": "object",
+            "description": "Scheduling configuration",
+            "example": {
+              "time": "07:53",
+              "type": "daily"
+            }
+          },
+          "hookId": {
+            "type": "number",
+            "description": "Hook id associated with the scenario (if any)",
+            "example": 555
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "teamId",
+          "isInvalid",
+          "isActive",
+          "isLocked",
+          "isPaused",
+          "sequential"
         ]
       }
     }
