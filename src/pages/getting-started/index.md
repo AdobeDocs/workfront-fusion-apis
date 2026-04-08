@@ -32,15 +32,15 @@ The Fusion API roadmap includes expanded functionality for:
 
 To begin integrating with the Workfront Fusion API, follow these steps:
 
-1. **[Credentials](./credentials/index.md)** - Set up OAuth Server-to-Server authentication through the Adobe Developer Console
+1. **[Credentials](credentials/index.md)** - Set up OAuth Server-to-Server authentication through the Adobe Developer Console
 
-2. **[Authentication Guide](./authentication/index.md)** - Learn how to generate and use access tokens to securely call the Fusion API
+2. **[Authentication Guide](authentication/index.md)** - Learn how to generate and use access tokens to securely call the Fusion API
 
-3. **[API Headers](./api_headers/index.md)** - Understand the required headers for properly formatting your API requests
+3. **[API Headers](api_headers/index.md)** - Understand the required headers for properly formatting your API requests
 
-4. **[Technical Accounts](./technical_accounts/index.md)** - Configure permissions for technical accounts to control access
+4. **[Technical Accounts](technical_accounts/index.md)** - Configure permissions for technical accounts to control access
 
-5. **[Usage Notes](./usage_notes/index.md)** - Review API usage guidelines and best practices
+5. **[Usage Notes](usage_notes/index.md)** - Review API usage guidelines and best practices
 
 ## Next Steps
 
