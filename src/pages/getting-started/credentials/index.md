@@ -46,7 +46,8 @@ Can't find the Adobe Fusion? Make sure you are accessing the Developer Console f
 2. On the modal that opens, click Save configured API.
 3. On the next screen you can see your client ID (API key).
 4. If the IMS org has multiple instances, select the instance that you want the API client to be associated with.
-5. To get your client secret, select **OAuth Server-to-Server** in the left navigation, then click **Retrieve client secret**.
+5. To get your client secret, select **OAuth Server-to-Server** in the left navigation, then click **Retrieve client secret**. 
+For OAuth Server-to-Server option to be available, user has to be System Administrator in the IMS organization, or ask the System Administrator in your IMS organization to create the project for you and share the credentials.     
 
 __To make calls to the Fusion API, developer(s) need a valid client ID (API key) and an access token__. Since organization admins are the only ones who can access these projects in the Console, using the __Generate access token__ button on the credential overview page is not ideal.
 
