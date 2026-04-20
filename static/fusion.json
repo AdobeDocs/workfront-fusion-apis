@@ -235,14 +235,6 @@
             }
           }
         },
-        "security": [
-          {
-            "Authorization": [],
-            "API Key": [],
-            "IMS Org ID": [],
-            "Region": []
-          }
-        ],
         "summary": "Get activity logs",
         "tags": [
           "Activity Logs"
@@ -437,14 +429,6 @@
             }
           }
         },
-        "security": [
-          {
-            "Authorization": [],
-            "API Key": [],
-            "IMS Org ID": [],
-            "Region": []
-          }
-        ],
         "summary": "Export activity logs",
         "tags": [
           "Activity Logs"
@@ -806,14 +790,6 @@
             }
           }
         },
-        "security": [
-          {
-            "Authorization": [],
-            "API Key": [],
-            "IMS Org ID": [],
-            "Region": []
-          }
-        ],
         "summary": "Get operations count",
         "tags": [
           "Operations"
@@ -1091,14 +1067,6 @@
             }
           }
         },
-        "security": [
-          {
-            "Authorization": [],
-            "API Key": [],
-            "IMS Org ID": [],
-            "Region": []
-          }
-        ],
         "summary": "Get operations summary",
         "tags": [
           "Operations"
@@ -1220,14 +1188,6 @@
             }
           }
         },
-        "security": [
-          {
-            "Authorization": [],
-            "API Key": [],
-            "IMS Org ID": [],
-            "Region": []
-          }
-        ],
         "summary": "Get scenario by ID",
         "tags": [
           "Scenarios"
@@ -1383,14 +1343,6 @@
             }
           }
         },
-        "security": [
-          {
-            "Authorization": [],
-            "API Key": [],
-            "IMS Org ID": [],
-            "Region": []
-          }
-        ],
         "summary": "List scenarios",
         "tags": [
           "Scenarios"
@@ -1492,14 +1444,6 @@
             }
           }
         },
-        "security": [
-          {
-            "Authorization": [],
-            "API Key": [],
-            "IMS Org ID": [],
-            "Region": []
-          }
-        ],
         "summary": "Get scenario dependencies",
         "tags": [
           "Scenarios"
@@ -1620,17 +1564,136 @@
             }
           }
         },
-        "security": [
-          {
-            "Authorization": [],
-            "API Key": [],
-            "IMS Org ID": [],
-            "Region": []
-          }
-        ],
         "summary": "Clone scenario",
         "tags": [
           "Scenarios"
+        ]
+      }
+    },
+    "/api/v3/hooks": {
+      "get": {
+        "operationId": "HooksV3Controller_getWebhooks_v3",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "query",
+            "description": "Team ID to filter hooks by",
+            "schema": {
+              "example": 123,
+              "type": "number"
+            }
+          },
+          {
+            "name": "property",
+            "required": false,
+            "in": "query",
+            "description": "```\nProperty filters. Can be repeated and are AND-ed together.\n\nAllowed fields:\n- id\n- name\n- udid\n- type\n- enabled\n- gone\n- typeName\n- scenarioId\n- detachAccountId\n- priority\n\nSupported operators:\n- ==  (equals)\n- !=  (not equals)\n- >   (greater than)\n- >=  (greater than or equal)\n- <   (less than)\n- <=  (less than or equal)\n- ~   (case-insensitive regex match)\n\nSpecial cases:\n- field           → field exists\n- !field          → field does not exist\n```",
+            "schema": {
+              "example": [
+                "teamId==3849"
+              ],
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "start",
+            "required": false,
+            "in": "query",
+            "description": "Paging cursor. Must correspond to \"orderby\" field and used only when it is set.",
+            "schema": {
+              "example": "123",
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            },
+            "description": "Maximum number of items to return. Must be a positive integer. Range 1–200."
+          },
+          {
+            "name": "orderby",
+            "required": false,
+            "in": "query",
+            "description": "Sort property and direction, e.g. +id (ascending) or -id (descending). Allowed fields: id, name, teamId, udid, type, priority.",
+            "schema": {
+              "example": "+id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of hooks",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetHooksListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Hooks"
+        ]
+      }
+    },
+    "/api/v3/hooks/{hookId}": {
+      "get": {
+        "description": "Retrieves detailed information about a specific hook via the V3 API.",
+        "operationId": "HooksV3Controller_get_v3",
+        "parameters": [
+          {
+            "name": "hookId",
+            "required": true,
+            "in": "path",
+            "description": "Numeric ID of the hook to retrieve",
+            "schema": {
+              "example": 123,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Hook details retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "hook": {
+                      "$ref": "#/components/schemas/HookDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Missing or invalid credentials"
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions"
+          },
+          "404": {
+            "description": "Hook not found"
+          }
+        },
+        "summary": "Get hook details by ID (V3)",
+        "tags": [
+          "Hooks"
         ]
       }
     }
@@ -1659,6 +1722,10 @@
     },
     {
       "name": "Scenarios",
+      "description": ""
+    },
+    {
+      "name": "Hooks",
       "description": ""
     }
   ],
@@ -2899,6 +2966,182 @@
           "isLocked",
           "isPaused",
           "sequential"
+        ]
+      },
+      "HookDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Unique identifier for the hook",
+            "example": 123
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the hook",
+            "example": "My Hook"
+          },
+          "teamId": {
+            "type": "number",
+            "description": "Team ID associated with the hook",
+            "example": 456
+          },
+          "udid": {
+            "type": "string",
+            "description": "Unique device identifier",
+            "example": "abc123-def456"
+          },
+          "type": {
+            "type": "string",
+            "description": "Type of the hook",
+            "example": "web"
+          },
+          "packageName": {
+            "type": "string",
+            "description": "Package name associated with the hook",
+            "example": "com.example.app"
+          },
+          "theme": {
+            "type": "string",
+            "description": "Theme configuration for the hook",
+            "example": "dark"
+          },
+          "editable": {
+            "type": "boolean",
+            "description": "Whether the hook is editable",
+            "example": true
+          },
+          "flags": {
+            "type": "object",
+            "description": "Configuration flags for the hook",
+            "example": {
+              "retryEnabled": true,
+              "maxRetries": 3
+            }
+          },
+          "queueCount": {
+            "type": "number",
+            "description": "Current number of items in the queue",
+            "example": 5
+          },
+          "queueLimit": {
+            "type": "number",
+            "description": "Maximum number of items allowed in the queue",
+            "example": 100
+          },
+          "enabled": {
+            "type": "boolean",
+            "description": "Whether the hook is enabled",
+            "example": true
+          },
+          "gone": {
+            "type": "boolean",
+            "description": "Whether the hook has been deleted",
+            "example": false
+          },
+          "learning": {
+            "type": "boolean",
+            "description": "Whether the hook is in learning process or not",
+            "example": false
+          },
+          "typeName": {
+            "type": "string",
+            "description": "Human-readable type name",
+            "example": "Webhook Handler"
+          },
+          "appHookName": {
+            "type": "string",
+            "description": "Human-readable type name for JSON hooks only",
+            "example": "Webhook Handler"
+          },
+          "data": {
+            "type": "object",
+            "description": "Additional data associated with the hook",
+            "example": {
+              "endpoint": "https://api.example.com/webhook"
+            }
+          },
+          "scenarioId": {
+            "type": "number",
+            "description": "Scenario ID associated with the hook",
+            "example": 789
+          },
+          "detachAccountId": {
+            "type": "number",
+            "description": "Account ID associated with the hook",
+            "example": 789
+          },
+          "url": {
+            "type": "string",
+            "description": "URL endpoint for the hook",
+            "example": "https://api.example.com/webhook"
+          },
+          "priority": {
+            "type": "object",
+            "description": "Priority for the hook",
+            "example": "High"
+          },
+          "detached": {
+            "type": "boolean",
+            "description": "Whether the hook has been detached",
+            "example": "false"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "teamId",
+          "udid",
+          "type",
+          "packageName",
+          "theme",
+          "editable",
+          "flags",
+          "queueCount",
+          "queueLimit",
+          "enabled",
+          "gone",
+          "learning",
+          "typeName",
+          "appHookName",
+          "data",
+          "scenarioId",
+          "detachAccountId",
+          "priority",
+          "detached"
+        ]
+      },
+      "GetHooksListResponseDto": {
+        "type": "object",
+        "properties": {
+          "_page": {
+            "description": "Pagination metadata",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PageMetadataDto"
+              }
+            ]
+          },
+          "_links": {
+            "description": "Pagination links",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PageLinksDto"
+              }
+            ]
+          },
+          "items": {
+            "description": "Array of hooks",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HookDto"
+            }
+          }
+        },
+        "required": [
+          "_page",
+          "_links",
+          "items"
         ]
       }
     }
