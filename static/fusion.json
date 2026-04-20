@@ -1572,6 +1572,7 @@
     },
     "/api/v3/hooks": {
       "get": {
+        "summary": "List hooks",
         "operationId": "HooksV3Controller_getWebhooks_v3",
         "parameters": [
           {
@@ -1651,7 +1652,8 @@
     },
     "/api/v3/hooks/{hookId}": {
       "get": {
-        "description": "Retrieves detailed information about a specific hook via the V3 API.",
+        "summary": "Get hook by ID",
+        "description": "Retrieves detailed information about a specific hook.",
         "operationId": "HooksV3Controller_get_v3",
         "parameters": [
           {
@@ -1691,7 +1693,6 @@
             "description": "Hook not found"
           }
         },
-        "summary": "Get hook details by ID (V3)",
         "tags": [
           "Hooks"
         ]
