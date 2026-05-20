@@ -1697,6 +1697,598 @@
           "Hooks"
         ]
       }
+    },
+    "/api/v3/logs/executions": {
+      "get": {
+        "operationId": "PublicLogController_getExecutions_v3",
+        "summary": "List Executions",
+        "tags": [
+          "Execution Logs"
+        ],
+        "security": [
+          {
+            "IMS Org ID": []
+          },
+          {
+            "Authorization": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "scenarioId",
+            "required": false,
+            "in": "query",
+            "description": "Scenario identifier. Mutually exclusive with dlqId.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dlqId",
+            "required": false,
+            "in": "query",
+            "description": "Incomplete execution (DLQ) identifier. Mutually exclusive with scenarioId.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "showCheckRuns",
+            "required": false,
+            "in": "query",
+            "description": "Include small check-run executions",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "property",
+            "required": false,
+            "in": "query",
+            "description": "```\nProperty filters. Can be repeated and are AND-ed together.\n\nAllowed fields:\n- id\n- status\n- timestamp\n- duration\n- operations\n- transfer\n\nSupported operators:\n- ==  (equals)\n- !=  (not equals)\n- >   (greater than)\n- >=  (greater than or equal)\n- <   (less than)\n- <=  (less than or equal)\n- ~   (case-insensitive regex match)\n\nSpecial cases:\n- field           → field exists\n- !field          → field does not exist\n```",
+            "schema": {
+              "example": [
+                "teamId==3849"
+              ],
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "start",
+            "required": false,
+            "in": "query",
+            "description": "Paging cursor. Must correspond to \"orderby\" field and used only when it is set.",
+            "schema": {
+              "example": "123",
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of items to return. Must be a positive integer. Range 1–200.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          },
+          {
+            "name": "orderby",
+            "required": false,
+            "in": "query",
+            "description": "Sort property and direction, e.g. +id (ascending) or -id (descending). Allowed fields: timestamp.",
+            "schema": {
+              "example": "+id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecutionSearchResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "Bad Request: exactly one of scenarioId or dlqId is required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Access denied",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ResourceNotFound",
+                  "status": 404,
+                  "title": "Not Found",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/logs/executions/{executionId}": {
+      "get": {
+        "operationId": "PublicLogController_getExecutionById_v3",
+        "summary": "Get Execution",
+        "tags": [
+          "Execution Logs"
+        ],
+        "security": [
+          {
+            "IMS Org ID": []
+          },
+          {
+            "Authorization": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "executionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "scenarioId",
+            "required": false,
+            "in": "query",
+            "description": "Scenario identifier. Mutually exclusive with dlqId.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dlqId",
+            "required": false,
+            "in": "query",
+            "description": "Incomplete execution (DLQ) identifier. Mutually exclusive with scenarioId.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Details of the Execution",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecutionDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "Bad Request: exactly one of scenarioId or dlqId is required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Access denied",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ResourceNotFound",
+                  "status": 404,
+                  "title": "Not Found",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/logs/executions/{executionId}/details": {
+      "get": {
+        "operationId": "PublicLogController_getExecutionDetails_v3",
+        "summary": "Get Execution Logs Details",
+        "tags": [
+          "Execution Logs"
+        ],
+        "security": [
+          {
+            "IMS Org ID": []
+          },
+          {
+            "Authorization": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "executionId",
+            "required": true,
+            "in": "path",
+            "description": "The unique identifier for the execution.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "scenarioId",
+            "required": false,
+            "in": "query",
+            "description": "Scenario identifier. Mutually exclusive with dlqId.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dlqId",
+            "required": false,
+            "in": "query",
+            "description": "Incomplete execution (DLQ) identifier. Mutually exclusive with scenarioId.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "logType",
+            "required": false,
+            "in": "query",
+            "description": "Type of log data to retrieve: detail (default), debug, or bundle",
+            "schema": {
+              "enum": [
+                "detail",
+                "debug",
+                "bundle"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "level",
+            "required": false,
+            "in": "query",
+            "description": "Minimum log severity filter — returns logs at this level and above",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "trace",
+                "debug",
+                "info",
+                "warn",
+                "error",
+                "fatal"
+              ]
+            }
+          },
+          {
+            "name": "module",
+            "required": false,
+            "in": "query",
+            "description": "Module identifier (required when logType=debug)",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "cycle",
+            "required": false,
+            "in": "query",
+            "description": "Cycle number (required when logType=debug)",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "operation",
+            "required": false,
+            "in": "query",
+            "description": "Operation code (required when logType=debug)",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "orderby",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "start",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "property",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The detailed logs, debug data, or bundle data of a specific execution based on logType parameter."
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "Bad Request: bundle log type is not yet supported",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Access denied",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ResourceNotFound",
+                  "status": 404,
+                  "title": "Not Found",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "info": {
@@ -1728,6 +2320,10 @@
     {
       "name": "Hooks",
       "description": ""
+    },
+    {
+      "name": "Execution Logs",
+      "description": "Endpoints for retrieving execution logs from Fusion scenarios."
     }
   ],
   "servers": [
@@ -3110,6 +3706,165 @@
           "detachAccountId",
           "priority",
           "detached"
+        ]
+      },
+      "ExecutionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Execution identifier",
+            "example": "62672b87ce5a449dae743947962da8b7"
+          },
+          "type": {
+            "type": "string",
+            "description": "Execution type",
+            "example": "auto"
+          },
+          "kind": {
+            "type": "string",
+            "description": "Execution kind",
+            "example": "scenario"
+          },
+          "kindId": {
+            "type": "string",
+            "description": "Kind identifier",
+            "example": "87"
+          },
+          "teamId": {
+            "type": "number",
+            "description": "Team ID",
+            "example": 1
+          },
+          "organizationId": {
+            "type": "number",
+            "description": "Organization ID",
+            "example": 1
+          },
+          "authorId": {
+            "type": "number",
+            "description": "Author user ID",
+            "example": 2555
+          },
+          "status": {
+            "type": "number",
+            "description": "Execution status code",
+            "example": 1
+          },
+          "trigger": {
+            "type": "string",
+            "description": "Execution trigger",
+            "example": "manual"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Execution timestamp",
+            "example": "2024-02-14T21:08:51.961Z"
+          },
+          "duration": {
+            "type": "number",
+            "description": "Execution duration in milliseconds",
+            "example": 233
+          },
+          "verifier": {
+            "type": "boolean",
+            "description": "Verifier run",
+            "example": false
+          },
+          "bundles": {
+            "type": "number",
+            "description": "Bundle count",
+            "example": 1
+          },
+          "operations": {
+            "type": "number",
+            "description": "Operations count",
+            "example": 2
+          },
+          "transfer": {
+            "type": "number",
+            "description": "Transferred bytes",
+            "example": 17
+          },
+          "modules": {
+            "description": "Module statistics for the execution",
+            "example": [
+              {
+                "package": "gateway",
+                "module": "CustomWebHook",
+                "operations": 1
+              }
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "processing": {
+            "type": "boolean",
+            "description": "Whether execution is still processing",
+            "example": false
+          },
+          "config": {
+            "type": "object",
+            "description": "Execution configuration",
+            "example": {
+              "retry": true
+            }
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "kind",
+          "kindId",
+          "teamId",
+          "organizationId",
+          "authorId",
+          "status",
+          "trigger",
+          "timestamp",
+          "duration",
+          "verifier",
+          "bundles",
+          "operations",
+          "transfer",
+          "modules",
+          "processing",
+          "config"
+        ]
+      },
+      "ExecutionSearchResponseDto": {
+        "type": "object",
+        "properties": {
+          "_page": {
+            "description": "Pagination metadata",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PageMetadataDto"
+              }
+            ]
+          },
+          "_links": {
+            "description": "Pagination links",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PageLinksDto"
+              }
+            ]
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExecutionDto"
+            }
+          }
+        },
+        "required": [
+          "_page",
+          "_links",
+          "items"
         ]
       },
       "GetHooksListResponseDto": {
