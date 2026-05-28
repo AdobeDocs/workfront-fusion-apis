@@ -1,0 +1,63 @@
+{
+  "total": 9,
+  "offset": 0,
+  "limit": 9,
+  "data": [
+    {
+      "page": "/",
+      "avatars": [
+        "https://avatars.githubusercontent.com/u/41382203?v=4"
+      ],
+      "lastUpdated": "1/28/2026"
+    },
+    {
+      "page": "/api/",
+      "avatars": [
+        "https://avatars.githubusercontent.com/u/41382203?v=4"
+      ],
+      "lastUpdated": "2/2/2026"
+    },
+    {
+      "page": "/config",
+      "avatars": [
+        "https://avatars.githubusercontent.com/u/41382203?v=4"
+      ],
+      "lastUpdated": "1/26/2026"
+    },
+    {
+      "page": "/getting-started/",
+      "avatars": [],
+      "lastUpdated": "1/28/2026"
+    },
+    {
+      "page": "/getting-started/api_headers/",
+      "avatars": [
+        "https://avatars.githubusercontent.com/u/46099506?v=4"
+      ],
+      "lastUpdated": "2/26/2026"
+    },
+    {
+      "page": "/getting-started/authentication/",
+      "avatars": [
+        "https://avatars.githubusercontent.com/u/46099506?v=4"
+      ],
+      "lastUpdated": "2/26/2026"
+    },
+    {
+      "page": "/getting-started/credentials/",
+      "avatars": [],
+      "lastUpdated": "1/28/2026"
+    },
+    {
+      "page": "/getting-started/technical_accounts/",
+      "avatars": [],
+      "lastUpdated": "1/28/2026"
+    },
+    {
+      "page": "/getting-started/usage_notes/",
+      "avatars": [],
+      "lastUpdated": "1/28/2026"
+    }
+  ],
+  ":type": "sheet"
+}
