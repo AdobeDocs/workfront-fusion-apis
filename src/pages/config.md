@@ -11,6 +11,7 @@
 - subPages:
     - [Getting Started](getting-started/index.md)
     - [API Headers](getting-started/api_headers/index.md)
+    - [Changelog](getting-started/changelog/index.md)
     - [Authentication](getting-started/authentication/index.md) 
         - [Create Credentials](getting-started/credentials/index.md)
         - [Technical Account in Fusion](getting-started/technical_accounts/index.md)
