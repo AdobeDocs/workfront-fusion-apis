@@ -17785,13 +17785,5 @@
         "description": "**Required.** Routes requests to the correct Fusion regional instance.\n\n**Example:** `or2`\n\n[API Headers Documentation](https://developer-stage.adobe.com/workfront-fusion-apis/getting-started/api_headers/)\n"
       }
     }
-  },
-  "x-tagGroups": [
-    {
-      "name": "Public",
-      "tags": [
-        "Public Logs Endpoint"
-      ]
-    }
-  ]
+  }
 }
