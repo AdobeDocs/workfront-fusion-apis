@@ -40,7 +40,7 @@ This header is required for proper request routing.
 
 **Where to find:** Developer Console > Your Project > Credentials > Client ID
 
-See the [Authentication guide](/workfront-fusion-apis/getting-started/credentials/index.md) for detailed instructions on obtaining your Client ID.
+See the [Authentication guide](../credentials/index.md) for detailed instructions on obtaining your Client ID.
 
 ### x-organization-id
 
@@ -61,7 +61,7 @@ See the [Authentication guide](/workfront-fusion-apis/getting-started/credential
 Authorization: Bearer {access_token}
 ```
 
-See the [Authentication guide](/workfront-fusion-apis/getting-started/credentials/) for detailed instructions on obtaining access tokens.
+See the [Authentication guide](../credentials/index.md) for detailed instructions on obtaining access tokens.
 
 ## Common Error Responses
 
@@ -111,4 +111,4 @@ For existing public endpoints, please switch to using the Fusion organization ID
 
 For the **activity logs** and **operations** endpoints specifically, switch to passing the organization identifier as the `x-organization-id` header instead of as a route parameter or query parameter. Endpoints that currently accept `organizationId` as a route or query parameter will continue to work for 2 weeks, after which they will be deprecated in favor of the `x-organization-id` header.
 
-See the [API Reference](/workfront-fusion-apis/api/index.md) for the latest endpoint details.
+See the [API Reference](../../api/index.md) for the latest endpoint details.
