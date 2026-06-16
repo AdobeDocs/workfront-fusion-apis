@@ -1,3 +1,15 @@
+---
+title: Technical Accounts
+description: Learn about the permissions of technical accounts in Workfront Fusion
+keywords:
+  - Workfront Fusion API
+  - Technical Accounts
+  - Permissions
+contributors:
+  - 'https://github.com/annieTechno'
+hideBreadcrumbNav: true
+---
+
 # Permissions of Technical Accounts
 
 By default, technical accounts created from server-to-server projects are added to the Fusion organization as members with standard permissions. Without any additional configuration, the technical account user will be an **organization member** only and will not be part of any team.

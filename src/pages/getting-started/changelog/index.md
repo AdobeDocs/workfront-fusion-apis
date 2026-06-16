@@ -1,3 +1,15 @@
+---
+title: Changelog
+description: History of changes to the Workfront Fusion API
+keywords:
+  - Workfront Fusion API
+  - Changelog
+  - API Updates
+contributors:
+  - 'https://github.com/annieTechno'
+hideBreadcrumbNav: true
+---
+
 # Changelog
 
 ## June 17, 2026
@@ -44,7 +56,7 @@
     - Removed path parameter: `orgId`
     - Added parameter: `x-organization-id`
 
----
+<HorizontalLine />
 
 ## February 1, 2026
 
@@ -55,4 +67,4 @@
 - `GET` **Get operations count** — Get operations count
 - `GET` **Get operations summary** — Get operations summary
 
----
+<HorizontalLine />

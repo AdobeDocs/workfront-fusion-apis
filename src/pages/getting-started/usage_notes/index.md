@@ -1,3 +1,16 @@
+---
+title: Usage Notes
+description: Common API patterns and usage notes for Workfront Fusion APIs
+keywords:
+  - Workfront Fusion API
+  - Usage Notes
+  - Pagination
+  - Search
+contributors:
+  - 'https://github.com/annieTechno'
+hideBreadcrumbNav: true
+---
+
 # Usage notes
 
 These common patterns are used across all Workfront Fusion API endpoints. For more information, see the API reference for specific resources
