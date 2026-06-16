@@ -34,14 +34,14 @@ Learn how to authenticate requests to Workfront Fusion APIs
 
 ## Overview
 
-Every request made to Workfront Fusion APIs must include an encrypted access token. Your secure, server-side application retrieves an access token by making a request to the [Adobe Identity Management System (IMS)](https://www.adobe.com/content/dam/cc/en/trust-center/ungated/whitepapers/corporate/adobe-identity-management-services-security-overview.pdf) with your **Client ID** and **Client Secret**.
+Every request made to Workfront Fusion APIs must include an encrypted access token. Your secure, server-side application retrieves an access token by making a request to the [Adobe Identity Management System (IMS)](https://developer.adobe.com/developer-console/docs/guides/authentication/) with your **Client ID** and **Client Secret**.
 
 ## Prerequisites
 
 This tutorial assumes you have worked with your Adobe Representative and have the following:
 
 * An [Adobe Developer Console](https://developer.adobe.com/) account.
-* A project with Adobe Fusion API [OAuth Server-to-Server credentials set up](https://developer.adobe.com/developer-console/docs/guides/services/services-add-api-oauth-s2s/). For more instructions on project creation, see [Create Credentials page](/workfront-fusion-apis/getting-started/credentials/).
+* A project with Adobe Fusion API [OAuth Server-to-Server credentials set up](https://developer.adobe.com/developer-console/docs/guides/services/services-add-api-oauth-s2s/). For more instructions on project creation, see [Create Credentials page](../credentials/index.md).
 * Access to your Client ID and Client Secret from the [Adobe Developer Console project](https://developer.adobe.com/developer-console/docs/guides/services/services-add-api-oauth-s2s/#api-overview). Securely store these credentials and never expose them in client-side or public code.
 
 ## Retrieve an access token
@@ -78,4 +78,4 @@ Export your access token as an environment variable:
 export FUSION_ACCESS_TOKEN=yourExampleToken
 ```
 
-Ready to put your API authentication to use? Continue to the [API Reference](/workfront-fusion-apis/api/) to explore available endpoints.
+Ready to put your API authentication to use? Continue to the [API Reference](../../api/index.md) to explore available endpoints.
