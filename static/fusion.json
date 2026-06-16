@@ -4501,15 +4501,6 @@
               "example": 501,
               "type": "number"
             }
-          },
-          {
-            "name": "x-organization-id",
-            "in": "header",
-            "description": "Fusion organization ID",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -4929,15 +4920,6 @@
             "schema": {
               "example": 501,
               "type": "number"
-            }
-          },
-          {
-            "name": "x-organization-id",
-            "in": "header",
-            "description": "Fusion organization ID",
-            "required": true,
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -5444,14 +5426,6 @@
             "description": "Sort property and direction, e.g. +id (ascending) or -id (descending). Allowed fields: timestamp.",
             "schema": {
               "example": "+id",
-              "type": "string"
-            }
-          },
-          {
-            "name": "x-organization-id",
-            "in": "header",
-            "required": true,
-            "schema": {
               "type": "string"
             }
           }
@@ -6120,14 +6094,6 @@
               "example": "+id",
               "type": "string"
             }
-          },
-          {
-            "name": "x-organization-id",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -6632,14 +6598,6 @@
             "description": "Filter results by operations count. When `groupby` is used, filters the nested arrays by their operations value.\n\n**Format:** `operations<operator><value>`\n\n**Operators:**\n- `==` equals\n- `!=` not equals\n- `>` greater than\n- `>=` greater than or equal to\n- `<` less than\n- `<=` less than or equal to",
             "schema": {
               "example": "operations>=100",
-              "type": "string"
-            }
-          },
-          {
-            "name": "x-organization-id",
-            "in": "header",
-            "required": true,
-            "schema": {
               "type": "string"
             }
           }
@@ -7278,14 +7236,6 @@
             "description": "Filter scenarios by their total operations count within the specified date range.\n\n**Format:** `operations<operator><value>`\n\n**Operators:**\n- `==` equals\n- `!=` not equals\n- `>` greater than\n- `>=` greater than or equal to\n- `<` less than\n- `<=` less than or equal to",
             "schema": {
               "example": "operations>=100",
-              "type": "string"
-            }
-          },
-          {
-            "name": "x-organization-id",
-            "in": "header",
-            "required": true,
-            "schema": {
               "type": "string"
             }
           }
@@ -11354,14 +11304,6 @@
               "example": "+id",
               "type": "string"
             }
-          },
-          {
-            "name": "x-organization-id",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -12017,14 +11959,6 @@
             "schema": {
               "example": 1,
               "type": "number"
-            }
-          },
-          {
-            "name": "x-organization-id",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "type": "string"
             }
           }
         ],
