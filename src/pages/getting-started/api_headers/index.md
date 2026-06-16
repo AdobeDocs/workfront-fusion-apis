@@ -28,13 +28,13 @@ This header is required for proper request routing.
 
 See the [Authentication guide](/workfront-fusion-apis/getting-started/credentials/) for detailed instructions on obtaining your Client ID.
 
-### x-gw-ims-org-id
+### x-organization-id
 
-**Purpose:** Identifies your IMS organization.
+**Purpose:** Identifies your Fusion organization and is a number.
 
-**Description:** The IMS Organization ID validates that the Fusion product is provisioned for your organization and that the user or technical account in the Authorization header has appropriate access.
+**Description:** Scopes all requests to a specific Fusion organization ID for security reasons and validates that the user belongs to that organization when requesting data.
 
-**Where to find:** Developer Console > Your Project > Credentials > Organization ID
+**Where to find:** Visit the org overview page of the organization you want to work with. In the routing, locate the organization ID: `.../organization/{{organizationId}}/dashboard`. Set this once in your scripts and bind all requests with this identifier.
 
 ### Authorization
 
@@ -87,4 +87,14 @@ When required headers are missing or invalid, the API returns the following erro
   "message": "Missing header"
 }
 ```
-**Cause:** A required header (such as `x-gw-region`) was not provided in the request. 
+**Cause:** A required header (such as `x-gw-region`) was not provided in the request.
+
+## Moving from x-gw-ims-org-id
+
+For public API usage, the tenant identifier on the Fusion end is the Fusion organization identifier. This is because many Fusion organizations can be mapped to the same IMS organization, making the IMS org ID insufficient to uniquely scope requests.
+
+For existing public endpoints, please switch to using the Fusion organization ID via the `x-organization-id` header.
+
+For the **activity logs** and **operations** endpoints specifically, switch to passing the organization identifier as the `x-organization-id` header instead of as a route parameter or query parameter. Endpoints that currently accept `organizationId` as a route or query parameter will continue to work for 2 weeks, after which they will be deprecated in favor of the `x-organization-id` header.
+
+See the [API Reference](/workfront-fusion-apis/fusion.json) for the latest endpoint details.
