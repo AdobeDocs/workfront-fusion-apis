@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.3",
+  "openapi": "3.1.0",
   "info": {
     "title": "Workfront Fusion API",
     "description": "REST APIs for managing and monitoring your Workfront Fusion resources. Use these APIs to programmatically access activity logs and other Fusion components coming soon.\n\n**Base URL:** https://fusion.adobe.io\n\n**Getting Started:**\n\n For detailed setup instructions, make sure to visit the [Getting Started guide](https://developer-stage.adobe.com/workfront-fusion-apis/getting-started/).\n1. Set up authentication in Adobe Developer Console, as documented [here](https://developer-stage.adobe.com/workfront-fusion-apis/getting-started/authentication/).\n2. Obtain required headers (Authorization, x-api-key, x-organization-id, x-gw-region). More details [here](https://developer-stage.adobe.com/workfront-fusion-apis/getting-started/api_headers/).\n3. Update permissions for the technical account, as documented [here](https://developer-stage.adobe.com/workfront-fusion-apis/getting-started/technical_accounts/).\n4. Make your first API call.\n",
