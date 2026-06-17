@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Workfront Fusion API — Partner Demo Deck</title>
+<style>
+
+/* ── RESET ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { background: #555; }
+body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+
+/* ── SLIDE BASE (16:9, 1280 × 720) ─────────────────────── */
+.slide {
+  width: 1280px;
+  height: 720px;
+  position: relative;
+  overflow: hidden;
+  display: block;
+  margin: 20px auto;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+}
+
+/* ── PRINT: 1 slide = 1 page ────────────────────────────── */
+@media print {
+  html { background: white; }
+  body { margin: 0; }
+  .slide { margin: 0; page-break-after: always; break-after: page; box-shadow: none; }
+  @page { size: 1280px 720px; margin: 0; }
+}
+
+/* ── TOKENS ─────────────────────────────────────────────── */
+:root {
+  --red:      #FA0F00;
+  --red-dark: #C60B00;
+  --gray:     #323232;
+  --white:    #FFFFFF;
+  --ink:      #2C2C2C;
+  --muted:    #767676;
+  --line:     #E8E8E8;
+  --tint:     #FFF8F7;
+}
+
+/* ════════════════════════════════════════════════════════
+   ADOBE LOGO SVG (reused inline per slide via symbol)
+   ════════════════════════════════════════════════════════ */
+.adobe-logo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.adobe-logo svg { flex-shrink: 0; }
+.adobe-logo .adobe-wordmark {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* ════════════════════════════════════════════════════════
+   SLIDE TYPE: COVER
+   ════════════════════════════════════════════════════════ */
+.slide-cover { background: var(--red); display: flex; }
+
+.cover-left {
+  width: 54%;
+  padding: 52px 48px 44px 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  z-index: 1;
+}
+
+.cover-logo .adobe-wordmark { color: white; font-size: 18px; }
+
+.cover-body { padding-bottom: 0; }
+
+.cover-title {
+  color: white;
+  font-size: 54px;
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.5px;
+  margin-bottom: 14px;
+}
+
+.cover-subtitle {
+  color: rgba(255,255,255,0.88);
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.4;
+  margin-bottom: 28px;
+}
+
+.cover-meta { color: rgba(255,255,255,0.85); font-size: 15px; line-height: 2; }
+
+/* ── Cover pattern panel ── */
+.cover-right {
+  width: 46%;
+  background: var(--red-dark);
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  align-content: start;
+}
+
+.a-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  opacity: 0.85;
+}
+
+.a-cell svg { width: 100%; height: auto; }
+
+/* ════════════════════════════════════════════════════════
+   SLIDE TYPE: DARK DIVIDER
+   ════════════════════════════════════════════════════════ */
+.slide-divider { background: var(--gray); }
+
+/* ════════════════════════════════════════════════════════
+   SLIDE TYPE: CONTENT (white)
+   ════════════════════════════════════════════════════════ */
+.slide-content { background: white; display: flex; flex-direction: column; }
+
+.slide-head {
+  padding: 38px 58px 0;
+  border-bottom: 2px solid var(--red);
+  padding-bottom: 14px;
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+
+.slide-title {
+  color: var(--red);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  line-height: 1.15;
+}
+
+.slide-body {
+  padding: 16px 58px 62px;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── Archetype badge ── */
+.archetype {
+  position: absolute;
+  top: 28px;
+  right: 48px;
+  background: #F4F4F4;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+/* ── Pain headline ── */
+.pain-hed {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.25;
+  margin: 12px 0 14px;
+}
+
+/* ── Quote block ── */
+.quote {
+  border-left: 4px solid var(--red);
+  background: #FAFAFA;
+  padding: 12px 18px;
+  margin-bottom: 18px;
+  border-radius: 0 4px 4px 0;
+}
+.quote p {
+  font-size: 15px;
+  font-style: italic;
+  color: var(--ink);
+  line-height: 1.55;
+}
+.quote .attr {
+  font-size: 11.5px;
+  color: var(--muted);
+  margin-top: 6px;
+  font-style: normal;
+}
+
+/* ── Can't-do list ── */
+.cant-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+.cant-list { list-style: none; }
+.cant-list li {
+  font-size: 15px;
+  color: var(--ink);
+  padding: 5px 0 5px 22px;
+  position: relative;
+  line-height: 1.4;
+}
+.cant-list li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--red);
+  font-weight: 700;
+}
+
+/* ── API sequence table ── */
+.api-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0 8px;
+  font-size: 13px;
+}
+.api-table thead th {
+  background: var(--red);
+  color: white;
+  padding: 8px 11px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+.api-table thead th:first-child { width: 42px; text-align: center; }
+.api-table tbody td {
+  padding: 8px 11px;
+  color: var(--ink);
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+  line-height: 1.35;
+}
+.api-table tbody td:first-child {
+  font-weight: 700;
+  color: var(--red);
+  text-align: center;
+  font-size: 14px;
+}
+.api-table tbody tr:nth-child(even) td { background: #FAFAFA; }
+
+.call-pill {
+  display: inline-block;
+  background: #EEF0FF;
+  color: #1A1A8C;
+  font-family: 'Courier New', 'Lucida Console', monospace;
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+.method { color: var(--red); font-weight: 700; font-family: inherit; font-size: 11px; }
+
+/* ── Outcome box ── */
+.outcome {
+  background: var(--tint);
+  border: 1px solid #FFD5D0;
+  border-left: 4px solid var(--red);
+  padding: 10px 15px;
+  border-radius: 0 4px 4px 0;
+  margin-top: 10px;
+}
+.outcome-lbl {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--red);
+  margin-bottom: 4px;
+}
+.outcome p { font-size: 13.5px; color: var(--ink); line-height: 1.4; }
+
+/* ── Table note ── */
+.tbl-note {
+  font-size: 11.5px;
+  color: var(--muted);
+  font-style: italic;
+  margin-top: 5px;
+}
+
+/* ── Intro overview table ── */
+.ov-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin-top: 12px;
+}
+.ov-table thead th {
+  background: var(--red);
+  color: white;
+  padding: 9px 16px;
+  text-align: left;
+  font-size: 13px;
+}
+.ov-table tbody td {
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+}
+.ov-table tbody tr:nth-child(even) td { background: #FAFAFA; }
+.ov-table .res { font-weight: 700; color: var(--red); width: 200px; }
+
+.intro-sub {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 12px;
+  padding: 8px 12px;
+  background: #F7F7F7;
+  border-radius: 4px;
+  font-style: italic;
+}
+
+/* ── FOOTER ── */
+.slide-footer {
+  position: absolute;
+  bottom: 16px;
+  left: 48px;
+  right: 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.footer-copy { font-size: 10px; color: #AAAAAA; }
+.footer-copy-dark { font-size: 10px; color: #666666; }
+
+/* ════════════════════════════════════════════════════════
+   SLIDE TYPE: END
+   ════════════════════════════════════════════════════════ */
+.slide-end {
+  background: var(--red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════
+  SLIDE 1 — COVER
+  ════════════════════════════════════════════════════════ -->
+<div class="slide slide-cover">
+
+  <div class="cover-left">
+    <!-- Logo -->
+    <div class="cover-logo adobe-logo">
+      <svg width="36" height="36" viewBox="0 0 100 100" fill="none">
+        <path d="M50 4L96 96H4L50 4Z" fill="white"/>
+        <path d="M50 28L75 84H25L50 28Z" fill="#C60B00"/>
+      </svg>
+      <span class="adobe-wordmark">Adobe</span>
+    </div>
+
+    <!-- Title -->
+    <div class="cover-body">
+      <div class="cover-title">Workfront<br>Fusion API</div>
+      <div class="cover-subtitle">Automating Automation Management</div>
+      <div class="cover-meta">
+        17/06/2025<br>
+        Ani Mheryan
+      </div>
+    </div>
+
+    <div></div><!-- spacer -->
+  </div>
+
+  <!-- Decorative A-mark pattern -->
+  <div class="cover-right">
+    <!-- 16 rows × 6 cols = 96 cells, alternating orientations -->
+    <script>
+      // Inline script to generate the pattern (runs before first paint)
+      (function(){
+        var d = document.currentScript.parentElement;
+        // up, right, up, right ...  /  left, up, left, up ...  alternating rows
+        var rows = 17;
+        var cols = 6;
+        for(var r=0; r<rows; r++){
+          for(var c=0; c<cols; c++){
+            var cell = document.createElement('div');
+            cell.className='a-cell';
+            // determine rotation
+            var rotate = 0;
+            if(r%2===0){ rotate = (c%2===0)?0:90; }
+            else        { rotate = (c%2===0)?-90:0; }
+            cell.innerHTML = '<svg viewBox="0 0 60 60" fill="none" style="transform:rotate('+rotate+'deg)">'
+              + '<path d="M30 4L56 56H4L30 4Z" fill="rgba(255,255,255,0.7)"/>'
+              + '<path d="M30 22L46 52H14L30 22Z" fill="#C60B00"/>'
+              + '</svg>';
+            d.appendChild(cell);
+          }
+        }
+        d.removeChild(document.currentScript);
+      })();
+    </script>
+  </div>
+
+</div><!-- /slide-cover -->
+
+
+<!-- ════════════════════════════════════════════════════════
+  SLIDE 2 — API SURFACE OVERVIEW (INTRO)
+  ════════════════════════════════════════════════════════ -->
+<div class="slide slide-content">
+
+  <div class="slide-head">
+    <div class="slide-title">What the Fusion API Does Today</div>
+  </div>
+
+  <div class="slide-body">
+    <table class="ov-table">
+      <thead>
+        <tr><th>Resource</th><th>What You Can Do</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="res">Scenarios</td><td>List, inspect, export blueprints (up to 100 at once), clone across environments</td></tr>
+        <tr><td class="res">Folders</td><td>Create, rename, and delete folders to organize scenario libraries</td></tr>
+        <tr><td class="res">Connections</td><td>Inventory all integrations, map connections to dependent scenarios</td></tr>
+        <tr><td class="res">Hooks</td><td>Discover and audit webhooks across teams</td></tr>
+        <tr><td class="res">Data Stores</td><td>Monitor capacity, record counts, and storage usage</td></tr>
+        <tr><td class="res">Activity Logs</td><td>Full org-wide audit trail — who did what, when; export as CSV or XLSX</td></tr>
+        <tr><td class="res">Operations</td><td>Track and allocate automation consumption by team, scenario, or date range</td></tr>
+        <tr><td class="res">Execution Logs</td><td>Query run history, filter by failure/warning, inspect per-module detail</td></tr>
+      </tbody>
+    </table>
+    <div class="intro-sub">
+      API v3 · Base URL: <strong>https://fusion.adobe.io</strong> · Auth: OAuth Server-to-Server via Adobe Developer Console · Currently experimental — endpoints may evolve.
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <div class="adobe-logo">
+      <svg width="22" height="22" viewBox="0 0 100 100" fill="none">
+        <path d="M50 4L96 96H4L50 4Z" fill="#FA0F00"/>
+        <path d="M50 28L75 84H25L50 28Z" fill="white"/>
+      </svg>
+      <span class="adobe-wordmark" style="color:#2C2C2C;font-size:13px;">Adobe</span>
+    </div>
+    <span class="footer-copy">© 2025 Adobe. All Rights Reserved. Adobe Confidential.</span>
+  </div>
+
+</div><!-- /slide 2 -->
+
+
+<!-- ════════════════════════════════════════════════════════
+  SLIDE 3 — VIGNETTE 1 PAIN: AUTOMATION INVENTORY
+  ════════════════════════════════════════════════════════ -->
+<div class="slide slide-content">
+
+  <div class="archetype">IT Admin / Enterprise</div>
+
+  <div class="slide-head">
+    <div class="slide-title">Automation Inventory</div>
+  </div>
+
+  <div class="slide-body">
+    <div class="pain-hed">"We have 600 scenarios and no idea what's running."</div>
+
+    <div class="quote">
+      <p>"We've been using Fusion for three years. We have scenarios owned by people who left the company, connections to systems we've decommissioned, and no way to audit any of it without clicking through the UI one by one."</p>
+      <div class="attr">— IT Admin, 2,000-person enterprise</div>
+    </div>
+
+    <div class="cant-label">What they can't do today</div>
+    <ul class="cant-list">
+      <li>Generate a full inventory of all scenarios without manual UI navigation</li>
+      <li>Know which external systems each scenario depends on</li>
+      <li>Identify orphaned or stale automations at scale</li>
+    </ul>
+  </div>
+
+  <div class="slide-footer">
+    <div class="adobe-logo">
+      <svg width="22" height="22" viewBox="0 0 100 100" fill="none">
+        <path d="M50 4L96 96H4L50 4Z" fill="#FA0F00"/>
+        <path d="M50 28L75 84H25L50 28Z" fill="white"/>
+      </svg>
+      <span class="adobe-wordmark" style="color:#2C2C2C;font-size:13px;">Adobe</span>
+    </div>
+    <span class="footer-copy">© 2025 Adobe. All Rights Reserved. Adobe Confidential.</span>
+  </div>
+
+</div><!-- /slide 3 -->
+
+
+<!-- ════════════════════════════════════════════════════════
+  SLIDE 4 — VIGNETTE 1 SOLUTION: AUTOMATION INVENTORY
+  ════════════════════════════════════════════════════════ -->
+<div class="slide slide-content">
+
+  <div class="archetype">IT Admin / Enterprise</div>
+
+  <div class="slide-head">
+    <div class="slide-title">Automation Inventory — API Sequence</div>
+  </div>
+
+  <div class="slide-body">
+    <table class="api-table">
+      <thead>
+        <tr><th>#</th><th>Call</th><th>Returns</th><th>Why It Matters</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td><span class="call-pill"><span class="method">GET</span> /api/v3/scenarios</span></td>
+          <td>Paginated list of all scenarios with status, team, and folder</td>
+          <td>Build the full portfolio — filter by <code>status==active</code> or <code>status==inactive</code> to separate live from stale</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td><span class="call-pill"><span class="method">GET</span> /api/v3/scenarios/{id}/dependencies</span></td>
+          <td>All connections, hooks, data stores, and keys linked to a scenario</td>
+          <td>Know the full dependency graph before touching anything</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td><span class="call-pill"><span class="method">GET</span> /api/v3/connections</span></td>
+          <td>All connections in the org with service name and status</td>
+          <td>Cross-reference against decommissioned systems to find orphaned integrations</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="tbl-note">Combine with <code>GET /api/v3/hooks</code> and <code>GET /api/v3/data-stores</code> for a complete resource inventory.</div>
+
+    <div class="outcome">
+      <div class="outcome-lbl">Outcome</div>
+      <p>A complete automation portfolio map — exportable, queryable, always current. Replaces days of manual UI auditing with a script that runs in minutes.</p>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <div class="adobe-logo">
+      <svg width="22" height="22" viewBox="0 0 100 100" fill="none">
+        <path d="M50 4L96 96H4L50 4Z" fill="#FA0F00"/>
+        <path d="M50 28L75 84H25L50 28Z" fill="white"/>
+      </svg>
+      <span class="adobe-wordmark" style="color:#2C2C2C;font-size:13px;">Adobe</span>
+    </div>
+    <span class="footer-copy">© 2025 Adobe. All Rights Reserved. Adobe Confidential.</span>
+  </div>
+
+</div><!-- /slide 4 -->
+
+
+<!-- ════════════════════════════════════════════════════════
+  SLIDE 5 — VIGNETTE 2 PAIN: CREDENTIAL ROTATION
+  ════════════════════════════════════════════════════════ -->
+<div class="slide slide-content">
+
+  <div class="archetype">IT Admin / Security</div>
+
+  <div class="slide-head">
+    <div class="slide-title">Safe Credential Rotation</div>
+  </div>
+
+  <div class="slide-body">
+    <div class="pain-hed">"Our Salesforce API key expires Friday. We don't know what breaks."</div>
+
+    <div class="quote">
+      <p>"Every time we rotate a credential, we get Slack messages an hour later saying 'my automation stopped working.' We have no way to know which scenarios use a given connection before we touch it."</p>
+      <div class="attr">— IT Security Lead, financial services firm</div>
+    </div>
+
+    <div class="cant-label">What they can't do today</div>
+    <ul class="cant-list">
+      <li>Identify every scenario that depends on a specific connection before rotating it</li>
+      <li>Assess the full blast radius of a credential change</li>
+      <li>Plan a maintenance window with confidence</li>
+    </ul>
+  </div>
+
+  <div class="slide-footer">
+    <div class="adobe-logo">
+      <svg width="22" height="22" viewBox="0 0 100 100" fill="none">
+        <path d="M50 4L96 96H4L50 4Z" fill="#FA0F00"/>
+        <path d="M50 28L75 84H25L50 28Z" fill="white"/>
+      </svg>
+      <span class="adobe-wordmark" style="color:#2C2C2C;font-size:13px;">Adobe</span>
+    </div>
+    <span class="footer-copy">© 2025 Adobe. All Rights Reserved. Adobe Confidential.</span>
+  </div>
+
+</div><!-- /slide 5 -->
+
+
+<!-- ════════════════════════════════════════════════════════
+  SLIDE 6 — VIGNETTE 2 SOLUTION: CREDENTIAL ROTATION
+  ════════════════════════════════════════════════════════ -->
+<div class="slide slide-content">
+
+  <div class="archetype">IT Admin / Security</div>
+
+  <div class="slide-head">
+    <div class="slide-title">Safe Credential Rotation — API Sequence</div>
+  </div>
+
+  <div class="slide-body">
+    <table class="api-table">
+      <thead>
+        <tr><th>#</th><th>Call</th><th>Returns</th><th>Why It Matters</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td><span class="call-pill"><span class="method">GET</span> /api/v3/connections/{id}</span></td>
+          <td>Full connection metadata: name, service, status, team</td>
+          <td>Confirm you have the right connection before any changes</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td><span class="call-pill"><span class="method">GET</span> /api/v3/connections/{id}/scenarios</span></td>
+          <td>All scenarios that use this connection</td>
+          <td>Complete list of what breaks if the credential becomes invalid</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td><span class="call-pill"><span class="method">GET</span> /api/v3/scenarios/{id}/dependencies</span></td>
+          <td>Full dependency graph for each affected scenario</td>
+          <td>Catch cascading dependencies — hooks, data stores, keys that also rely on this connection</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="outcome">
+      <div class="outcome-lbl">Outcome</div>
+      <p>A pre-rotation impact report. Know exactly which scenarios are affected and what depends on them — before touching the credential. Enables planned maintenance windows with targeted owner notifications.</p>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <div class="adobe-logo">
+      <svg width="22" height="22" viewBox="0 0 100 100" fill="none">
+        <path d="M50 4L96 96H4L50 4Z" fill="#FA0F00"/>
+        <path d="M50 28L75 84H25L50 28Z" fill="white"/>
+      </svg>
+      <span class="adobe-wordmark" style="color:#2C2C2C;font-size:13px;">Adobe</span>
+    </div>
+    <span class="footer-copy">© 2025 Adobe. All Rights Reserved. Adobe Confidential.</span>
+  </div>
+
+</div><!-- /slide 6 -->
+
+
+<!-- ════════════════════════════════════════════════════════
+  SLIDE 7 — VIGNETTE 3 PAIN: ENVIRONMENT PROMOTION
+  ════════════════════════════════════════════════════════ -->
+<div class="slide slide-content">
+
+  <div class="archetype">DevOps / Agency</div>
+
+  <div class="slide-head">
+    <div class="slide-title">Environment Promotion</div>
+  </div>
+
+  <div class="slide-body">
+    <div class="pain-hed">"Promoting scenarios from staging to prod takes days and always drifts."</div>
+
+    <div class="quote">
+      <p>"We build and test in a staging org, then manually recreate everything in production — wrong connections, missing folders, mismatched webhooks. We've shipped broken scenarios because of copy-paste errors."</p>
+      <div class="attr">— DevOps Engineer, Adobe partner agency</div>
+    </div>
+
+    <div class="cant-label">What they can't do today</div>
+    <ul class="cant-list">
+      <li>Programmatically promote tested scenarios between environments</li>
+      <li>Automatically substitute staging connections for production equivalents</li>
+      <li>Onboard a new client tenant with pre-built templates without manual recreation</li>
+    </ul>
+  </div>
+
+  <div class="slide-footer">
+    <div class="adobe-logo">
+      <svg width="22" height="22" viewBox="0 0 100 100" fill="none">
+        <path d="M50 4L96 96H4L50 4Z" fill="#FA0F00"/>
+        <path d="M50 28L75 84H25L50 28Z" fill="white"/>
+      </svg>
+      <span class="adobe-wordmark" style="color:#2C2C2C;font-size:13px;">Adobe</span>
+    </div>
+    <span class="footer-copy">© 2025 Adobe. All Rights Reserved. Adobe Confidential.</span>
+  </div>
+
+</div><!-- /slide 7 -->
+
+
+<!-- ════════════════════════════════════════════════════════
+  SLIDE 8 — VIGNETTE 3 SOLUTION: ENVIRONMENT PROMOTION
+  ════════════════════════════════════════════════════════ -->
+<div class="slide slide-content">
+
+  <div class="archetype">DevOps / Agency</div>
+
+  <div class="slide-head">
+    <div class="slide-title">Environment Promotion — API Sequence</div>
+  </div>
+
+  <div class="slide-body">
+    <table class="api-table">
+      <thead>
+        <tr><th>#</th><th>Call</th><th>Returns</th><th>Why It Matters</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td><span class="call-pill"><span class="method">GET</span> /api/v3/scenarios</span></td>
+          <td>Filtered list of scenarios in the staging team</td>
+          <td>Identify promotion candidates (filter by team, folder, or status)</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td><span class="call-pill"><span class="method">POST</span> /api/v3/scenarios/export</span></td>
+          <td>Full blueprints for up to 100 scenarios in one request</td>
+          <td>Capture source-of-truth configuration for archival or diff comparison</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td><span class="call-pill"><span class="method">POST</span> /api/v3/scenarios/{id}/clone</span></td>
+          <td>New scenario in the target team</td>
+          <td>Clones into production with automatic connection, webhook, and data store substitution — no manual rewiring</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td><span class="call-pill"><span class="method">POST</span> /api/v3/folders</span> + <span class="call-pill"><span class="method">PATCH</span> /api/v3/folders/{id}</span></td>
+          <td>New/updated folder in target team</td>
+          <td>Recreate the staging folder structure in production for organizational consistency</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="outcome">
+      <div class="outcome-lbl">Outcome</div>
+      <p>A repeatable, scriptable promotion pipeline. Staging → production in a single script run, zero manual configuration, zero drift. Agencies can onboard new client tenants from a template library in minutes.</p>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <div class="adobe-logo">
+      <svg width="22" height="22" viewBox="0 0 100 100" fill="none">
+        <path d="M50 4L96 96H4L50 4Z" fill="#FA0F00"/>
+        <path d="M50 28L75 84H25L50 28Z" fill="white"/>
+      </svg>
+      <span class="adobe-wordmark" style="color:#2C2C2C;font-size:13px;">Adobe</span>
+    </div>
+    <span class="footer-copy">© 2025 Adobe. All Rights Reserved. Adobe Confidential.</span>
+  </div>
+
+</div><!-- /slide 8 -->
+
+
+<!-- ════════════════════════════════════════════════════════
+  SLIDE 9 — VIGNETTE 4 PAIN: COMPLIANCE & AUDIT
+  ════════════════════════════════════════════════════════ -->
+<div class="slide slide-content">
+
+  <div class="archetype">Compliance Officer / Regulated Industry</div>
+
+  <div class="slide-head">
+    <div class="slide-title">Compliance &amp; Audit Trail</div>
+  </div>
+
+  <div class="slide-body">
+    <div class="pain-hed">"Auditors want every change to our automations for the past quarter."</div>
+
+    <div class="quote">
+      <p>"We had an audit finding because we couldn't produce a complete record of who modified our data integration workflows. Reconstructing it from memory and screenshots took two weeks."</p>
+      <div class="attr">— Compliance Manager, healthcare organization</div>
+    </div>
+
+    <div class="cant-label">What they can't do today</div>
+    <ul class="cant-list">
+      <li>Programmatically extract a complete, timestamped change history for the automation environment</li>
+      <li>Export audit data in formats required for submissions (CSV, XLSX)</li>
+      <li>Feed Fusion activity into their existing SIEM or governance platform</li>
+    </ul>
+  </div>
+
+  <div class="slide-footer">
+    <div class="adobe-logo">
+      <svg width="22" height="22" viewBox="0 0 100 100" fill="none">
+        <path d="M50 4L96 96H4L50 4Z" fill="#FA0F00"/>
+        <path d="M50 28L75 84H25L50 28Z" fill="white"/>
+      </svg>
+      <span class="adobe-wordmark" style="color:#2C2C2C;font-size:13px;">Adobe</span>
+    </div>
+    <span class="footer-copy">© 2025 Adobe. All Rights Reserved. Adobe Confidential.</span>
+  </div>
+
+</div><!-- /slide 9 -->
+
+
+<!-- ════════════════════════════════════════════════════════
+  SLIDE 10 — VIGNETTE 4 SOLUTION: COMPLIANCE & AUDIT
+  ════════════════════════════════════════════════════════ -->
+<div class="slide slide-content">
+
+  <div class="archetype">Compliance Officer / Regulated Industry</div>
+
+  <div class="slide-head">
+    <div class="slide-title">Compliance &amp; Audit Trail — API Sequence</div>
+  </div>
+
+  <div class="slide-body">
+    <table class="api-table">
+      <thead>
+        <tr><th>#</th><th>Call</th><th>Returns</th><th>Why It Matters</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td><span class="call-pill"><span class="method">GET</span> /api/v3/activity-logs</span></td>
+          <td>Cursor-paginated activity log filtered by date range — who did what, when</td>
+          <td>Query any time window (e.g. last 90 days) with full actor, action, and timestamp detail</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td><span class="call-pill"><span class="method">GET</span> /api/v3/activity-logs/export</span></td>
+          <td>CSV or XLSX file of the filtered activity log</td>
+          <td>Produces the submission artifact directly — no intermediate transformation needed</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="tbl-note">Activity log access requires Fusion administrator role on the technical account.</div>
+
+    <div class="outcome" style="margin-top:16px;">
+      <div class="outcome-lbl">Outcome</div>
+      <p>An audit-ready evidence package generated in minutes. Covers every create, update, delete, and access event for any requested time window. Supports SIEM integration via the paginated API and offline submissions via the export endpoint.</p>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <div class="adobe-logo">
+      <svg width="22" height="22" viewBox="0 0 100 100" fill="none">
+        <path d="M50 4L96 96H4L50 4Z" fill="#FA0F00"/>
+        <path d="M50 28L75 84H25L50 28Z" fill="white"/>
+      </svg>
+      <span class="adobe-wordmark" style="color:#2C2C2C;font-size:13px;">Adobe</span>
+    </div>
+    <span class="footer-copy">© 2025 Adobe. All Rights Reserved. Adobe Confidential.</span>
+  </div>
+
+</div><!-- /slide 10 -->
+
+
+<!-- ════════════════════════════════════════════════════════
+  SLIDE 11 — VIGNETTE 5 PAIN: OPERATIONS COST ALLOCATION
+  ════════════════════════════════════════════════════════ -->
+<div class="slide slide-content">
+
+  <div class="archetype">Operations Manager / Finance</div>
+
+  <div class="slide-head">
+    <div class="slide-title">Operations Cost Allocation</div>
+  </div>
+
+  <div class="slide-body">
+    <div class="pain-hed">"Finance wants to know which teams are burning our automation quota — and why."</div>
+
+    <div class="quote">
+      <p>"We're approaching our operations limit and we have no idea which team or scenario is responsible. We can see the total in the UI but can't break it down for chargeback or optimization."</p>
+      <div class="attr">— Operations Manager, enterprise retail company</div>
+    </div>
+
+    <div class="cant-label">What they can't do today</div>
+    <ul class="cant-list">
+      <li>Break down operation consumption by team or scenario programmatically</li>
+      <li>Allocate automation costs to business units for chargeback reporting</li>
+      <li>Identify runaway scenarios before they exhaust the org quota</li>
+    </ul>
+  </div>
+
+  <div class="slide-footer">
+    <div class="adobe-logo">
+      <svg width="22" height="22" viewBox="0 0 100 100" fill="none">
+        <path d="M50 4L96 96H4L50 4Z" fill="#FA0F00"/>
+        <path d="M50 28L75 84H25L50 28Z" fill="white"/>
+      </svg>
+      <span class="adobe-wordmark" style="color:#2C2C2C;font-size:13px;">Adobe</span>
+    </div>
+    <span class="footer-copy">© 2025 Adobe. All Rights Reserved. Adobe Confidential.</span>
+  </div>
+
+</div><!-- /slide 11 -->
+
+
+<!-- ════════════════════════════════════════════════════════
+  SLIDE 12 — VIGNETTE 5 SOLUTION: OPERATIONS COST ALLOCATION
+  ════════════════════════════════════════════════════════ -->
+<div class="slide slide-content">
+
+  <div class="archetype">Operations Manager / Finance</div>
+
+  <div class="slide-head">
+    <div class="slide-title">Operations Cost Allocation — API Sequence</div>
+  </div>
+
+  <div class="slide-body">
+    <table class="api-table">
+      <thead>
+        <tr><th>#</th><th>Call</th><th>Returns</th><th>Why It Matters</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td><span class="call-pill"><span class="method">GET</span> /api/v3/operations</span></td>
+          <td>Operation counts filterable by team, scenario, or package over a custom date range (up to 1 year)</td>
+          <td>Granular consumption data per cost center — queryable for any billing period</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td><span class="call-pill"><span class="method">GET</span> /api/v3/operations/summary</span></td>
+          <td>Org-wide breakdown by scenario and team, ranked by consumption</td>
+          <td>Identifies the top consumers at a glance — spot runaway automations before hitting quota</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="outcome" style="margin-top:18px;">
+      <div class="outcome-lbl">Outcome</div>
+      <p>Accurate cost allocation data surfaced programmatically. Powers chargeback reporting to finance, quota planning for the next contract period, and proactive detection of the 20% of scenarios consuming 80% of operations.</p>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <div class="adobe-logo">
+      <svg width="22" height="22" viewBox="0 0 100 100" fill="none">
+        <path d="M50 4L96 96H4L50 4Z" fill="#FA0F00"/>
+        <path d="M50 28L75 84H25L50 28Z" fill="white"/>
+      </svg>
+      <span class="adobe-wordmark" style="color:#2C2C2C;font-size:13px;">Adobe</span>
+    </div>
+    <span class="footer-copy">© 2025 Adobe. All Rights Reserved. Adobe Confidential.</span>
+  </div>
+
+</div><!-- /slide 12 -->
+
+
+<!-- ════════════════════════════════════════════════════════
+  SLIDE 13 — VIGNETTE 6 PAIN: INCIDENT INVESTIGATION
+  ════════════════════════════════════════════════════════ -->
+<div class="slide slide-content">
+
+  <div class="archetype">DevOps / SLA-sensitive Operations</div>
+
+  <div class="slide-head">
+    <div class="slide-title">Incident Investigation</div>
+  </div>
+
+  <div class="slide-body">
+    <div class="pain-hed">"Something failed at 3am. By morning no one knows why."</div>
+
+    <div class="quote">
+      <p>"We have SLAs on our automation pipelines. When something fails overnight, we spend the first hour figuring out what happened instead of fixing it. We need a programmatic way to get to the failure context immediately."</p>
+      <div class="attr">— Platform Engineer, logistics company</div>
+    </div>
+
+    <div class="cant-label">What they can't do today</div>
+    <ul class="cant-list">
+      <li>Query execution history by failure status without logging into the Fusion UI</li>
+      <li>Correlate a runtime failure with a recent configuration change programmatically</li>
+      <li>Build an operations dashboard that surfaces failure rates and SLA breaches</li>
+    </ul>
+  </div>
+
+  <div class="slide-footer">
+    <div class="adobe-logo">
+      <svg width="22" height="22" viewBox="0 0 100 100" fill="none">
+        <path d="M50 4L96 96H4L50 4Z" fill="#FA0F00"/>
+        <path d="M50 28L75 84H25L50 28Z" fill="white"/>
+      </svg>
+      <span class="adobe-wordmark" style="color:#2C2C2C;font-size:13px;">Adobe</span>
+    </div>
+    <span class="footer-copy">© 2025 Adobe. All Rights Reserved. Adobe Confidential.</span>
+  </div>
+
+</div><!-- /slide 13 -->
+
+
+<!-- ════════════════════════════════════════════════════════
+  SLIDE 14 — VIGNETTE 6 SOLUTION: INCIDENT INVESTIGATION
+  ════════════════════════════════════════════════════════ -->
+<div class="slide slide-content">
+
+  <div class="archetype">DevOps / SLA-sensitive Operations</div>
+
+  <div class="slide-head">
+    <div class="slide-title">Incident Investigation — API Sequence</div>
+  </div>
+
+  <div class="slide-body">
+    <table class="api-table">
+      <thead>
+        <tr><th>#</th><th>Call</th><th>Returns</th><th>Why It Matters</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td><span class="call-pill"><span class="method">GET</span> /api/v3/logs</span></td>
+          <td>Paginated execution history filterable by status (failures, warnings)</td>
+          <td>Immediately surfaces failed/warned runs — no UI required, scriptable in a monitoring pipeline</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td><span class="call-pill"><span class="method">GET</span> /api/v3/logs/{executionId}</span></td>
+          <td>Full execution detail including per-module object context</td>
+          <td>Which module failed, what data it was processing, what error was returned</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td><span class="call-pill"><span class="method">GET</span> /api/v3/activity-logs</span></td>
+          <td>Recent change history filtered by date/time near the failure</td>
+          <td>Catches configuration-induced failures — correlate the failure timestamp with recent activity</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="outcome">
+      <div class="outcome-lbl">Outcome</div>
+      <p>A structured investigation path that cuts mean-time-to-context from 30–60 minutes to under 5. Enables operations teams to build automated alerting pipelines that attach failure detail before the on-call engineer is even paged.</p>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <div class="adobe-logo">
+      <svg width="22" height="22" viewBox="0 0 100 100" fill="none">
+        <path d="M50 4L96 96H4L50 4Z" fill="#FA0F00"/>
+        <path d="M50 28L75 84H25L50 28Z" fill="white"/>
+      </svg>
+      <span class="adobe-wordmark" style="color:#2C2C2C;font-size:13px;">Adobe</span>
+    </div>
+    <span class="footer-copy">© 2025 Adobe. All Rights Reserved. Adobe Confidential.</span>
+  </div>
+
+</div><!-- /slide 14 -->
+
+
+<!-- ════════════════════════════════════════════════════════
+  SLIDE 15 — END
+  ════════════════════════════════════════════════════════ -->
+<div class="slide slide-end">
+  <svg width="90" height="90" viewBox="0 0 100 100" fill="none">
+    <path d="M50 4L96 96H4L50 4Z" fill="white"/>
+    <path d="M50 28L75 84H25L50 28Z" fill="#C60B00"/>
+  </svg>
+  <div style="position:absolute;bottom:24px;left:0;right:0;text-align:center;color:rgba(255,255,255,0.7);font-size:12px;font-family:'Helvetica Neue',Arial,sans-serif;letter-spacing:1px;">
+    ADOBE CONFIDENTIAL
+  </div>
+</div><!-- /slide 15 -->
+
+
+</body>
+</html>
