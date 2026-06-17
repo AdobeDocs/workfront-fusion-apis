@@ -109,6 +109,6 @@ For public API usage, the tenant identifier on the Fusion end is the Fusion orga
 
 For existing public endpoints, please switch to using the Fusion organization ID via the `x-organization-id` header.
 
-For the **activity logs** and **operations** endpoints specifically, switch to passing the organization identifier as the `x-organization-id` header instead of as a route parameter or query parameter. Endpoints that currently accept `organizationId` as a route or query parameter will continue to work for 2 weeks, after which they will be deprecated in favor of the `x-organization-id` header.
+For the **activity logs** and **operations** endpoints specifically, switch to passing the organization identifier as the `x-organization-id` header instead of as a route parameter or query parameter. Endpoints that currently accept `organizationId` as a route or query parameter will continue to work for 2 weeks, after which they will be deprecated in favor of the `x-organization-id` header. As of July 1, the activity log endpoints having organizationId in the route and operations endpoints having organizationId in the query parameter will start failing.
 
 See the [API Reference](../../api/index.md) for the latest endpoint details.
