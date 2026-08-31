@@ -320,6 +320,124 @@
         ]
       }
     },
+    "/api/v3/scenarios/{scenarioId}/ai/description": {
+      "post": {
+        "description": "Fetches the scenario's latest blueprint and returns an AI-generated, 2-4 sentence plain-English description of what it does.",
+        "operationId": "ScenariosControllerV3_generateDescription_v3",
+        "parameters": [
+          {
+            "name": "scenarioId",
+            "required": true,
+            "in": "path",
+            "description": "Scenario ID",
+            "schema": {
+              "example": 123,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The generated scenario description",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScenarioAiDescriptionResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "scenarioId must be a number string",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Scenario auto-description is not enabled for this organization",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "Generate a plain-English description of a scenario",
+        "tags": [
+          "Scenarios"
+        ]
+      }
+    },
     "/api/v3/scenarios": {
       "get": {
         "description": "Returns a paginated, filterable list of scenarios in the organization.\n\nSupply `teamId` in the property query to restrict results to one team.\n\n**Recycle bin:** pass `property=deleted==true` to list soft-deleted (binned) scenarios instead of active ones. When this filter is present, results are further gated by the `resource_restore` permission — users only see deleted scenarios they're allowed to restore. Without the `deleted` filter, only active scenarios are returned.",
@@ -1667,7 +1785,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ActivityLogs_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "BadRequest",
@@ -1675,7 +1793,7 @@
                   "title": "Paging parameters require orderby to be specified",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -1686,7 +1804,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ActivityLogs_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "Unauthorized",
@@ -1694,7 +1812,7 @@
                   "title": "Authentication required",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -1705,7 +1823,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ActivityLogs_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "Forbidden",
@@ -1713,7 +1831,7 @@
                   "title": "Access denied",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -1724,7 +1842,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ActivityLogs_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "InternalServerError",
@@ -1732,7 +1850,7 @@
                   "title": "Server error",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -1828,7 +1946,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ActivityLogs_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "Unauthorized",
@@ -1836,7 +1954,7 @@
                   "title": "Authentication required",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -1847,7 +1965,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ActivityLogs_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "Forbidden",
@@ -1855,7 +1973,7 @@
                   "title": "Access denied",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -1866,7 +1984,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ActivityLogs_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "NotAcceptable",
@@ -1874,7 +1992,7 @@
                   "title": "Supported formats: text/csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -1885,7 +2003,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ActivityLogs_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "InternalServerError",
@@ -1893,7 +2011,7 @@
                   "title": "Server error",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -2014,14 +2132,6 @@
               "example": "operations>=100",
               "type": "string"
             }
-          },
-          {
-            "name": "x-organization-id",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -2040,7 +2150,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Operations_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "BadRequest",
@@ -2048,6 +2158,7 @@
                   "title": "Validation failed",
                   "report": {
                     "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332",
                     "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg",
                     "errors": [
                       "teamId must be a number conforming to the specified constraints"
@@ -2062,7 +2173,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Operations_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "Unauthorized",
@@ -2070,7 +2181,7 @@
                   "title": "Authentication required",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -2081,7 +2192,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Operations_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "Forbidden",
@@ -2089,7 +2200,7 @@
                   "title": "Access denied",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -2100,7 +2211,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Operations_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "InternalServerError",
@@ -2108,7 +2219,7 @@
                   "title": "Server error",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -2214,14 +2325,6 @@
               "example": "operations>=100",
               "type": "string"
             }
-          },
-          {
-            "name": "x-organization-id",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -2240,7 +2343,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Operations_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "BadRequest",
@@ -2248,6 +2351,7 @@
                   "title": "Validation failed",
                   "report": {
                     "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332",
                     "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg",
                     "errors": [
                       "teamId must be a number conforming to the specified constraints"
@@ -2262,7 +2366,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Operations_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "Unauthorized",
@@ -2270,7 +2374,7 @@
                   "title": "Authentication required",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -2281,7 +2385,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Operations_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "Forbidden",
@@ -2289,7 +2393,7 @@
                   "title": "Access denied",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -2300,7 +2404,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Operations_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "InternalServerError",
@@ -2308,7 +2412,7 @@
                   "title": "Server error",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -3145,7 +3249,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Hooks_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "BadRequest",
@@ -3153,7 +3257,7 @@
                   "title": "Bad request",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -3164,7 +3268,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Hooks_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "Unauthorized",
@@ -3172,7 +3276,7 @@
                   "title": "Authentication required",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -3183,7 +3287,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Hooks_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "Forbidden",
@@ -3191,7 +3295,7 @@
                   "title": "Access denied",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -3202,7 +3306,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Hooks_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "ResourceNotFound",
@@ -3210,7 +3314,7 @@
                   "title": "Resource not found",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -3221,7 +3325,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Hooks_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "InternalServerError",
@@ -3229,7 +3333,7 @@
                   "title": "Server error",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -3318,7 +3422,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Hooks_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "BadRequest",
@@ -3326,7 +3430,7 @@
                   "title": "Bad request",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -3337,7 +3441,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Hooks_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "Unauthorized",
@@ -3345,7 +3449,7 @@
                   "title": "Authentication required",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -3356,7 +3460,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Hooks_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "Forbidden",
@@ -3364,7 +3468,7 @@
                   "title": "Access denied",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -3375,7 +3479,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Hooks_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "ResourceNotFound",
@@ -3383,7 +3487,7 @@
                   "title": "Resource not found",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -3394,7 +3498,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Hooks_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "InternalServerError",
@@ -3402,7 +3506,7 @@
                   "title": "Server error",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -3417,7 +3521,7 @@
             "Region": []
           }
         ],
-        "summary": "List and search hooks",
+        "summary": "List hooks",
         "tags": [
           "Hooks"
         ]
@@ -3501,7 +3605,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Hooks_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "BadRequest",
@@ -3509,7 +3613,7 @@
                   "title": "Bad request",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -3520,7 +3624,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Hooks_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "Unauthorized",
@@ -3528,7 +3632,7 @@
                   "title": "Authentication required",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -3539,7 +3643,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Hooks_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "Forbidden",
@@ -3547,7 +3651,7 @@
                   "title": "Access denied",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -3558,7 +3662,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Hooks_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "ResourceNotFound",
@@ -3566,7 +3670,7 @@
                   "title": "Resource not found",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -3577,7 +3681,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Hooks_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "InternalServerError",
@@ -3585,7 +3689,7 @@
                   "title": "Server error",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -3600,7 +3704,7 @@
             "Region": []
           }
         ],
-        "summary": "List and search queued webhook events for a hook",
+        "summary": "List hook queue",
         "tags": [
           "Hooks"
         ]
@@ -3677,7 +3781,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Hooks_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "BadRequest",
@@ -3685,7 +3789,7 @@
                   "title": "Bad request",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -3696,7 +3800,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Hooks_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "Unauthorized",
@@ -3704,7 +3808,7 @@
                   "title": "Authentication required",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -3715,7 +3819,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Hooks_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "Forbidden",
@@ -3723,7 +3827,7 @@
                   "title": "Access denied",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -3734,7 +3838,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Hooks_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "ResourceNotFound",
@@ -3742,7 +3846,7 @@
                   "title": "Resource not found",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -3763,7 +3867,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Hooks_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "InternalServerError",
@@ -3771,7 +3875,7 @@
                   "title": "Server error",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -3786,7 +3890,7 @@
             "Region": []
           }
         ],
-        "summary": "Delete queued webhook events for a hook",
+        "summary": "Delete a hook queue",
         "tags": [
           "Hooks"
         ]
@@ -3824,7 +3928,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Hooks_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "BadRequest",
@@ -3832,7 +3936,7 @@
                   "title": "Bad request",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -3843,7 +3947,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Hooks_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "Unauthorized",
@@ -3851,7 +3955,7 @@
                   "title": "Authentication required",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -3862,7 +3966,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Hooks_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "Forbidden",
@@ -3870,7 +3974,7 @@
                   "title": "Access denied",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -3881,7 +3985,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Hooks_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "ResourceNotFound",
@@ -3889,7 +3993,7 @@
                   "title": "Resource not found",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -3900,7 +4004,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Hooks_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "InternalServerError",
@@ -3908,7 +4012,7 @@
                   "title": "Server error",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -3923,7 +4027,7 @@
             "Region": []
           }
         ],
-        "summary": "Get queue statistics for a hook",
+        "summary": "Get hook queue statistics",
         "tags": [
           "Hooks"
         ]
@@ -3971,7 +4075,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Hooks_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "BadRequest",
@@ -3979,7 +4083,7 @@
                   "title": "Bad request",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -3990,7 +4094,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Hooks_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "Unauthorized",
@@ -3998,7 +4102,7 @@
                   "title": "Authentication required",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -4009,7 +4113,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Hooks_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "Forbidden",
@@ -4017,7 +4121,7 @@
                   "title": "Access denied",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -4028,7 +4132,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Hooks_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "ResourceNotFound",
@@ -4036,7 +4140,7 @@
                   "title": "Resource not found",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -4047,7 +4151,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Hooks_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "InternalServerError",
@@ -4055,7 +4159,7 @@
                   "title": "Server error",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -4070,7 +4174,7 @@
             "Region": []
           }
         ],
-        "summary": "Get a queued webhook event by ID",
+        "summary": "Get a hook queue item by ID",
         "tags": [
           "Hooks"
         ]
@@ -4123,14 +4227,6 @@
             "description": "Sort property and direction, e.g. +id (ascending) or -id (descending). Allowed fields: id, name, records, size, maxSize, dataStructureId.",
             "schema": {
               "example": "+id",
-              "type": "string"
-            }
-          },
-          {
-            "name": "x-organization-id",
-            "in": "header",
-            "required": true,
-            "schema": {
               "type": "string"
             }
           }
@@ -4270,14 +4366,6 @@
               "example": 1,
               "type": "number"
             }
-          },
-          {
-            "name": "x-organization-id",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -4395,7 +4483,7 @@
             "Region": []
           }
         ],
-        "summary": "Get a single data store by ID",
+        "summary": "Get a data store by ID",
         "tags": [
           "Data Stores"
         ]
@@ -4435,19 +4523,11 @@
               "example": 0,
               "type": "number"
             }
-          },
-          {
-            "name": "x-organization-id",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Paginated records envelope plus the store spec/strict",
+            "description": "Paginated records envelope",
             "content": {
               "application/json": {
                 "schema": {
@@ -4547,6 +4627,198 @@
         ]
       }
     },
+    "/api/v3/logs/summary": {
+      "get": {
+        "description": "Returns a paginated summary view of scenario executions (status, timing, error, deactivation) for the organization.",
+        "operationId": "LogsSummaryController_getLogsSummary_v3",
+        "parameters": [
+          {
+            "name": "property",
+            "required": false,
+            "in": "query",
+            "description": "```\nProperty filters. Can be repeated and are AND-ed together.\n\nAllowed fields:\n- teamId\n- scenarioId\n- type\n- trigger\n- errorType\n- message\n- status\n- deactivated\n- timestamp\n\nSupported operators:\n- ==  (equals)\n- !=  (not equals)\n- >   (greater than)\n- >=  (greater than or equal)\n- <   (less than)\n- <=  (less than or equal)\n- ~   (case-insensitive regex match)\n\nSpecial cases:\n- field           → field exists\n- !field          → field does not exist\n```",
+            "schema": {
+              "example": [
+                "teamId==3849"
+              ],
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "start",
+            "required": false,
+            "in": "query",
+            "description": "Paging cursor. Must correspond to \"orderby\" field and used only when it is set.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            },
+            "description": "Maximum number of items to return. Must be a positive integer. Range 1–200."
+          },
+          {
+            "name": "orderby",
+            "required": false,
+            "in": "query",
+            "description": "Sort property and direction, e.g. +id (ascending) or -id (descending). Allowed fields: timestamp.",
+            "schema": {
+              "example": "+id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LogsSummaryResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "Bad Request: feature not enabled",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Access denied",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Not implemented",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "NotImplemented",
+                  "status": 501,
+                  "title": "Not Implemented: unknown filter property",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ServiceUnavailable",
+                  "status": 503,
+                  "title": "Service unavailable",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "List Logs Summary",
+        "tags": [
+          "Logs"
+        ]
+      }
+    },
     "/api/v3/logs": {
       "get": {
         "description": "Returns a paginated list of executions for the specified resource. To narrow results, filter by status — for example, use `property=status==3` to see failed executions or `property=status==2` to see executions that completed with warnings.",
@@ -4643,7 +4915,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Logs_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "BadRequest",
@@ -4651,7 +4923,7 @@
                   "title": "Bad Request: exactly one of scenarioId or dlqId is required",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -4662,7 +4934,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Logs_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "Unauthorized",
@@ -4670,7 +4942,7 @@
                   "title": "Authentication required",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -4681,7 +4953,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Logs_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "Forbidden",
@@ -4689,7 +4961,7 @@
                   "title": "Access denied",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -4700,7 +4972,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Logs_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "InternalServerError",
@@ -4708,7 +4980,7 @@
                   "title": "Server error",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -4777,7 +5049,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Logs_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "BadRequest",
@@ -4785,7 +5057,7 @@
                   "title": "Bad Request: exactly one of scenarioId or dlqId is required",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -4796,7 +5068,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Logs_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "Unauthorized",
@@ -4804,7 +5076,7 @@
                   "title": "Authentication required",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -4815,7 +5087,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Logs_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "Forbidden",
@@ -4823,7 +5095,7 @@
                   "title": "Access denied",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -4834,7 +5106,7 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Logs_ErrorResponseDto"
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 },
                 "example": {
                   "type": "InternalServerError",
@@ -4842,7 +5114,7 @@
                   "title": "Server error",
                   "report": {
                     "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -4863,597 +5135,11 @@
         ]
       }
     },
-    "/api/v3/logs/{executionId}/details": {
-      "get": {
-        "description": "Returns a paginated stream of execution log entries.",
-        "operationId": "PublicLogController_getExecutionDetails[1]_v3",
-        "parameters": [
-          {
-            "name": "executionId",
-            "required": true,
-            "in": "path",
-            "description": "The unique identifier for the execution.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "scenarioId",
-            "required": false,
-            "in": "query",
-            "description": "Scenario identifier. Mutually exclusive with dlqId.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "dlqId",
-            "required": false,
-            "in": "query",
-            "description": "Incomplete execution (DLQ) identifier. Mutually exclusive with scenarioId.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "level",
-            "required": false,
-            "in": "query",
-            "description": "Minimum log severity filter — returns logs at this level and above.",
-            "schema": {
-              "type": "string",
-              "enum": [
-                "trace",
-                "debug",
-                "info",
-                "warn",
-                "error",
-                "fatal"
-              ]
-            }
-          },
-          {
-            "name": "orderby",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "limit",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "start",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "property",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Paginated execution detail logs.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DetailPaginatedResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad request",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Logs_ErrorResponseDto"
-                },
-                "example": {
-                  "type": "BadRequest",
-                  "status": 400,
-                  "title": "Bad Request: exactly one of scenarioId or dlqId is required",
-                  "report": {
-                    "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Authentication required",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Logs_ErrorResponseDto"
-                },
-                "example": {
-                  "type": "Unauthorized",
-                  "status": 401,
-                  "title": "Authentication required",
-                  "report": {
-                    "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Access denied",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Logs_ErrorResponseDto"
-                },
-                "example": {
-                  "type": "Forbidden",
-                  "status": 403,
-                  "title": "Access denied",
-                  "report": {
-                    "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Resource not found",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Logs_ErrorResponseDto"
-                },
-                "example": {
-                  "type": "ResourceNotFound",
-                  "status": 404,
-                  "title": "Not Found",
-                  "report": {
-                    "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Server error",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Logs_ErrorResponseDto"
-                },
-                "example": {
-                  "type": "InternalServerError",
-                  "status": 500,
-                  "title": "Server error",
-                  "report": {
-                    "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "Authorization": [],
-            "Organization ID": [],
-            "API Key": [],
-            "Region": []
-          }
-        ],
-        "summary": "Get Execution Detail Logs",
-        "tags": [
-          "Logs"
-        ]
-      }
-    },
-    "/api/v3/logs/{executionId}/debug": {
-      "get": {
-        "description": "Returns raw debug data for a specific module, cycle, and operation within an execution.",
-        "operationId": "PublicLogController_getExecutionDebug[1]_v3",
-        "parameters": [
-          {
-            "name": "executionId",
-            "required": true,
-            "in": "path",
-            "description": "The unique identifier for the execution.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "scenarioId",
-            "required": false,
-            "in": "query",
-            "description": "Scenario identifier. Mutually exclusive with dlqId.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "dlqId",
-            "required": false,
-            "in": "query",
-            "description": "Incomplete execution (DLQ) identifier. Mutually exclusive with scenarioId.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "module",
-            "required": true,
-            "in": "query",
-            "description": "Module identifier.",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "cycle",
-            "required": true,
-            "in": "query",
-            "description": "Cycle number.",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "operation",
-            "required": true,
-            "in": "query",
-            "description": "Operation code.",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Debug data for the specified module/cycle/operation.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DebugDataResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad request",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Logs_ErrorResponseDto"
-                },
-                "example": {
-                  "type": "BadRequest",
-                  "status": 400,
-                  "title": "Bad Request: exactly one of scenarioId or dlqId is required",
-                  "report": {
-                    "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Authentication required",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Logs_ErrorResponseDto"
-                },
-                "example": {
-                  "type": "Unauthorized",
-                  "status": 401,
-                  "title": "Authentication required",
-                  "report": {
-                    "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Access denied",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Logs_ErrorResponseDto"
-                },
-                "example": {
-                  "type": "Forbidden",
-                  "status": 403,
-                  "title": "Access denied",
-                  "report": {
-                    "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Resource not found",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Logs_ErrorResponseDto"
-                },
-                "example": {
-                  "type": "ResourceNotFound",
-                  "status": 404,
-                  "title": "Not Found",
-                  "report": {
-                    "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Server error",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Logs_ErrorResponseDto"
-                },
-                "example": {
-                  "type": "InternalServerError",
-                  "status": 500,
-                  "title": "Server error",
-                  "report": {
-                    "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "Authorization": [],
-            "Organization ID": [],
-            "API Key": [],
-            "Region": []
-          }
-        ],
-        "summary": "Get Execution Debug Data",
-        "tags": [
-          "Logs"
-        ]
-      }
-    },
-    "/api/v3/logs/{executionId}/bundle": {
-      "get": {
-        "description": "Returns deduplicated user data (module input/output) for a specific module and cycle, sourced from Elastic Cloud.",
-        "operationId": "PublicLogController_getExecutionBundle[1]_v3",
-        "parameters": [
-          {
-            "name": "executionId",
-            "required": true,
-            "in": "path",
-            "description": "The unique identifier for the execution.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "scenarioId",
-            "required": false,
-            "in": "query",
-            "description": "Scenario identifier. Mutually exclusive with dlqId.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "dlqId",
-            "required": false,
-            "in": "query",
-            "description": "Incomplete execution (DLQ) identifier. Mutually exclusive with scenarioId.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "module",
-            "required": false,
-            "in": "query",
-            "description": "Module identifier. When provided, filters results to this module only.",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "cycle",
-            "required": false,
-            "in": "query",
-            "description": "Cycle number (min 1). When provided, filters results to this cycle only.",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "io",
-            "required": false,
-            "in": "query",
-            "description": "Filter by direction: true = input records only, false = output records only. Omit for both.",
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
-            "name": "operation",
-            "required": false,
-            "in": "query",
-            "description": "Operation code. When provided, filters results to this operation only.",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Bundle data for the specified module and cycle.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BundleDataResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad request",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Logs_ErrorResponseDto"
-                },
-                "example": {
-                  "type": "BadRequest",
-                  "status": 400,
-                  "title": "Bad Request: exactly one of scenarioId or dlqId is required",
-                  "report": {
-                    "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Authentication required",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Logs_ErrorResponseDto"
-                },
-                "example": {
-                  "type": "Unauthorized",
-                  "status": 401,
-                  "title": "Authentication required",
-                  "report": {
-                    "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Access denied",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Logs_ErrorResponseDto"
-                },
-                "example": {
-                  "type": "Forbidden",
-                  "status": 403,
-                  "title": "Access denied",
-                  "report": {
-                    "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Resource not found",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Logs_ErrorResponseDto"
-                },
-                "example": {
-                  "type": "ResourceNotFound",
-                  "status": 404,
-                  "title": "Not Found",
-                  "report": {
-                    "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Server error",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Logs_ErrorResponseDto"
-                },
-                "example": {
-                  "type": "InternalServerError",
-                  "status": 500,
-                  "title": "Server error",
-                  "report": {
-                    "request-id": "abc-123-def-456",
-                    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "Authorization": [],
-            "Organization ID": [],
-            "API Key": [],
-            "Region": []
-          }
-        ],
-        "summary": "Get Execution Bundle Data",
-        "tags": [
-          "Logs"
-        ]
-      }
-    },
     "/api/v3/data-structures": {
       "get": {
         "description": "Returns a cursor-paginated, filterable list of data structures scoped to the org. Supply ?property=teamId==X to restrict to one team.",
         "operationId": "DataStructuresControllerV3_search_v3",
         "parameters": [
-          {
-            "name": "x-organization-id",
-            "in": "header",
-            "description": "Fusion organization ID",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "name": "property",
             "required": false,
@@ -5616,7 +5302,7 @@
             "Region": []
           }
         ],
-        "summary": "Search data structures",
+        "summary": "List data structures",
         "tags": [
           "Data Structures"
         ]
@@ -5627,15 +5313,6 @@
         "description": "Retrieves a single data structure by its ID, scoped to the caller's organization.",
         "operationId": "DataStructuresControllerV3_findOne_v3",
         "parameters": [
-          {
-            "name": "x-organization-id",
-            "in": "header",
-            "description": "Fusion organization ID",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "name": "id",
             "required": true,
@@ -5762,7 +5439,7 @@
             "Region": []
           }
         ],
-        "summary": "Find a data structure by ID",
+        "summary": "Get a data structure by ID",
         "tags": [
           "Data Structures"
         ]
@@ -6562,6 +6239,19 @@
           "blueprint"
         ]
       },
+      "ScenarioAiDescriptionResponseDto": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "AI-generated, 2-4 sentence plain-English description of what the scenario does.",
+            "example": "When a new Jira issue is created, this scenario posts an alert to a Slack channel and emails the issue owner."
+          }
+        },
+        "required": [
+          "description"
+        ]
+      },
       "PageMetadataDto": {
         "type": "object",
         "properties": {
@@ -6853,7 +6543,7 @@
         "properties": {
           "teamId": {
             "type": "number",
-            "description": "Team ID where the cloned scenario will be created",
+            "description": "Team ID where the cloned scenario will be created. If omitted, the clone is created in the source scenario team.",
             "example": 88
           },
           "folderId": {
@@ -6873,10 +6563,15 @@
             "items": {
               "$ref": "#/components/schemas/ReplacementDto"
             }
+          },
+          "continueFromLastProcessed": {
+            "type": "boolean",
+            "description": "When true, the clone continues right after the last record the original processed. When false (default), the clone starts fresh and processes all records from the beginning.",
+            "example": false,
+            "default": false
           }
         },
         "required": [
-          "teamId",
           "replacements"
         ]
       },
@@ -7370,90 +7065,6 @@
           "name"
         ]
       },
-      "ActivityLogs_ErrorReportDto": {
-        "type": "object",
-        "properties": {
-          "request-id": {
-            "type": "string",
-            "description": "Request ID from headers or auto-generated UUID",
-            "example": "req-123"
-          },
-          "x-gw-ims-org-id": {
-            "type": "string",
-            "description": "Organization ID from headers",
-            "example": "org-456"
-          },
-          "errors": {
-            "description": "Validation errors (only present for validation failures)",
-            "example": [
-              "email must be a valid email address",
-              "password must be at least 8 characters"
-            ],
-            "type": "array",
-            "items": {
-              "type": "object"
-            }
-          }
-        },
-        "required": [
-          "request-id"
-        ]
-      },
-      "ActivityLogs_ErrorResponseDto": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string",
-            "description": "Error type based on HTTP status or validation error",
-            "example": "BadRequest"
-          },
-          "status": {
-            "type": "number",
-            "description": "HTTP status code",
-            "example": 400,
-            "minimum": 400,
-            "maximum": 599
-          },
-          "title": {
-            "type": "string",
-            "description": "Human-readable error message",
-            "examples": {
-              "badRequest": {
-                "value": "Invalid request"
-              },
-              "unauthorized": {
-                "value": "Authentication required"
-              },
-              "forbidden": {
-                "value": "Access denied"
-              },
-              "notFound": {
-                "value": "Resource not found"
-              },
-              "serverError": {
-                "value": "Server error"
-              },
-              "validationError": {
-                "value": "Validation failed"
-              }
-            }
-          },
-          "report": {
-            "description": "Error report with request tracking and additional details",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ActivityLogs_ErrorReportDto"
-              }
-            ]
-          }
-        },
-        "required": [
-          "type",
-          "status",
-          "title",
-          "report"
-        ]
-      },
       "ActivityLog": {
         "type": "object",
         "properties": {
@@ -7588,90 +7199,6 @@
           "_page",
           "_links",
           "items"
-        ]
-      },
-      "Operations_ErrorReportDto": {
-        "type": "object",
-        "properties": {
-          "request-id": {
-            "type": "string",
-            "description": "Request ID from headers or auto-generated UUID",
-            "example": "req-123"
-          },
-          "x-gw-ims-org-id": {
-            "type": "string",
-            "description": "Organization ID from headers",
-            "example": "org-456"
-          },
-          "errors": {
-            "description": "Validation errors (only present for validation failures)",
-            "example": [
-              "email must be a valid email address",
-              "password must be at least 8 characters"
-            ],
-            "type": "array",
-            "items": {
-              "type": "object"
-            }
-          }
-        },
-        "required": [
-          "request-id"
-        ]
-      },
-      "Operations_ErrorResponseDto": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string",
-            "description": "Error type based on HTTP status or validation error",
-            "example": "BadRequest"
-          },
-          "status": {
-            "type": "number",
-            "description": "HTTP status code",
-            "example": 400,
-            "minimum": 400,
-            "maximum": 599
-          },
-          "title": {
-            "type": "string",
-            "description": "Human-readable error message",
-            "examples": {
-              "badRequest": {
-                "value": "Invalid request"
-              },
-              "unauthorized": {
-                "value": "Authentication required"
-              },
-              "forbidden": {
-                "value": "Access denied"
-              },
-              "notFound": {
-                "value": "Resource not found"
-              },
-              "serverError": {
-                "value": "Server error"
-              },
-              "validationError": {
-                "value": "Validation failed"
-              }
-            }
-          },
-          "report": {
-            "description": "Error report with request tracking and additional details",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Operations_ErrorReportDto"
-              }
-            ]
-          }
-        },
-        "required": [
-          "type",
-          "status",
-          "title",
-          "report"
         ]
       },
       "ScenarioItemDto": {
@@ -8312,90 +7839,6 @@
           "items"
         ]
       },
-      "Hooks_ErrorReportDto": {
-        "type": "object",
-        "properties": {
-          "request-id": {
-            "type": "string",
-            "description": "Request ID from headers or auto-generated UUID",
-            "example": "req-123"
-          },
-          "x-gw-ims-org-id": {
-            "type": "string",
-            "description": "Organization ID from headers",
-            "example": "org-456"
-          },
-          "errors": {
-            "description": "Validation errors (only present for validation failures)",
-            "example": [
-              "email must be a valid email address",
-              "password must be at least 8 characters"
-            ],
-            "type": "array",
-            "items": {
-              "type": "object"
-            }
-          }
-        },
-        "required": [
-          "request-id"
-        ]
-      },
-      "Hooks_ErrorResponseDto": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string",
-            "description": "Error type based on HTTP status or validation error",
-            "example": "BadRequest"
-          },
-          "status": {
-            "type": "number",
-            "description": "HTTP status code",
-            "example": 400,
-            "minimum": 400,
-            "maximum": 599
-          },
-          "title": {
-            "type": "string",
-            "description": "Human-readable error message",
-            "examples": {
-              "badRequest": {
-                "value": "Invalid request"
-              },
-              "unauthorized": {
-                "value": "Authentication required"
-              },
-              "forbidden": {
-                "value": "Access denied"
-              },
-              "notFound": {
-                "value": "Resource not found"
-              },
-              "serverError": {
-                "value": "Server error"
-              },
-              "validationError": {
-                "value": "Validation failed"
-              }
-            }
-          },
-          "report": {
-            "description": "Error report with request tracking and additional details",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Hooks_ErrorReportDto"
-              }
-            ]
-          }
-        },
-        "required": [
-          "type",
-          "status",
-          "title",
-          "report"
-        ]
-      },
       "HookV3Dto": {
         "type": "object",
         "properties": {
@@ -8895,8 +8338,23 @@
             "nullable": true,
             "example": 10,
             "description": "ID of the linked data structure; null when no structure is assigned"
+          },
+          "spec": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "Spec field for this data store"
+          },
+          "strict": {
+            "type": "boolean",
+            "description": "Whether validation is strict"
           }
-        }
+        },
+        "required": [
+          "spec",
+          "strict"
+        ]
       },
       "DataStoreListSearchResponseDto": {
         "type": "object",
@@ -8973,109 +8431,130 @@
             "items": {
               "$ref": "#/components/schemas/DataStoreRecordItemV3Dto"
             }
-          },
-          "spec": {
-            "type": "array",
-            "items": {
-              "type": "object"
-            },
-            "description": "UDT field spec for this data store"
-          },
-          "strict": {
-            "type": "boolean",
-            "description": "Whether validation is strict"
           }
         },
         "required": [
           "_page",
           "_links",
-          "items",
-          "spec",
-          "strict"
+          "items"
         ]
       },
-      "Logs_ErrorReportDto": {
+      "ExecutionSummaryItemDto": {
         "type": "object",
         "properties": {
-          "request-id": {
+          "executionId": {
             "type": "string",
-            "description": "Request ID from headers or auto-generated UUID",
-            "example": "req-123"
+            "description": "Unique identifier for the execution. A 32-character lowercase string.",
+            "example": "62672b87ce5a449dae743947962da8b7"
           },
-          "x-gw-ims-org-id": {
+          "scenarioId": {
             "type": "string",
-            "description": "Organization ID from headers",
-            "example": "org-456"
+            "description": "Identifier of the parent scenario, as a numeric string.",
+            "example": "87"
           },
-          "errors": {
-            "description": "Validation errors (only present for validation failures)",
-            "example": [
-              "email must be a valid email address",
-              "password must be at least 8 characters"
-            ],
-            "type": "array",
-            "items": {
-              "type": "object"
-            }
-          }
-        },
-        "required": [
-          "request-id"
-        ]
-      },
-      "Logs_ErrorResponseDto": {
-        "type": "object",
-        "properties": {
+          "teamId": {
+            "type": "number",
+            "description": "Identifier of the team that owns the parent automation.",
+            "example": 1
+          },
           "type": {
             "type": "string",
-            "description": "Error type based on HTTP status or validation error",
-            "example": "BadRequest"
+            "description": "How the execution was run. `auto` = scheduled/automatic run, `manual` = user-initiated run-once.",
+            "enum": [
+              "auto",
+              "manual"
+            ],
+            "example": "auto"
+          },
+          "trigger": {
+            "type": "string",
+            "description": "Trigger type that initiated this execution: `webhook`, `chat`, `a2a`, `mcp`, `scheduled`.",
+            "enum": [
+              "webhook",
+              "chat",
+              "a2a",
+              "mcp",
+              "scheduled"
+            ],
+            "example": "webhook"
           },
           "status": {
             "type": "number",
-            "description": "HTTP status code",
-            "example": 400,
-            "minimum": 400,
-            "maximum": 599
+            "description": "Execution result status code: `0` running, `1` success, `2` warning, `3` error.",
+            "enum": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "example": 1
           },
-          "title": {
+          "timestamp": {
+            "format": "date-time",
             "type": "string",
-            "description": "Human-readable error message",
-            "examples": {
-              "badRequest": {
-                "value": "Invalid request"
-              },
-              "unauthorized": {
-                "value": "Authentication required"
-              },
-              "forbidden": {
-                "value": "Access denied"
-              },
-              "notFound": {
-                "value": "Resource not found"
-              },
-              "serverError": {
-                "value": "Server error"
-              },
-              "validationError": {
-                "value": "Validation failed"
-              }
+            "description": "Execution start time, as an ISO 8601 timestamp in UTC.",
+            "example": "2024-02-14T21:08:51.961Z"
+          },
+          "duration": {
+            "type": "number",
+            "description": "Total execution wall-clock time, in milliseconds.",
+            "example": 233
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the execution ended in error. Omitted entirely (not null) when there was no error.",
+            "example": {
+              "message": "Failed to process prompt: apiKey is required",
+              "readableCode": "V1.SCENARIO.EXECUTION.ERROR.MANUAL"
             }
           },
-          "report": {
-            "description": "Error report with request tracking and additional details",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Logs_ErrorReportDto"
-              }
-            ]
+          "deactivation": {
+            "type": "object",
+            "description": "Present only when a deactivation record exists for this execution. Omitted entirely (not null) when there is none.",
+            "example": {
+              "deactivated": true,
+              "reason": "Scenario has encountered an error while being processed."
+            }
           }
         },
         "required": [
+          "executionId",
+          "scenarioId",
+          "teamId",
           "type",
-          "status",
-          "title",
-          "report"
+          "timestamp"
+        ]
+      },
+      "LogsSummaryResponseDto": {
+        "type": "object",
+        "properties": {
+          "_page": {
+            "description": "Pagination metadata",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PageMetadataDto"
+              }
+            ]
+          },
+          "_links": {
+            "description": "Pagination links",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PageLinksDto"
+              }
+            ]
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExecutionSummaryItemDto"
+            }
+          }
+        },
+        "required": [
+          "_page",
+          "_links",
+          "items"
         ]
       },
       "ExecutionDto": {
@@ -9272,271 +8751,6 @@
           "_page",
           "_links",
           "items"
-        ]
-      },
-      "Page": {
-        "type": "object",
-        "properties": {
-          "start": {
-            "type": "object",
-            "readOnly": true,
-            "example": {
-              "_id": "5f7f1f7d67f67ddaa622b796",
-              "duration": 5
-            }
-          },
-          "count": {
-            "type": "number"
-          },
-          "next": {
-            "type": "object",
-            "readOnly": true,
-            "example": {
-              "_id": "5f7f1f7d67f67ddaa622c3d6",
-              "duration": 15
-            }
-          },
-          "orderby": {
-            "type": "string",
-            "readOnly": true,
-            "example": "duration,-timestamp"
-          }
-        },
-        "required": [
-          "start",
-          "count",
-          "next",
-          "orderby"
-        ]
-      },
-      "NextLink": {
-        "type": "object",
-        "properties": {
-          "href": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "href"
-        ]
-      },
-      "Links": {
-        "type": "object",
-        "properties": {
-          "next": {
-            "readOnly": true,
-            "example": "https://fusion.adobe.com/api/v1/logs/scenario/3?limit=10&start=2024-03-06T16:55:32.375Z",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/NextLink"
-              }
-            ]
-          }
-        },
-        "required": [
-          "next"
-        ]
-      },
-      "DetailPaginatedResponseDto": {
-        "type": "object",
-        "properties": {
-          "_page": {
-            "$ref": "#/components/schemas/Page"
-          },
-          "children": {
-            "readOnly": true,
-            "example": [
-              {
-                "type": 12,
-                "executionId": "ad0c54594a2d403380b677aa29e8057f",
-                "level": 2,
-                "message": null,
-                "timestamp": "2026-02-27T22:38:59.846Z",
-                "time": 4933,
-                "source": {
-                  "type": "module",
-                  "id": 1,
-                  "name": "CustomWebHook",
-                  "app": "gateway",
-                  "version": "1.9.3"
-                }
-              }
-            ],
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "_links": {
-            "$ref": "#/components/schemas/Links"
-          }
-        },
-        "required": [
-          "_page",
-          "children",
-          "_links"
-        ]
-      },
-      "DebugDataDto": {
-        "type": "object",
-        "properties": {
-          "timestamp": {
-            "format": "date-time",
-            "type": "string",
-            "description": "Debug log timestamp",
-            "example": "2024-10-01T19:58:26.401Z"
-          },
-          "cycle": {
-            "type": "number",
-            "description": "Cycle number",
-            "example": 1
-          },
-          "operation": {
-            "type": "number",
-            "description": "Operation number",
-            "example": 1
-          },
-          "kind": {
-            "type": "string",
-            "description": "Execution kind",
-            "example": "scenario"
-          },
-          "kindId": {
-            "type": "string",
-            "description": "Kind identifier",
-            "example": "77418"
-          },
-          "executionId": {
-            "type": "string",
-            "description": "Execution identifier",
-            "example": "ba3b3f9487a14d5e94aa3687092071d8"
-          },
-          "module": {
-            "type": "object",
-            "description": "Module details",
-            "example": {
-              "app": "workfront-workfront",
-              "class": "watchEvents",
-              "id": 1,
-              "version": "1.44.5",
-              "_id": "6700a04908e1fbc02eab05e8"
-            }
-          },
-          "data": {
-            "description": "Debug data lines",
-            "example": [
-              "[\"Fetching document #8baf50b7ffd343639752ea4e598cd2ad.\"]"
-            ],
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        },
-        "required": [
-          "timestamp",
-          "cycle",
-          "operation",
-          "kind",
-          "kindId",
-          "executionId",
-          "module",
-          "data"
-        ]
-      },
-      "DebugDataResponseDto": {
-        "type": "object",
-        "properties": {
-          "debugData": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/DebugDataDto"
-            }
-          }
-        },
-        "required": [
-          "debugData"
-        ]
-      },
-      "BundleDataDto": {
-        "type": "object",
-        "properties": {
-          "executionId": {
-            "type": "string",
-            "example": "ad0c54594a2d403380b677aa29e8057f"
-          },
-          "kind": {
-            "type": "string",
-            "example": "scenario",
-            "enum": [
-              "scenario",
-              "dlq"
-            ]
-          },
-          "kindId": {
-            "type": "string",
-            "example": "2614"
-          },
-          "timestamp": {
-            "type": "string",
-            "example": "2026-02-27T22:38:59.846Z"
-          },
-          "cycle": {
-            "type": "number",
-            "example": 1
-          },
-          "module": {
-            "type": "number",
-            "example": 3
-          },
-          "operation": {
-            "type": "number",
-            "example": 1
-          },
-          "page": {
-            "type": "number",
-            "example": 1
-          },
-          "pages": {
-            "type": "number",
-            "example": 5
-          },
-          "input": {
-            "type": "boolean",
-            "example": true
-          },
-          "data": {
-            "type": "string",
-            "example": "{\"url\":\"https://example.com\",\"method\":\"GET\",\"statusCode\":200}"
-          }
-        },
-        "required": [
-          "executionId",
-          "kind",
-          "kindId",
-          "timestamp",
-          "cycle",
-          "module",
-          "operation",
-          "page",
-          "pages",
-          "input",
-          "data"
-        ]
-      },
-      "BundleDataResponseDto": {
-        "type": "object",
-        "properties": {
-          "bundleData": {
-            "description": "Ordered list of bundle records for the execution. Capped at 1 000 entries — if the execution produced more records this list will be incomplete.",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/BundleDataDto"
-            }
-          }
-        },
-        "required": [
-          "bundleData"
         ]
       },
       "DataStructureBaseDto": {
