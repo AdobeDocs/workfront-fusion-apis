@@ -113,3 +113,23 @@ Cursor-based pagination with items, metadata, and navigation links.
 - `start` parameter type must match the `orderby` field type.
 - Timestamps must be ISO 8601 format (UTC).
 - `orderby` is required when using `start` or `limit`.
+
+## Rate Limiting
+
+To keep the API fast and reliable for everyone, requests are limited to a set number of calls over a period of time. Limits vary by endpoint and account.
+
+If you exceed the limit, the API returns a `429 Too Many Requests` error. When this happens, wait before retrying. Slow down your request rate, add delays between calls, or batch requests where possible to stay within your limit.
+
+**Example:**
+
+```json
+{
+  "type": "TooManyRequests",
+  "status": 429,
+  "title": "Rate limit exceeded. Please try again later.",
+  "report": {
+    "request-id": "abc-123-def-456",
+    "x-gw-ims-org-id": "1234567890ABCDEF@AdobeOrg"
+  }
+}
+```
