@@ -118,6 +118,8 @@ Cursor-based pagination with items, metadata, and navigation links.
 
 To keep the API fast and reliable for everyone, requests are limited to a set number of calls over a period of time. Limits vary by endpoint and account.
 
+As a general guideline, sustained high-volume bursts may be throttled. If your integration requires a higher sustained volume, contact your Workfront account representative to discuss your use case.
+
 If you exceed the limit, the API returns a `429 Too Many Requests` error. When this happens, wait before retrying. Slow down your request rate, add delays between calls, or batch requests where possible to stay within your limit.
 
 **Example:**
