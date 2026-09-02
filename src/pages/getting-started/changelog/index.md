@@ -1,3 +1,8 @@
+---
+title: Changelog
+description: Changelog for Workfront Fusion APIs
+---
+
 # Changelog
 
 ## September 2, 2026
@@ -43,7 +48,7 @@
     - Added response field: `dataStructureId`
     - Removed response field: `datastructureId`
 
----
+<HorizontalLine />
 
 ## June 17, 2026
 
@@ -89,7 +94,7 @@
     - Removed path parameter: `orgId`
     - Added parameter: `x-organization-id`
 
----
+<HorizontalLine />
 
 ## February 1, 2026
 
@@ -100,4 +105,4 @@
 - `GET` **Get operations count**
 - `GET` **Get operations summary**
 
----
+<HorizontalLine />
