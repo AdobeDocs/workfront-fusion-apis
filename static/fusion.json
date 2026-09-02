@@ -63,6 +63,10 @@
     {
       "name": "Data Structures",
       "description": "Endpoints for managing data structures within your organization. These endpoints allow you to search and filter data structures scoped to your org or a specific team, retrieve a data structure by ID including its full field specification, "
+    },
+    {
+      "name": "Users",
+      "description": "User account endpoints, including discovering which Fusion regions and organizations user can access"
     }
   ],
   "paths": {
@@ -5112,6 +5116,116 @@
           "Data Structures"
         ]
       }
+    },
+    "/api/v3/users/me/regions": {
+      "get": {
+        "description": "Reads the caller’s IMS profile and returns one `{ region, organizationId }` entry per Fusion organization the caller can access. Intended as the first call a public-API consumer makes, so it knows which `x-gw-region` to send on all subsequent requests.",
+        "operationId": "UserV3Controller_getMyRegions_v3",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Regions and organizations the caller can access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RegionsResponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Missing or invalid IMS user token",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Access denied",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad gateway",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadGateway",
+                  "status": 502,
+                  "title": "IMS profile lookup failed",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "Get user regions, organizations",
+        "tags": [
+          "Users"
+        ]
+      }
     }
   },
   "components": {
@@ -7955,6 +8069,37 @@
           "failed"
         ]
       },
+      "DeleteQueueV3QueryDto": {
+        "type": "object",
+        "properties": {
+          "all": {
+            "type": "boolean",
+            "description": "Delete all queued webhook events for the hook.",
+            "example": false
+          },
+          "id": {
+            "description": "ID of the queued webhook event to delete. Repeat for multiple (`?id=a&id=b`). Maximum 50.",
+            "example": [
+              "cea19821d0ad423d92b853a51ea2321e",
+              "563e8cc79fd84ae08fca37fa05d94150"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "excludeId": {
+            "description": "ID of the queued webhook event to exclude when deleting `all`. Repeat for multiple (`?excludeId=a&excludeId=b`). Maximum 50.",
+            "example": [
+              "cea19821d0ad423d92b853a51ea2321e"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
       "DataStoreListItemResponseV3Dto": {
         "type": "object",
         "properties": {
@@ -8484,6 +8629,25 @@
           "strict",
           "teamId",
           "spec"
+        ]
+      },
+      "RegionsResponseDto": {
+        "type": "object",
+        "properties": {
+          "region": {
+            "type": "string",
+            "description": "Fusion region code, e.g. or2, irl1, va7, nld2"
+          },
+          "organizationId": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991,
+            "description": "Fusion organization id in that region"
+          }
+        },
+        "required": [
+          "region",
+          "organizationId"
         ]
       }
     },
