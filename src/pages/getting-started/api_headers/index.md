@@ -22,13 +22,38 @@ All API requests must be sent to `fusion.adobe.io` with the required headers des
 
 **Purpose:** Routes requests to the correct Fusion region.
 
-**Description:** The Fusion platform requires requests to be directed to the appropriate regional instance. To find your organization's region identifier:
+**Description:** The Fusion platform requires requests to be directed to the appropriate regional instance. To find your organization's region identifier, use one of the following methods.
+
+**Option 1: Users regions endpoint**
+
+Call `GET /api/v3/users/me/regions` with your `Authorization` header. It reads your IMS profile and returns one `{ region, organizationId }` entry per Fusion organization you can access, so you know which `x-gw-region` and `x-organization-id` to send on subsequent requests.
+
+Call this endpoint against `app.workfrontfusion.com`, not `fusion.adobe.io` — `fusion.adobe.io` requires the `x-gw-region` header, which you don't have yet.
+
+```shell
+curl --location 'https://app.workfrontfusion.com/api/v3/users/me/regions' \
+--header 'Authorization: Bearer yourAccessToken'
+```
+
+The response will look like this:
+
+```json
+[
+  {
+    "region": "or2",
+    "organizationId": 2332
+  }
+]
+```
+
+**Option 2: Fusion Profile page**
 
 1. Log in to Fusion as any user.
 2. Click on your profile icon in right corner, then visit Fusion Profile.
 3. Locate the **Adobe region** identifier next to your username (e.g., `or2`).
 4. Use this value in the `x-gw-region` header.
 ![Example of profile with a region](./region.png)
+
 **Example:** If your region identifier is `or2`, set the header value as `or2`.
 This header is required for proper request routing.
 
@@ -107,8 +132,8 @@ When required headers are missing or invalid, the API returns the following erro
 
 For public API usage, the tenant identifier on the Fusion end is the Fusion organization identifier. This is because many Fusion organizations can be mapped to the same IMS organization, making the IMS org ID insufficient to uniquely scope requests.
 
-For existing public endpoints, please switch to using the Fusion organization ID via the `x-organization-id` header.
+All public endpoints require the Fusion organization ID via the `x-organization-id` header. `organizationId` as a route or query parameter is no longer supported.
 
-For the **activity logs** and **operations** endpoints specifically, switch to passing the organization identifier as the `x-organization-id` header instead of as a route parameter or query parameter. Endpoints that currently accept `organizationId` as a route or query parameter will continue to work for 2 weeks, after which they will be deprecated in favor of the `x-organization-id` header. As of July 15, the activity log endpoints having organizationId in the route and operations endpoints having organizationId in the query parameter will start failing.
+All list endpoints are searchable by the `x-organization-id` header and support optional team filtering.
 
 See the [API Reference](../../api/index.md) for the latest endpoint details.

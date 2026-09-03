@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Fusion API Spec Diff — main vs current</title>
+<style>
+  :root{
+    --bg:#0b0d12; --panel:#12151c; --panel2:#171b24; --border:#242938;
+    --text:#e7e9ee; --muted:#8a90a2;
+    --add:#3fb950; --add-bg:rgba(63,185,80,.12);
+    --mod:#d29922; --mod-bg:rgba(210,153,34,.12);
+    --accent:#6ea8fe;
+  }
+  @media (prefers-color-scheme: light){
+    :root{
+      --bg:#f6f7fb; --panel:#ffffff; --panel2:#f0f1f6; --border:#e2e4ec;
+      --text:#1b1e27; --muted:#666c7d;
+      --add:#1a7f37; --add-bg:rgba(26,127,55,.10);
+      --mod:#9a6700; --mod-bg:rgba(154,103,0,.10);
+      --accent:#2563eb;
+    }
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+    background:var(--bg); color:var(--text); line-height:1.5;
+  }
+  header{padding:32px 24px 8px; max-width:980px; margin:0 auto;}
+  header h1{margin:0 0 4px; font-size:22px;}
+  header p{margin:0; color:var(--muted); font-size:14px;}
+  .branches{display:flex; gap:8px; align-items:center; margin-top:14px; font-size:13px; font-family:ui-monospace,Menlo,monospace;}
+  .pill{padding:3px 10px; border-radius:999px; border:1px solid var(--border); background:var(--panel2);}
+  .arrow{color:var(--muted);}
+
+  main{max-width:980px; margin:0 auto; padding:24px;}
+
+  .stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:32px;}
+  .stat{background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:16px;}
+  .stat .n{font-size:26px; font-weight:700;}
+  .stat .n.add{color:var(--add)}
+  .stat .n.mod{color:var(--mod)}
+  .stat .l{font-size:12px; color:var(--muted); margin-top:2px;}
+
+  section{margin-bottom:36px;}
+  section > h2{
+    font-size:14px; text-transform:uppercase; letter-spacing:.04em;
+    color:var(--muted); margin:0 0 12px; padding-bottom:8px; border-bottom:1px solid var(--border);
+  }
+
+  .card{background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:18px 20px; margin-bottom:12px;}
+  .badge{
+    display:inline-block; font-size:11px; font-weight:600; padding:2px 8px; border-radius:6px;
+    margin-right:8px; vertical-align:middle;
+  }
+  .badge.add{background:var(--add-bg); color:var(--add);}
+  .badge.mod{background:var(--mod-bg); color:var(--mod);}
+
+  .version-change{display:flex; align-items:center; gap:10px; font-family:ui-monospace,Menlo,monospace; font-size:15px;}
+  .version-change .old{color:var(--muted); text-decoration:line-through;}
+  .version-change .new{color:var(--mod); font-weight:600;}
+
+  .tag-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:12px;}
+  .tag-card h3{margin:0 0 4px; font-size:15px;}
+  .tag-card p{margin:0; font-size:13px; color:var(--muted);}
+
+  .endpoint-group{margin-bottom:14px;}
+  .endpoint-group .tag-label{font-size:12px; color:var(--accent); font-weight:600; margin-bottom:6px;}
+  .endpoint{
+    display:flex; gap:10px; align-items:baseline; font-family:ui-monospace,Menlo,monospace;
+    font-size:13px; padding:6px 0; border-bottom:1px solid var(--border);
+  }
+  .endpoint:last-child{border-bottom:none;}
+  .path{color:var(--text);}
+  .path .param{color:var(--accent);}
+
+  .schema-list{display:flex; flex-wrap:wrap; gap:8px;}
+  .schema-pill{
+    font-family:ui-monospace,Menlo,monospace; font-size:12.5px;
+    background:var(--panel2); border:1px solid var(--border); border-radius:6px;
+    padding:4px 9px; color:var(--text);
+  }
+
+  .modified-list{columns:2; column-gap:24px;}
+  @media (max-width:640px){.modified-list{columns:1}}
+  .modified-item{
+    font-family:ui-monospace,Menlo,monospace; font-size:13px;
+    padding:5px 0; break-inside:avoid;
+  }
+
+  .note{
+    background:var(--mod-bg); border:1px solid var(--mod); border-radius:10px;
+    padding:14px 16px; font-size:13.5px; margin-top:14px;
+  }
+  .note b{color:var(--mod);}
+  .note ul{margin:8px 0 0; padding-left:18px;}
+  .note li{margin-bottom:4px;}
+
+  footer{max-width:980px; margin:0 auto; padding:8px 24px 40px; color:var(--muted); font-size:12px;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Fusion API spec diff</h1>
+  <p>static/fusion.json — comparing the branch version against main</p>
+  <div class="branches">
+    <span class="pill">origin/main</span>
+    <span class="arrow">→</span>
+    <span class="pill">main-stage-aug (HEAD)</span>
+  </div>
+</header>
+
+<main>
+
+  <div class="stats">
+    <div class="stat"><div class="n add">+13</div><div class="l">new endpoints</div></div>
+    <div class="stat"><div class="n mod">20</div><div class="l">existing endpoints touched</div></div>
+    <div class="stat"><div class="n add">+35</div><div class="l">new schemas</div></div>
+    <div class="stat"><div class="n add">+3</div><div class="l">new tags</div></div>
+    <div class="stat"><div class="n">0</div><div class="l">endpoints/schemas removed</div></div>
+  </div>
+
+  <section>
+    <h2>OpenAPI version</h2>
+    <div class="card">
+      <div class="version-change">
+        <span class="old">openapi: 3.1.0</span>
+        <span class="arrow">→</span>
+        <span class="new">openapi: 3.0.3</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="badge add">Added</span>New tags</h2>
+    <div class="tag-grid">
+      <div class="card tag-card">
+        <h3>Scenario Versions</h3>
+        <p>Listing, retrieving, creating, and updating versions of a scenario.</p>
+      </div>
+      <div class="card tag-card">
+        <h3>Keys</h3>
+        <p>Managing encryption keys used for securing data and connections.</p>
+      </div>
+      <div class="card tag-card">
+        <h3>Data Structures</h3>
+        <p>Searching/filtering data structures scoped to an org or team, and retrieving full field specs.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="badge add">Added</span>New endpoints (13)</h2>
+    <div class="card">
+
+      <div class="endpoint-group">
+        <div class="tag-label">Scenario Versions</div>
+        <div class="endpoint"><span class="path">/api/v3/scenarios/<span class="param">{scenarioId}</span>/versions</span></div>
+        <div class="endpoint"><span class="path">/api/v3/scenarios/<span class="param">{scenarioId}</span>/versions/<span class="param">{version}</span></span></div>
+      </div>
+
+      <div class="endpoint-group">
+        <div class="tag-label">Keys</div>
+        <div class="endpoint"><span class="path">/api/v3/keys</span></div>
+        <div class="endpoint"><span class="path">/api/v3/keys/<span class="param">{id}</span></span></div>
+      </div>
+
+      <div class="endpoint-group">
+        <div class="tag-label">Data Structures</div>
+        <div class="endpoint"><span class="path">/api/v3/data-structures</span></div>
+        <div class="endpoint"><span class="path">/api/v3/data-structures/<span class="param">{id}</span></span></div>
+      </div>
+
+      <div class="endpoint-group">
+        <div class="tag-label">Hooks</div>
+        <div class="endpoint"><span class="path">/api/v3/hooks/<span class="param">{hookId}</span>/queue</span></div>
+        <div class="endpoint"><span class="path">/api/v3/hooks/<span class="param">{hookId}</span>/queue/stats</span></div>
+        <div class="endpoint"><span class="path">/api/v3/hooks/<span class="param">{hookId}</span>/queue/<span class="param">{itemId}</span></span></div>
+      </div>
+
+      <div class="endpoint-group">
+        <div class="tag-label">Logs</div>
+        <div class="endpoint"><span class="path">/api/v3/logs/<span class="param">{executionId}</span>/bundle</span></div>
+        <div class="endpoint"><span class="path">/api/v3/logs/<span class="param">{executionId}</span>/debug</span></div>
+        <div class="endpoint"><span class="path">/api/v3/logs/<span class="param">{executionId}</span>/details</span></div>
+      </div>
+
+      <div class="endpoint-group">
+        <div class="tag-label">Data Stores</div>
+        <div class="endpoint"><span class="path">/api/v3/data-stores/<span class="param">{dataStoreId}</span>/data</span></div>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="badge add">Added</span>New schemas (35)</h2>
+    <div class="card">
+      <div class="schema-list">
+        <span class="schema-pill">DataStructureBaseDto</span>
+        <span class="schema-pill">DataStructureResponseDto</span>
+        <span class="schema-pill">DataStructureSpecDto</span>
+        <span class="schema-pill">DataStructureSpecType</span>
+        <span class="schema-pill">DataStructuresSearchResponseDto</span>
+        <span class="schema-pill">DataStoreDataListSearchResponseV3Dto</span>
+        <span class="schema-pill">DataStoreRecordItemV3Dto</span>
+        <span class="schema-pill">KeyV3ResponseDto</span>
+        <span class="schema-pill">KeysListV3ResponseDto</span>
+        <span class="schema-pill">KeyTypeName</span>
+        <span class="schema-pill">ScenarioVersionBaseDto</span>
+        <span class="schema-pill">ScenarioVersionBlueprintDto</span>
+        <span class="schema-pill">GetScenarioVersionsListResponseDto</span>
+        <span class="schema-pill">QueueV3Dto</span>
+        <span class="schema-pill">QueueDetailV3Dto</span>
+        <span class="schema-pill">QueueStatsV3Dto</span>
+        <span class="schema-pill">GetQueueListResponseDto</span>
+        <span class="schema-pill">DeleteQueueV3ResponseDto</span>
+        <span class="schema-pill">FailedQueueDeleteV3Dto</span>
+        <span class="schema-pill">BundleDataDto</span>
+        <span class="schema-pill">BundleDataResponseDto</span>
+        <span class="schema-pill">DebugDataDto</span>
+        <span class="schema-pill">DebugDataResponseDto</span>
+        <span class="schema-pill">DetailPaginatedResponseDto</span>
+        <span class="schema-pill">ExportScenariosBodyDto</span>
+        <span class="schema-pill">Page</span>
+        <span class="schema-pill">Links</span>
+        <span class="schema-pill">NextLink</span>
+        <span class="schema-pill">ActivityLogs_ErrorReportDto</span>
+        <span class="schema-pill">ActivityLogs_ErrorResponseDto</span>
+        <span class="schema-pill">Hooks_ErrorReportDto</span>
+        <span class="schema-pill">Hooks_ErrorResponseDto</span>
+        <span class="schema-pill">Logs_ErrorReportDto</span>
+        <span class="schema-pill">Logs_ErrorResponseDto</span>
+        <span class="schema-pill">Operations_ErrorReportDto</span>
+        <span class="schema-pill">Operations_ErrorResponseDto</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="badge mod">Modified</span>Existing endpoints touched (20 of 20)</h2>
+    <div class="card">
+      <p style="margin-top:0; color:var(--muted); font-size:13.5px;">
+        Mostly mechanical: inline request/response schemas were hoisted out into <code>$ref</code>s
+        (e.g. into <code>ExportScenariosBodyDto</code>) and pagination bodies were normalized to shared
+        <code>Page</code> / <code>Links</code> schemas. No path was removed.
+      </p>
+      <div class="modified-list">
+        <div class="modified-item">/api/v3/activity-logs</div>
+        <div class="modified-item">/api/v3/activity-logs/export</div>
+        <div class="modified-item">/api/v3/connections</div>
+        <div class="modified-item">/api/v3/connections/{connectionId}</div>
+        <div class="modified-item">/api/v3/connections/{connectionId}/scenarios</div>
+        <div class="modified-item">/api/v3/data-stores</div>
+        <div class="modified-item">/api/v3/data-stores/{id}</div>
+        <div class="modified-item">/api/v3/folders</div>
+        <div class="modified-item">/api/v3/folders/{folderId}</div>
+        <div class="modified-item">/api/v3/hooks</div>
+        <div class="modified-item">/api/v3/hooks/{hookId}</div>
+        <div class="modified-item">/api/v3/logs</div>
+        <div class="modified-item">/api/v3/logs/{executionId}</div>
+        <div class="modified-item">/api/v3/operations</div>
+        <div class="modified-item">/api/v3/operations/summary</div>
+        <div class="modified-item">/api/v3/scenarios</div>
+        <div class="modified-item">/api/v3/scenarios/export</div>
+        <div class="modified-item">/api/v3/scenarios/{scenarioId}</div>
+        <div class="modified-item">/api/v3/scenarios/{scenarioId}/clone</div>
+        <div class="modified-item">/api/v3/scenarios/{scenarioId}/dependencies</div>
+      </div>
+
+      <div class="note">
+        <b>Real behavioral change spotted in /api/v3/folders</b>
+        <ul>
+          <li><code>teamId</code> query param removed — folders are now scoped by <b>organization</b> instead of by team.</li>
+          <li><code>teamId</code> moved into the generic <code>property</code> filter's allowed fields instead of being its own param.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>Generated from <code>git diff origin/main..HEAD -- static/fusion.json</code>. Spot-checked for behavioral changes only on /folders — the other 19 modified paths were not individually verified beyond the schema-refactor pattern.</footer>
+
+</body>
+</html>
