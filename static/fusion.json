@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Workfront Fusion API",
-    "description": "REST APIs for managing and monitoring your Workfront Fusion resources. Use these APIs to programmatically access activity logs and other Fusion components coming soon.\n\n**Base URL:** https://fusion.adobe.io\n\n**Getting Started:**\n\n For detailed setup instructions, make sure to visit the [Getting Started guide](https://developer-stage.adobe.com/workfront-fusion-apis/getting-started/).\n1. Set up authentication in Adobe Developer Console, as documented [here](https://developer-stage.adobe.com/workfront-fusion-apis/getting-started/authentication/).\n2. Obtain required headers (Authorization, x-api-key, x-organization-id, x-gw-region). More details [here](https://developer-stage.adobe.com/workfront-fusion-apis/getting-started/api_headers/).\n3. Update permissions for the technical account, as documented [here](https://developer-stage.adobe.com/workfront-fusion-apis/getting-started/technical_accounts/).\n4. Make your first API call.\n",
+    "description": "REST APIs for managing and monitoring your Workfront Fusion resources. Use these APIs to programmatically access activity logs and other Fusion components coming soon.\n\n**Base URL:** https://fusion.adobe.io\n\n**Getting Started:**\n\n For detailed setup instructions, make sure to visit the [Getting Started guide](https://developer.adobe.com/workfront-fusion-apis/getting-started/).\n1. Set up authentication in Adobe Developer Console, as documented [here](https://developer.adobe.com/workfront-fusion-apis/getting-started/authentication/).\n2. Obtain required headers (Authorization, x-api-key, x-organization-id, x-gw-region). More details [here](https://developer.adobe.com/workfront-fusion-apis/getting-started/api_headers/).\n3. Update permissions for the technical account, as documented [here](https://developer.adobe.com/workfront-fusion-apis/getting-started/technical_accounts/).\n4. Make your first API call.\n",
     "version": "v3"
   },
   "servers": [
@@ -8656,25 +8656,25 @@
         "type": "http",
         "scheme": "bearer",
         "bearerFormat": "JWT",
-        "description": "**Required.** IMS access token for authenticating the user or technical account making the request.\n\nSee the [Authentication guide](https://developer-stage.adobe.com/workfront-fusion-apis/getting-started/authentication/) for detailed instructions on obtaining access tokens.\n\n[API Headers Documentation](https://developer-stage.adobe.com/workfront-fusion-apis/getting-started/api_headers/)\n"
+        "description": "**Required.** IMS access token for authenticating the user or technical account making the request.\n\nSee the [Authentication guide](https://developer.adobe.com/workfront-fusion-apis/getting-started/authentication/) for detailed instructions on obtaining access tokens.\n\n[API Headers Documentation](https://developer.adobe.com/workfront-fusion-apis/getting-started/api_headers/)\n"
       },
       "Organization ID": {
         "type": "apiKey",
         "in": "header",
         "name": "x-organization-id",
-        "description": "**Required.** Your Fusion Organization ID. Must be a number. Scopes all requests to your specific Fusion organization. You can find this ID in the Fusion Org Overview page URL: `/organization/{organizationId}/dashboard`.\n\n**Example:** `12345`\n\n[API Headers Documentation](https://developer-stage.adobe.com/workfront-fusion-apis/getting-started/api_headers/)\n"
+        "description": "**Required.** Your Fusion Organization ID. Must be a number. Scopes all requests to your specific Fusion organization. You can find this ID in the Fusion Org Overview page URL: `/organization/{organizationId}/dashboard`.\n\n**Example:** `12345`\n\n[API Headers Documentation](https://developer.adobe.com/workfront-fusion-apis/getting-started/api_headers/)\n"
       },
       "API Key": {
         "type": "apiKey",
         "in": "header",
         "name": "x-api-key",
-        "description": "**Required.** Your application's Client ID from Adobe Developer Console. This identifies your application and is the same value used for IMS authentication.\n\n[API Headers Documentation](https://developer-stage.adobe.com/workfront-fusion-apis/getting-started/api_headers/)\n"
+        "description": "**Required.** Your application's Client ID from Adobe Developer Console. This identifies your application and is the same value used for IMS authentication.\n\n[API Headers Documentation](https://developer.adobe.com/workfront-fusion-apis/getting-started/api_headers/)\n"
       },
       "Region": {
         "type": "apiKey",
         "in": "header",
         "name": "x-gw-region",
-        "description": "**Required.** Routes requests to the correct Fusion regional instance.\n\n**Example:** `or2`\n\n[API Headers Documentation](https://developer-stage.adobe.com/workfront-fusion-apis/getting-started/api_headers/)\n"
+        "description": "**Required.** Routes requests to the correct Fusion regional instance.\n\n**Example:** `or2`\n\n[API Headers Documentation](https://developer.adobe.com/workfront-fusion-apis/getting-started/api_headers/)\n"
       }
     }
   }

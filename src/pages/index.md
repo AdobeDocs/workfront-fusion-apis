@@ -40,7 +40,7 @@ This guide assumes that you are familiar with:
 *	Adobe Identity and Adobe Developer Console project setup
 
 For an introduction to Fusion concepts and UI-based automation, see the [Adobe Workfront Fusion product documentation](https://experienceleague.adobe.com/en/docs/workfront-fusion/using/home).
-For APIs that manage Workfront work management objects (projects, tasks, and issues), see the [Adobe Workfront Platform APIs](https://developer-stage.adobe.com/workfront-apis/).
+For APIs that manage Workfront work management objects (projects, tasks, and issues), see the [Adobe Workfront Platform APIs](https://developer.adobe.com/workfront-apis/).
 
 ## Discover
 
