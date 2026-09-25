@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Workfront Fusion API",
-    "description": "REST APIs for managing and monitoring your Workfront Fusion resources. Use these APIs to programmatically access activity logs and other Fusion components coming soon.\n\n**Base URL:** https://fusion.adobe.io\n\n**Getting Started:**\n\n For detailed setup instructions, make sure to visit the [Getting Started guide](https://developer.adobe.com/workfront-fusion-apis/getting-started/).\n1. Set up authentication in Adobe Developer Console, as documented [here](https://developer.adobe.com/workfront-fusion-apis/getting-started/authentication/).\n2. Obtain required headers (Authorization, x-api-key, x-organization-id, x-gw-region). More details [here](https://developer.adobe.com/workfront-fusion-apis/getting-started/api_headers/).\n3. Update permissions for the technical account, as documented [here](https://developer.adobe.com/workfront-fusion-apis/getting-started/technical_accounts/).\n4. Make your first API call.\n",
+    "description": "REST APIs for managing and monitoring your Workfront Fusion resources. Use these APIs to programmatically access activity logs and other Fusion components coming soon.\n\n**Base URL:** https://fusion.adobe.io\n\n**Getting Started:**\n\n For detailed setup instructions, make sure to visit the [Getting Started guide](https://developer-stage.adobe.com/workfront-fusion-apis/getting-started/).\n1. Set up authentication in Adobe Developer Console, as documented [here](https://developer-stage.adobe.com/workfront-fusion-apis/getting-started/authentication/).\n2. Obtain required headers (Authorization, x-api-key, x-organization-id, x-gw-region). More details [here](https://developer-stage.adobe.com/workfront-fusion-apis/getting-started/api_headers/).\n3. Update permissions for the technical account, as documented [here](https://developer-stage.adobe.com/workfront-fusion-apis/getting-started/technical_accounts/).\n4. Make your first API call.\n",
     "version": "v3"
   },
   "servers": [
@@ -206,6 +206,152 @@
         ]
       }
     },
+    "/api/v3/scenarios/dependents": {
+      "get": {
+        "description": "Reverse dependency lookup. Returns the scenarios (id, name) in the organization that reference the given resource (`kind` + `id`). Returns an empty array when nothing depends on it. For kinds whose dependents are hierarchical rather than flat (currently `scenario`, via chain-calling), each item's own dependents are nested one level deeper under `dependents`; omitted entirely for flat kinds.",
+        "operationId": "ScenariosControllerV3_getDependents_v3",
+        "parameters": [
+          {
+            "name": "kind",
+            "required": true,
+            "in": "query",
+            "description": "Type of resource to look up scenarios by",
+            "schema": {
+              "enum": [
+                "hook",
+                "dataStore",
+                "dataStructure",
+                "connection",
+                "key",
+                "scenario"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "query",
+            "description": "ID of the resource",
+            "schema": {
+              "example": 42,
+              "type": "number"
+            }
+          },
+          {
+            "name": "x-organization-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scenarios that depend on the resource",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ScenarioDependentDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "Unsupported dependency kind",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "User lacks access to the resource",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "List scenarios that depend on a resource",
+        "tags": [
+          "Scenarios"
+        ]
+      }
+    },
     "/api/v3/scenarios/{scenarioId}": {
       "get": {
         "description": "Returns the scenario details and full blueprint for the given scenario.",
@@ -219,6 +365,16 @@
             "schema": {
               "example": 123,
               "type": "number"
+            }
+          },
+          {
+            "name": "fields",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated list of fields to include in the response.\n\nAllowed fields:\n- id\n- name\n- teamId\n- description\n- folderId\n- usedPackages\n- isInvalid\n- isActive\n- isLocked\n- isPaused\n- isWaiting\n- sequential\n- lastEdit\n- scheduling\n- hookId\n- deleted\n- deletedBy\n- blueprint",
+            "schema": {
+              "example": "id,name",
+              "type": "string"
             }
           }
         ],
@@ -322,6 +478,134 @@
         "tags": [
           "Scenarios"
         ]
+      },
+      "delete": {
+        "description": "Force delete of a scenario — atomic, always proceeds, with no confirmation step.\n\nIf this scenario is a child in a chain, deleting it also affects its parents: every parent scenario that calls this child is stopped and marked invalid, and the parent–child relationships are removed. This is a side-effect of the delete, not a block.\n\nTo see which parent scenarios depend on this one before deleting, use the dependents reverse-lookup: GET /api/v3/scenarios/dependents?kind=scenario&id={scenarioId}.",
+        "operationId": "ScenariosControllerV3_deleteScenario_v3",
+        "parameters": [
+          {
+            "name": "scenarioId",
+            "required": true,
+            "in": "path",
+            "description": "Scenario ID",
+            "schema": {
+              "example": 123,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Scenario deleted successfully."
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "Bad request",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Access denied",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ResourceNotFound",
+                  "status": 404,
+                  "title": "Resource not found",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "Delete scenario",
+        "tags": [
+          "Scenarios"
+        ]
       }
     },
     "/api/v3/scenarios": {
@@ -329,6 +613,16 @@
         "description": "Returns a paginated, filterable list of scenarios in the organization.\n\nSupply `teamId` in the property query to restrict results to one team.\n\n**Recycle bin:** pass `property=deleted==true` to list soft-deleted (binned) scenarios instead of active ones. When this filter is present, results are further gated by the `resource_restore` permission — users only see deleted scenarios they're allowed to restore. Without the `deleted` filter, only active scenarios are returned.",
         "operationId": "ScenariosControllerV3_getScenarios_v3",
         "parameters": [
+          {
+            "name": "fields",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated list of fields to include in the response.\n\nAllowed fields:\n- id\n- name\n- teamId\n- description\n- folderId\n- usedPackages\n- isInvalid\n- isActive\n- isLocked\n- isPaused\n- isWaiting\n- sequential\n- lastEdit\n- scheduling\n- hookId\n- deleted\n- deletedBy",
+            "schema": {
+              "example": "id,name",
+              "type": "string"
+            }
+          },
           {
             "name": "property",
             "required": false,
@@ -2586,6 +2880,161 @@
         "tags": [
           "Connections"
         ]
+      },
+      "delete": {
+        "description": "Force delete of a connection. Hard dependency — HOOKS: rejected with 409 while a hook still depends on it (look them up via GET /api/v3/hooks/dependents?kind=connection&id={connectionId} and remove the hook first). Deleting also detaches the connection from any scenarios that use it; to see those scenarios beforehand use GET /api/v3/scenarios/dependents?kind=connection&id={connectionId}.",
+        "operationId": "ConnectionsV3Controller_deleteConnection_v3",
+        "parameters": [
+          {
+            "name": "connectionId",
+            "required": true,
+            "in": "path",
+            "description": "Connection ID",
+            "schema": {
+              "example": 12345,
+              "type": "number"
+            }
+          },
+          {
+            "name": "authorization",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Connection deleted"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "connectionId must be an integer",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Access denied",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ResourceNotFound",
+                  "status": 404,
+                  "title": "Connection not found",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Resource conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ResourceConflict",
+                  "status": 409,
+                  "title": "Connection is used by hooks and cannot be deleted.",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "Delete a connection",
+        "tags": [
+          "Connections"
+        ]
       }
     },
     "/api/v3/connections/{connectionId}/scenarios": {
@@ -3079,6 +3528,276 @@
         "tags": [
           "Keys"
         ]
+      },
+      "delete": {
+        "description": "Force delete of a key — always proceeds. A key may be used by scenarios; deletion no longer prompts or blocks on that, so use GET /api/v3/scenarios/dependents?kind=key&id={id} to see which scenarios use it before deleting.",
+        "operationId": "KeysV3Controller_deleteKey_v3",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Key ID",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Key deleted"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "id must be an integer",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Access denied",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ResourceNotFound",
+                  "status": 404,
+                  "title": "Key not found",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "Delete a key",
+        "tags": [
+          "Keys"
+        ]
+      }
+    },
+    "/api/v3/hooks/dependents": {
+      "get": {
+        "description": "Reverse dependency lookup. Returns the hooks (id, name) in the organization that reference the given resource (`kind` + `id`). Only `kind=connection` is supported. Returns an empty array when nothing depends on it.",
+        "operationId": "HooksV3Controller_getDependents_v3",
+        "parameters": [
+          {
+            "name": "kind",
+            "required": true,
+            "in": "query",
+            "description": "Type of resource to look up hooks by (only `connection`).",
+            "schema": {
+              "enum": [
+                "connection"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "query",
+            "description": "ID of the resource.",
+            "schema": {
+              "example": 789,
+              "type": "number"
+            }
+          },
+          {
+            "name": "x-organization-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "12989"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Hooks that depend on the resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/HookDependentDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "Unsupported dependency kind",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "User lacks access to the connection",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "List hooks that depend on a resource",
+        "tags": [
+          "Hooks"
+        ]
       }
     },
     "/api/v3/hooks/{hookId}": {
@@ -3213,6 +3932,134 @@
           }
         ],
         "summary": "Get a hook by ID",
+        "tags": [
+          "Hooks"
+        ]
+      },
+      "delete": {
+        "description": "Force delete of a hook — always proceeds. A hook may be used by scenarios; deletion no longer prompts or blocks on that, so use the scenarios reverse-lookup (GET /api/v3/scenarios/dependents?kind=hook&id={hookId}) to see which scenarios use it before deleting. Any events still queued for the hook are removed with it.",
+        "operationId": "HooksV3Controller_delete_v3",
+        "parameters": [
+          {
+            "name": "hookId",
+            "required": true,
+            "in": "path",
+            "description": "Numeric ID of the hook to delete",
+            "schema": {
+              "example": 123,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Hook deleted."
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "Hook ID must be a number",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Only the creator of the hook can delete it.",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ResourceNotFound",
+                  "status": 404,
+                  "title": "Hook not found",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "Delete a hook by ID (V3)",
         "tags": [
           "Hooks"
         ]
@@ -3574,7 +4421,7 @@
         ]
       },
       "delete": {
-        "description": "Deletes queued webhook events for the specified hook. Provide a specific set of ids via repeated params (`?id=a&id=b`, max 50), or `?all=true` to clear the queue (optionally excluding `?excludeId=a&excludeId=b`). Returns the ids that were deleted plus any that could not be (with a reason); if any id fails, the response status is 409 while the deletable rows are still removed.",
+        "description": "Deletes queued webhook events for the specified hook. Provide a specific set of ids via repeated params (`?id=a&id=b`, max 50), or `?all=true` to clear the queue (optionally excluding `?except=a&except=b`). Returns the ids that were deleted plus any that could not be (with a reason); if any id fails, the response status is 409 while the deletable rows are still removed. If a concurrent delete is already running for this hook the request is rejected with 423 (retry once it completes).",
         "operationId": "HooksV3Controller_deleteQueue_v3",
         "parameters": [
           {
@@ -3588,24 +4435,15 @@
             }
           },
           {
-            "name": "all",
-            "required": false,
-            "in": "query",
-            "description": "Delete all queued webhook events for the hook.",
-            "schema": {
-              "example": false,
-              "type": "boolean"
-            }
-          },
-          {
             "name": "id",
             "required": false,
             "in": "query",
-            "description": "ID of the queued webhook event to delete. Repeat for multiple (`?id=a&id=b`). Maximum 50.",
+            "description": "Ids to delete. Comma-separated (`id=1,2,3`) or repeated (`id=1&id=2`). Mutually exclusive with `all`.",
             "schema": {
               "example": [
-                "cea19821d0ad423d92b853a51ea2321e",
-                "563e8cc79fd84ae08fca37fa05d94150"
+                "1",
+                "2",
+                "3"
               ],
               "type": "array",
               "items": {
@@ -3614,14 +4452,20 @@
             }
           },
           {
-            "name": "excludeId",
+            "name": "all",
             "required": false,
             "in": "query",
-            "description": "ID of the queued webhook event to exclude when deleting `all`. Repeat for multiple (`?excludeId=a&excludeId=b`). Maximum 50.",
+            "description": "Delete every resource in scope. Mutually exclusive with `id`.",
             "schema": {
-              "example": [
-                "cea19821d0ad423d92b853a51ea2321e"
-              ],
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "except",
+            "required": false,
+            "in": "query",
+            "description": "Ids to exclude. Only allowed together with `all=true`.",
+            "schema": {
               "type": "array",
               "items": {
                 "type": "string"
@@ -3650,7 +4494,7 @@
                 "example": {
                   "type": "BadRequest",
                   "status": 400,
-                  "title": "Bad request",
+                  "title": "Invalid queue entry id",
                   "report": {
                     "request-id": "abc-123-def-456",
                     "x-organization-id": "2332"
@@ -3707,7 +4551,7 @@
                 "example": {
                   "type": "ResourceNotFound",
                   "status": 404,
-                  "title": "Resource not found",
+                  "title": "Hook not found",
                   "report": {
                     "request-id": "abc-123-def-456",
                     "x-organization-id": "2332"
@@ -3722,6 +4566,25 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/DeleteQueueV3ResponseDto"
+                }
+              }
+            }
+          },
+          "423": {
+            "description": "Resource locked",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ResourceLocked",
+                  "status": 423,
+                  "title": "A delete operation is already in progress for this hook.",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
                 }
               }
             }
@@ -4216,6 +5079,148 @@
         ]
       }
     },
+    "/api/v3/data-stores/dependents": {
+      "get": {
+        "description": "Reverse dependency lookup. Returns the data stores (id, name) in the organization that reference the given resource (`kind` + `id`). Only `kind=dataStructure` is supported. Returns an empty array when nothing depends on it.",
+        "operationId": "DataStoresV3Controller_getDependents_v3",
+        "parameters": [
+          {
+            "name": "kind",
+            "required": true,
+            "in": "query",
+            "description": "Type of resource to look up data stores by (only `dataStructure`).",
+            "schema": {
+              "enum": [
+                "dataStructure"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "query",
+            "description": "ID of the resource.",
+            "schema": {
+              "minimum": 1,
+              "example": 42,
+              "type": "number"
+            }
+          },
+          {
+            "name": "x-organization-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Data stores that depend on the resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DataStoreDependentDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "Unsupported dependency kind",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "User lacks access to the data structure",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "List data stores that depend on a resource",
+        "tags": [
+          "Data Stores"
+        ]
+      }
+    },
     "/api/v3/data-stores/{id}": {
       "get": {
         "description": "Returns data store metadata and usage metrics. Size fields are in bytes; record count is a unitless integer.",
@@ -4348,6 +5353,167 @@
           }
         ],
         "summary": "Get a data store by ID",
+        "tags": [
+          "Data Stores"
+        ]
+      },
+      "delete": {
+        "description": "Force delete of a data store. Hard dependency — SCENARIOS: the delete is rejected with 409 while any scenario is still using this data store (the response lists the blocking scenarios)",
+        "operationId": "DataStoresV3Controller_delete_v3",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Numeric ID of the data store to delete",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "authorization",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Data store deleted successfully"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "Data store ID must be a number",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Access denied",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ResourceNotFound",
+                  "status": 404,
+                  "title": "Data store not found",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Resource conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ResourceConflict",
+                  "status": 409,
+                  "title": "Data store is used by scenarios and cannot be deleted.",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332",
+                    "scenarios": [
+                      {
+                        "id": 1,
+                        "name": "My scenario"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "Delete a data store by ID",
         "tags": [
           "Data Stores"
         ]
@@ -4486,6 +5652,367 @@
           }
         ],
         "summary": "List data store records",
+        "tags": [
+          "Data Stores"
+        ]
+      },
+      "delete": {
+        "description": "Force delete of multiple records — the delete always proceeds and reports per-key outcomes. Pass record keys in `id` (comma-separated or repeated), or `all=true` to delete every key. `except` applies only with `all=true`. Returns the keys deleted plus any that failed, and downgrades to 409 when any key failed.",
+        "operationId": "DataStoresDataV3Controller_deleteDataMulti_v3",
+        "parameters": [
+          {
+            "name": "dataStoreId",
+            "required": true,
+            "in": "path",
+            "description": "Numeric ID of the data store",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "id",
+            "required": false,
+            "in": "query",
+            "description": "Ids to delete. Comma-separated (`id=1,2,3`) or repeated (`id=1&id=2`). Mutually exclusive with `all`.",
+            "schema": {
+              "example": [
+                "1",
+                "2",
+                "3"
+              ],
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "all",
+            "required": false,
+            "in": "query",
+            "description": "Delete every resource in scope. Mutually exclusive with `id`.",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "except",
+            "required": false,
+            "in": "query",
+            "description": "Ids to exclude. Only allowed together with `all=true`.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Records deleted (partial-failure envelope)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataStoreDataDeleteResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "Data store ID must be a number",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Access denied",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ResourceNotFound",
+                  "status": 404,
+                  "title": "Data store not found",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Some records could not be deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataStoreDataDeleteResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ServiceUnavailable",
+                  "status": 503,
+                  "title": "Data store not installed",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "Delete multiple data store records",
+        "tags": [
+          "Data Stores"
+        ]
+      }
+    },
+    "/api/v3/data-stores/{dataStoreId}/data/{key}": {
+      "delete": {
+        "description": "Force delete of a single record by key — the delete always proceeds. Idempotent on the key (204 whether or not the key existed); a missing data store returns 404.",
+        "operationId": "DataStoresDataV3Controller_deleteDataKey_v3",
+        "parameters": [
+          {
+            "name": "dataStoreId",
+            "required": true,
+            "in": "path",
+            "description": "Numeric ID of the data store",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "key",
+            "required": true,
+            "in": "path",
+            "description": "Record key",
+            "schema": {
+              "example": "record-1",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Record deleted successfully"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "Data store ID must be a number",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Access denied",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ResourceNotFound",
+                  "status": 404,
+                  "title": "Data store not found",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ServiceUnavailable",
+                  "status": 503,
+                  "title": "Data store not installed",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "Delete a data store record by key",
         "tags": [
           "Data Stores"
         ]
@@ -5115,6 +6642,288 @@
         "tags": [
           "Data Structures"
         ]
+      },
+      "delete": {
+        "description": "Deletes a data structure by ID, scoped to the organization.",
+        "operationId": "DataStructuresControllerV3_delete_v3",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Data structure ID",
+            "schema": {
+              "example": 123,
+              "type": "number"
+            }
+          },
+          {
+            "name": "authorization",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Data structure deleted successfully."
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "Data structure ID must be a number",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Access denied",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ResourceNotFound",
+                  "status": 404,
+                  "title": "Data structure not found",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Resource conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ResourceConflict",
+                  "status": 409,
+                  "title": "Data structure is used by data stores and cannot be deleted.",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332",
+                    "datastores": [
+                      {
+                        "id": 501,
+                        "name": "Customer records"
+                      },
+                      {
+                        "id": 502,
+                        "name": "Order archive"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "Delete data structure by ID",
+        "tags": [
+          "Data Structures"
+        ]
+      }
+    },
+    "/api/v3/users/me": {
+      "get": {
+        "description": "Returns the profile of the caller identified by the auth token, plus their full organization- and team-role arrays. Not org-scoped and distinct from `GET /users/:userId`. (Filtering by team/organization is a list-endpoint concern.)",
+        "operationId": "UserV3Controller_getMe_v3",
+        "parameters": [
+          {
+            "name": "includeHeadlessOrgs",
+            "required": false,
+            "in": "query",
+            "description": "Include headless-fusion organizations (internal/admin use)",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The authorised user’s profile and roles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserMeResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Missing or invalid user token",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Access denied",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ResourceNotFound",
+                  "status": 404,
+                  "title": "Authorised user record not found",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "Get the authorised user",
+        "tags": [
+          "Users"
+        ]
       }
     },
     "/api/v3/users/me/regions": {
@@ -5131,6 +6940,25 @@
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/RegionsResponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "IMS response missing projectedProductContext, check token scopes",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
                   }
                 }
               }
@@ -5222,6 +7050,1225 @@
           }
         ],
         "summary": "Get user regions, organizations",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/v3/users/{userId}": {
+      "get": {
+        "description": "Returns one user by id, scoped to the organization named by `x-organization-id`.",
+        "operationId": "UserV3Controller_getUser_v3",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": 42,
+              "type": "number"
+            }
+          },
+          {
+            "name": "x-organization-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested user (same shape as a list item)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserListItemDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "Missing or invalid x-organization-id, or non-numeric userId",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Caller lacks organization view permission",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ResourceNotFound",
+                  "status": 404,
+                  "title": "User not found in this organization",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "Get a single user in an organization",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/v3/users": {
+      "get": {
+        "description": "Returns the users of the organization named by `x-organization-id` (always required), with search, sort and cursor pagination. Optionally narrow to a team within the org via `?property=teamId==<id>`.",
+        "operationId": "UserV3Controller_listUsers_v3",
+        "parameters": [
+          {
+            "name": "property",
+            "required": false,
+            "in": "query",
+            "description": "```\nProperty filters. Can be repeated and are AND-ed together.\n\nAllowed fields:\n- id\n- name\n- email\n- lastLogin\n- created\n- teamId\n\nSupported operators:\n- ==  (equals)\n- !=  (not equals)\n- >   (greater than)\n- >=  (greater than or equal)\n- <   (less than)\n- <=  (less than or equal)\n- ~   (case-insensitive regex match)\n\nSpecial cases:\n- field           → field exists\n- !field          → field does not exist\n```",
+            "schema": {
+              "example": [
+                "teamId==3849"
+              ],
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "start",
+            "required": false,
+            "in": "query",
+            "description": "Paging cursor. Must correspond to \"orderby\" field and used only when it is set.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            },
+            "description": "Maximum number of items to return. Must be a positive integer. Range 1–200."
+          },
+          {
+            "name": "orderby",
+            "required": false,
+            "in": "query",
+            "description": "Sort property and direction, e.g. +id (ascending) or -id (descending). Allowed fields: id, name, email, lastLogin, created.",
+            "schema": {
+              "example": "+id",
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-organization-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cursor-paginated users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsersSearchResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "Missing or invalid x-organization-id, or invalid search params",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Caller lacks organization view permission",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "List users in an organization",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/v3/organizations": {
+      "get": {
+        "description": "Returns every organization the caller can view (ORG_VIEW), with search, sort and cursor pagination. Cross-org: no x-organization-id header.",
+        "operationId": "OrganizationV3Controller_listOrganizations_v3",
+        "parameters": [
+          {
+            "name": "property",
+            "required": false,
+            "in": "query",
+            "description": "```\nProperty filters. Can be repeated and are AND-ed together.\n\nAllowed fields:\n- id\n- name\n- externalId\n\nSupported operators:\n- ==  (equals)\n- !=  (not equals)\n- >   (greater than)\n- >=  (greater than or equal)\n- <   (less than)\n- <=  (less than or equal)\n- ~   (case-insensitive regex match)\n\nSpecial cases:\n- field           → field exists\n- !field          → field does not exist\n```",
+            "schema": {
+              "example": [
+                "teamId==3849"
+              ],
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "start",
+            "required": false,
+            "in": "query",
+            "description": "Paging cursor. Must correspond to \"orderby\" field and used only when it is set.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            },
+            "description": "Maximum number of items to return. Must be a positive integer. Range 1–200."
+          },
+          {
+            "name": "orderby",
+            "required": false,
+            "in": "query",
+            "description": "Sort property and direction, e.g. +id (ascending) or -id (descending). Allowed fields: id, name.",
+            "schema": {
+              "example": "+id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cursor-paginated organizations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationsSearchResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "Invalid search params",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Missing or invalid user token",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Access denied",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "List the caller’s organizations",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/v3/organizations/{organizationId}": {
+      "get": {
+        "operationId": "OrganizationV3Controller_getOrganization_v3",
+        "parameters": [
+          {
+            "name": "organizationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": 12989,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetOrganizationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "Non-numeric organizationId",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Caller lacks organization view permission",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ResourceNotFound",
+                  "status": 404,
+                  "title": "Organization not found",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "Get a single organization by id",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/v3/teams": {
+      "get": {
+        "description": "Returns the teams of the organization named by `x-organization-id` that the caller can view, with search, sort and cursor pagination.",
+        "operationId": "TeamV3Controller_listTeams_v3",
+        "parameters": [
+          {
+            "name": "property",
+            "required": false,
+            "in": "query",
+            "description": "```\nProperty filters. Can be repeated and are AND-ed together.\n\nAllowed fields:\n- id\n- name\n- externalId\n- created\n\nSupported operators:\n- ==  (equals)\n- !=  (not equals)\n- >   (greater than)\n- >=  (greater than or equal)\n- <   (less than)\n- <=  (less than or equal)\n- ~   (case-insensitive regex match)\n\nSpecial cases:\n- field           → field exists\n- !field          → field does not exist\n```",
+            "schema": {
+              "example": [
+                "teamId==3849"
+              ],
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "start",
+            "required": false,
+            "in": "query",
+            "description": "Paging cursor. Must correspond to \"orderby\" field and used only when it is set.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            },
+            "description": "Maximum number of items to return. Must be a positive integer. Range 1–200."
+          },
+          {
+            "name": "orderby",
+            "required": false,
+            "in": "query",
+            "description": "Sort property and direction, e.g. +id (ascending) or -id (descending). Allowed fields: id, name, created.",
+            "schema": {
+              "example": "+id",
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-organization-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cursor-paginated teams",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamsSearchResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "Missing or invalid x-organization-id, or invalid search params",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Caller lacks organization view permission",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "List teams in an organization",
+        "tags": [
+          "Users"
+        ]
+      },
+      "delete": {
+        "description": "Deletes `?id=1,2,3` or `?all=true` (with `?except=`) teams in the org. Each id is TEAM_DELETE-checked; unauthorized/missing ids are reported in `failed` (→ 409) while deletable teams are removed.",
+        "operationId": "TeamV3Controller_deleteTeams_v3",
+        "parameters": [
+          {
+            "name": "x-gw-ims-org-id",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": false,
+            "in": "query",
+            "description": "Ids to delete. Comma-separated (`id=1,2,3`) or repeated (`id=1&id=2`). Mutually exclusive with `all`.",
+            "schema": {
+              "example": [
+                "1",
+                "2",
+                "3"
+              ],
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "all",
+            "required": false,
+            "in": "query",
+            "description": "Delete every resource in scope. Mutually exclusive with `id`.",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "except",
+            "required": false,
+            "in": "query",
+            "description": "Ids to exclude. Only allowed together with `all=true`.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "x-organization-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All requested teams were deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamDeleteResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "Bad request",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Access denied",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ResourceNotFound",
+                  "status": 404,
+                  "title": "Resource not found",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "At least one team could not be deleted; deletable teams were still removed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamDeleteResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "Delete multiple teams",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/v3/teams/{teamId}": {
+      "get": {
+        "operationId": "TeamV3Controller_getTeam_v3",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": 777,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested team (same shape as a list item)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamListItemDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "Non-numeric teamId",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Caller lacks team view permission",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ResourceNotFound",
+                  "status": 404,
+                  "title": "Team not found",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "Get a single team by id",
+        "tags": [
+          "Users"
+        ]
+      },
+      "delete": {
+        "description": "Soft-deletes the team, stops its scenarios, writes an activity log + event, and removes the team’s authz relationships.",
+        "operationId": "TeamV3Controller_deleteTeam_v3",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": 777,
+              "type": "number"
+            }
+          },
+          {
+            "name": "x-gw-ims-org-id",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Deletion was accepted and is processing asynchronously."
+          },
+          "204": {
+            "description": "The team was deleted."
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "Non-numeric teamId, or scenarios could not be stopped",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Caller lacks team delete permission",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ResourceNotFound",
+                  "status": 404,
+                  "title": "Team not found",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "Delete a single team",
         "tags": [
           "Users"
         ]
@@ -5640,6 +8687,32 @@
         },
         "required": [
           "scenarioIds"
+        ]
+      },
+      "ScenarioDependentDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Scenario ID",
+            "example": 123
+          },
+          "name": {
+            "type": "string",
+            "description": "Scenario name",
+            "example": "Sync Firefly assets"
+          },
+          "dependents": {
+            "description": "This item's own dependents, nested one level deeper. Only present for kinds whose dependents are hierarchical rather than flat (currently `scenario`, via chain-calling); omitted entirely for flat kinds.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ScenarioDependentDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name"
         ]
       },
       "ScenarioPublicBlueprintDto": {
@@ -6245,7 +9318,8 @@
               "dataStore",
               "dataStructure",
               "connection",
-              "key"
+              "key",
+              "scenario"
             ],
             "example": "connection"
           },
@@ -6287,7 +9361,8 @@
               "dataStore",
               "dataStructure",
               "connection",
-              "key"
+              "key",
+              "scenario"
             ]
           },
           "sourceId": {
@@ -7608,6 +10683,25 @@
           "items"
         ]
       },
+      "HookDependentDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Hook ID",
+            "example": 123
+          },
+          "name": {
+            "type": "string",
+            "description": "Hook name",
+            "example": "My Workfront hook"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
       "HookV3Dto": {
         "type": "object",
         "properties": {
@@ -8019,22 +11113,30 @@
           "data"
         ]
       },
-      "FailedQueueDeleteV3Dto": {
+      "DeleteFailureReason": {
+        "type": "string",
+        "enum": [
+          "not_found",
+          "has_dependents",
+          "processing",
+          "unauthorized"
+        ],
+        "description": "Why the id was not deleted."
+      },
+      "DeleteFailureDto": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
-            "description": "ID of the queued webhook event that could not be deleted.",
-            "example": "a1b2c3d4-0000-4000-8000-000000000000"
+            "description": "The id that could not be deleted."
           },
           "reason": {
-            "type": "string",
-            "description": "Why the queued webhook event could not be deleted.",
-            "enum": [
-              "not_found",
-              "processing"
-            ],
-            "example": "not_found"
+            "description": "Why the id was not deleted.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DeleteFailureReason"
+              }
+            ]
           }
         },
         "required": [
@@ -8046,21 +11148,17 @@
         "type": "object",
         "properties": {
           "deleted": {
-            "description": "IDs of the queued webhook events that were successfully deleted.",
-            "example": [
-              "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-              "9c858901-8a57-4791-81fe-4c455b099bc9"
-            ],
+            "description": "Ids that were deleted.",
             "type": "array",
             "items": {
               "type": "string"
             }
           },
           "failed": {
-            "description": "Queued webhook events that could not be deleted, with reasons.",
+            "description": "Ids that could not be deleted, with a reason.",
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/FailedQueueDeleteV3Dto"
+              "$ref": "#/components/schemas/DeleteFailureDto"
             }
           }
         },
@@ -8088,8 +11186,8 @@
               "type": "string"
             }
           },
-          "excludeId": {
-            "description": "ID of the queued webhook event to exclude when deleting `all`. Repeat for multiple (`?excludeId=a&excludeId=b`). Maximum 50.",
+          "except": {
+            "description": "ID of the queued webhook event to exclude when deleting `all`. Repeat for multiple (`?except=a&except=b`). Maximum 50.",
             "example": [
               "cea19821d0ad423d92b853a51ea2321e"
             ],
@@ -8189,6 +11287,25 @@
           "items"
         ]
       },
+      "DataStoreDependentDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Data store ID",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "description": "Data store name",
+            "example": "My Store"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
       "DataStoreRecordItemV3Dto": {
         "type": "object",
         "properties": {
@@ -8237,6 +11354,35 @@
           "_page",
           "_links",
           "items"
+        ]
+      },
+      "DataStoreDataDeleteResponseDto": {
+        "type": "object",
+        "properties": {
+          "deleted": {
+            "default": [],
+            "description": "Record keys that were deleted.",
+            "example": [
+              "key-a",
+              "key-b"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "failed": {
+            "default": [],
+            "description": "Record keys that could not be deleted, each with a reason. The `id` field holds the record key.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeleteFailureDto"
+            }
+          }
+        },
+        "required": [
+          "deleted",
+          "failed"
         ]
       },
       "ExecutionDto": {
@@ -8631,6 +11777,183 @@
           "spec"
         ]
       },
+      "UserOrganizationRoleDto": {
+        "type": "object",
+        "properties": {
+          "usersRoleId": {
+            "type": "number",
+            "description": "Role id the user holds in the organization.",
+            "example": 5
+          },
+          "userId": {
+            "type": "number",
+            "description": "The user id.",
+            "example": 42
+          },
+          "organizationId": {
+            "type": "number",
+            "description": "Organization id.",
+            "example": 12989
+          },
+          "userExternalId": {
+            "type": "object",
+            "description": "IMS external user id in this org, or null.",
+            "nullable": true,
+            "example": "ADA@AdobeID"
+          }
+        },
+        "required": [
+          "usersRoleId",
+          "userId",
+          "organizationId",
+          "userExternalId"
+        ]
+      },
+      "UserTeamRoleDto": {
+        "type": "object",
+        "properties": {
+          "usersRoleId": {
+            "type": "number",
+            "description": "Role id the user holds in the team.",
+            "example": 8
+          },
+          "userId": {
+            "type": "number",
+            "description": "The user id.",
+            "example": 42
+          },
+          "teamId": {
+            "type": "number",
+            "description": "Team id.",
+            "example": 777
+          },
+          "changeable": {
+            "type": "boolean",
+            "description": "Whether the role can be changed (false when the user is an org owner).",
+            "example": true
+          }
+        },
+        "required": [
+          "usersRoleId",
+          "userId",
+          "teamId",
+          "changeable"
+        ]
+      },
+      "UserMeResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Unique user identifier.",
+            "example": 42
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name.",
+            "example": "Ada Lovelace"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email address.",
+            "example": "ada@example.com"
+          },
+          "language": {
+            "type": "object",
+            "description": "ISO 639-1 language code.",
+            "example": "en",
+            "nullable": true
+          },
+          "timezoneId": {
+            "type": "number",
+            "description": "Timezone FK.",
+            "example": 1
+          },
+          "localeId": {
+            "type": "number",
+            "description": "Locale FK.",
+            "example": 1
+          },
+          "countryId": {
+            "type": "number",
+            "description": "Country FK.",
+            "example": 1
+          },
+          "features": {
+            "type": "object",
+            "description": "Feature flags map (never null).",
+            "additionalProperties": true,
+            "example": {}
+          },
+          "avatar": {
+            "type": "string",
+            "description": "Computed Gravatar URL.",
+            "example": "https://secure.gravatar.com/avatar/abc.jpg?d=mm"
+          },
+          "timezone": {
+            "type": "string",
+            "description": "Timezone name.",
+            "example": "America/Los_Angeles"
+          },
+          "locale": {
+            "type": "string",
+            "description": "Locale code.",
+            "example": "en_US"
+          },
+          "hasPassword": {
+            "type": "boolean",
+            "description": "Whether the user has a password set.",
+            "example": true
+          },
+          "forceSetPassword": {
+            "type": "boolean",
+            "description": "Whether the user must set a password.",
+            "example": false
+          },
+          "ssoOrganizations": {
+            "type": "number",
+            "description": "Count of SSO organizations the user belongs to.",
+            "example": 0
+          },
+          "created": {
+            "type": "string",
+            "description": "Creation timestamp (ISO 8601)."
+          },
+          "userOrganizationRoles": {
+            "description": "The user’s organization roles.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserOrganizationRoleDto"
+            }
+          },
+          "userTeamRoles": {
+            "description": "The user’s team roles.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserTeamRoleDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "language",
+          "timezoneId",
+          "localeId",
+          "countryId",
+          "features",
+          "avatar",
+          "timezone",
+          "locale",
+          "hasPassword",
+          "forceSetPassword",
+          "ssoOrganizations",
+          "created",
+          "userOrganizationRoles",
+          "userTeamRoles"
+        ]
+      },
       "RegionsResponseDto": {
         "type": "object",
         "properties": {
@@ -8649,6 +11972,511 @@
           "region",
           "organizationId"
         ]
+      },
+      "UserListItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Unique user identifier.",
+            "example": 42
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name.",
+            "example": "Ada Lovelace"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email address.",
+            "example": "ada@example.com"
+          },
+          "language": {
+            "type": "object",
+            "description": "ISO 639-1 language code.",
+            "example": "en",
+            "nullable": true
+          },
+          "timezoneId": {
+            "type": "number",
+            "description": "Timezone FK.",
+            "example": 1
+          },
+          "localeId": {
+            "type": "number",
+            "description": "Locale FK.",
+            "example": 1
+          },
+          "countryId": {
+            "type": "number",
+            "description": "Country FK.",
+            "example": 1
+          },
+          "features": {
+            "type": "object",
+            "description": "Feature flags map (never null; empty object when unset).",
+            "additionalProperties": true,
+            "example": {}
+          },
+          "avatar": {
+            "type": "string",
+            "description": "Computed Gravatar URL.",
+            "example": "https://secure.gravatar.com/avatar/abc.jpg?d=mm"
+          },
+          "lastLogin": {
+            "type": "object",
+            "description": "Last login (ISO 8601).",
+            "nullable": true
+          },
+          "created": {
+            "type": "string",
+            "description": "Creation timestamp (ISO 8601)."
+          },
+          "type": {
+            "type": "string",
+            "description": "Discriminator, always 'user'.",
+            "example": "user"
+          },
+          "imsUserId": {
+            "type": "string",
+            "description": "IMS user id, when the user is provisioned in the scoping organization."
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "language",
+          "timezoneId",
+          "localeId",
+          "countryId",
+          "features",
+          "avatar",
+          "created",
+          "type"
+        ]
+      },
+      "UsersSearchResponseDto": {
+        "type": "object",
+        "properties": {
+          "_page": {
+            "description": "Pagination metadata",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PageMetadataDto"
+              }
+            ]
+          },
+          "_links": {
+            "description": "Pagination links",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PageLinksDto"
+              }
+            ]
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserListItemDto"
+            }
+          }
+        },
+        "required": [
+          "_page",
+          "_links",
+          "items"
+        ]
+      },
+      "OrganizationTeamSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Team id.",
+            "example": 777
+          },
+          "name": {
+            "type": "string",
+            "description": "Team name.",
+            "example": "Marketing"
+          },
+          "externalId": {
+            "type": "object",
+            "description": "External team id.",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "OrganizationListItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Organization id.",
+            "example": 12989
+          },
+          "name": {
+            "type": "string",
+            "description": "Organization name.",
+            "example": "Acme Inc."
+          },
+          "countryId": {
+            "type": "number",
+            "description": "Country FK.",
+            "example": 1
+          },
+          "timezoneId": {
+            "type": "number",
+            "description": "Timezone FK.",
+            "example": 1
+          },
+          "license": {
+            "type": "object",
+            "description": "License value.",
+            "nullable": true
+          },
+          "zone": {
+            "type": "string",
+            "description": "Deployment zone.",
+            "example": "us1"
+          },
+          "serviceName": {
+            "type": "string",
+            "description": "Service name derived from licenses.",
+            "example": "workfront"
+          },
+          "isPaused": {
+            "type": "boolean",
+            "description": "Whether the organization is paused.",
+            "example": false
+          },
+          "externalId": {
+            "type": "object",
+            "description": "External id.",
+            "nullable": true,
+            "example": "ext-123"
+          },
+          "externalOrgId": {
+            "type": "string",
+            "description": "External (IMS) organization id.",
+            "example": "1234ABCD@AdobeOrg"
+          },
+          "imsMigrated": {
+            "type": "boolean",
+            "description": "Whether the org is IMS-migrated for the caller.",
+            "example": true
+          },
+          "applicationName": {
+            "type": "object",
+            "description": "Application name (null for standard orgs).",
+            "nullable": true,
+            "example": null
+          },
+          "teams": {
+            "description": "Teams the caller belongs to in this org.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrganizationTeamSummaryDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "countryId",
+          "timezoneId",
+          "zone",
+          "serviceName",
+          "isPaused",
+          "externalId",
+          "externalOrgId",
+          "imsMigrated",
+          "applicationName",
+          "teams"
+        ]
+      },
+      "OrganizationsSearchResponseDto": {
+        "type": "object",
+        "properties": {
+          "_page": {
+            "description": "Pagination metadata",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PageMetadataDto"
+              }
+            ]
+          },
+          "_links": {
+            "description": "Pagination links",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PageLinksDto"
+              }
+            ]
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrganizationListItemDto"
+            }
+          }
+        },
+        "required": [
+          "_page",
+          "_links",
+          "items"
+        ]
+      },
+      "GetOrganizationResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Organization ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the organization"
+          },
+          "timezoneId": {
+            "type": "number",
+            "description": "Timezone ID"
+          },
+          "countryId": {
+            "type": "number",
+            "description": "Country ID"
+          },
+          "license": {
+            "type": "object",
+            "description": "License information of the organization"
+          },
+          "serviceName": {
+            "type": "string",
+            "description": "Service name derived from licenses"
+          },
+          "teams": {
+            "description": "List of teams in the organization",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "isPaused": {
+            "type": "boolean",
+            "description": "Indicates if the organization is paused"
+          },
+          "zone": {
+            "type": "string",
+            "description": "Zone"
+          },
+          "externalId": {
+            "type": "string",
+            "description": "External ID"
+          },
+          "lastReset": {
+            "type": "string",
+            "description": "Last reset date"
+          },
+          "nextReset": {
+            "type": "string",
+            "description": "Next reset date"
+          },
+          "transfer": {
+            "type": "number",
+            "description": "Transfer information"
+          },
+          "operationsExt": {
+            "type": "number",
+            "description": "Operations extension information"
+          },
+          "transferExt": {
+            "type": "number",
+            "description": "Transfer extension information"
+          },
+          "features": {
+            "type": "object",
+            "description": "Organization features"
+          },
+          "activeApps": {
+            "type": "number",
+            "description": "Number of active apps"
+          },
+          "scenarios": {
+            "type": "number",
+            "description": "Number of scenarios"
+          },
+          "activeScenarios": {
+            "type": "number",
+            "description": "Number of active scenarios"
+          },
+          "externalOrgId": {
+            "type": "string",
+            "description": "External organization ID"
+          },
+          "deleted": {
+            "type": "boolean",
+            "description": "Indicates if organization is deleted"
+          },
+          "imsEnabled": {
+            "type": "boolean",
+            "description": "Indicates if organization is IMS enabled"
+          },
+          "tenant": {
+            "type": "string",
+            "description": "Engine tenant"
+          },
+          "usersCount": {
+            "type": "number",
+            "description": "Number of users"
+          },
+          "applicationName": {
+            "type": "object",
+            "description": "Application name",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "timezoneId",
+          "countryId",
+          "license",
+          "serviceName",
+          "teams",
+          "isPaused",
+          "zone",
+          "externalId",
+          "lastReset",
+          "nextReset",
+          "transfer",
+          "operationsExt",
+          "transferExt",
+          "features",
+          "activeApps",
+          "scenarios",
+          "activeScenarios",
+          "externalOrgId",
+          "deleted",
+          "imsEnabled"
+        ]
+      },
+      "TeamListItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Team id.",
+            "example": 777
+          },
+          "name": {
+            "type": "string",
+            "description": "Team name.",
+            "example": "Marketing"
+          },
+          "organizationId": {
+            "type": "number",
+            "description": "Owning organization id.",
+            "example": 12989
+          },
+          "scenarioDrafts": {
+            "type": "boolean",
+            "description": "Whether the team has scenario drafts.",
+            "example": false
+          },
+          "deleted": {
+            "type": "boolean",
+            "description": "Whether the team is deleted (always false on these routes).",
+            "example": false
+          },
+          "externalId": {
+            "type": "object",
+            "description": "External team id.",
+            "nullable": true,
+            "example": "team-ext"
+          },
+          "activeApps": {
+            "type": "number",
+            "description": "Number of active apps.",
+            "example": 2
+          },
+          "activeScenarios": {
+            "type": "number",
+            "description": "Number of active scenarios.",
+            "example": 5
+          },
+          "created": {
+            "type": "string",
+            "description": "Creation timestamp (ISO 8601)."
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "organizationId",
+          "scenarioDrafts",
+          "deleted",
+          "externalId"
+        ]
+      },
+      "TeamsSearchResponseDto": {
+        "type": "object",
+        "properties": {
+          "_page": {
+            "description": "Pagination metadata",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PageMetadataDto"
+              }
+            ]
+          },
+          "_links": {
+            "description": "Pagination links",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PageLinksDto"
+              }
+            ]
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TeamListItemDto"
+            }
+          }
+        },
+        "required": [
+          "_page",
+          "_links",
+          "items"
+        ]
+      },
+      "TeamDeleteResponseDto": {
+        "type": "object",
+        "properties": {
+          "deleted": {
+            "description": "Ids that were deleted.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "failed": {
+            "description": "Ids that could not be deleted, with a reason.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeleteFailureDto"
+            }
+          }
+        },
+        "required": [
+          "deleted",
+          "failed"
+        ]
       }
     },
     "securitySchemes": {
@@ -8656,25 +12484,25 @@
         "type": "http",
         "scheme": "bearer",
         "bearerFormat": "JWT",
-        "description": "**Required.** IMS access token for authenticating the user or technical account making the request.\n\nSee the [Authentication guide](https://developer.adobe.com/workfront-fusion-apis/getting-started/authentication/) for detailed instructions on obtaining access tokens.\n\n[API Headers Documentation](https://developer.adobe.com/workfront-fusion-apis/getting-started/api_headers/)\n"
+        "description": "**Required.** IMS access token for authenticating the user or technical account making the request.\n\nSee the [Authentication guide](https://developer-stage.adobe.com/workfront-fusion-apis/getting-started/authentication/) for detailed instructions on obtaining access tokens.\n\n[API Headers Documentation](https://developer-stage.adobe.com/workfront-fusion-apis/getting-started/api_headers/)\n"
       },
       "Organization ID": {
         "type": "apiKey",
         "in": "header",
         "name": "x-organization-id",
-        "description": "**Required.** Your Fusion Organization ID. Must be a number. Scopes all requests to your specific Fusion organization. You can find this ID in the Fusion Org Overview page URL: `/organization/{organizationId}/dashboard`.\n\n**Example:** `12345`\n\n[API Headers Documentation](https://developer.adobe.com/workfront-fusion-apis/getting-started/api_headers/)\n"
+        "description": "**Required.** Your Fusion Organization ID. Must be a number. Scopes all requests to your specific Fusion organization. You can find this ID in the Fusion Org Overview page URL: `/organization/{organizationId}/dashboard`.\n\n**Example:** `12345`\n\n[API Headers Documentation](https://developer-stage.adobe.com/workfront-fusion-apis/getting-started/api_headers/)\n"
       },
       "API Key": {
         "type": "apiKey",
         "in": "header",
         "name": "x-api-key",
-        "description": "**Required.** Your application's Client ID from Adobe Developer Console. This identifies your application and is the same value used for IMS authentication.\n\n[API Headers Documentation](https://developer.adobe.com/workfront-fusion-apis/getting-started/api_headers/)\n"
+        "description": "**Required.** Your application's Client ID from Adobe Developer Console. This identifies your application and is the same value used for IMS authentication.\n\n[API Headers Documentation](https://developer-stage.adobe.com/workfront-fusion-apis/getting-started/api_headers/)\n"
       },
       "Region": {
         "type": "apiKey",
         "in": "header",
         "name": "x-gw-region",
-        "description": "**Required.** Routes requests to the correct Fusion regional instance.\n\n**Example:** `or2`\n\n[API Headers Documentation](https://developer.adobe.com/workfront-fusion-apis/getting-started/api_headers/)\n"
+        "description": "**Required.** Routes requests to the correct Fusion regional instance.\n\n**Example:** `or2`\n\n[API Headers Documentation](https://developer-stage.adobe.com/workfront-fusion-apis/getting-started/api_headers/)\n"
       }
     }
   }
