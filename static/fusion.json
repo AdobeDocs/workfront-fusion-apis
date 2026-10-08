@@ -66,7 +66,7 @@
     },
     {
       "name": "Users",
-      "description": "User account endpoints, including discovering which Fusion regions and organizations user can access"
+      "description": "User endpoints, including discovering which Fusion regions and organizations user can access"
     },
     {
       "name": "Teams",
@@ -75,6 +75,10 @@
     {
       "name": "Organizations",
       "description": "Endpoints for listing and reading the organizations the caller can access"
+    },
+    {
+      "name": "DLQs v3",
+      "description": "Organization-scoped v3 DLQ endpoints (list/search, single get)."
     }
   ],
   "paths": {
@@ -3228,6 +3232,87 @@
         ]
       }
     },
+    "/api/v3/connections/assets/{name}/{variant}/{size}": {
+      "get": {
+        "description": "Returns a connector PNG asset (`icon` or `color` rendition) at the requested size. Public — no authentication required. `name` accepts both the new connector names (e.g. `adobe-workfront-promise`) and their legacy aliases (e.g. `workfront-workfront3`).",
+        "operationId": "ConnectionAssetsV3Controller_getConnectionAsset_v3",
+        "parameters": [
+          {
+            "name": "name",
+            "required": true,
+            "in": "path",
+            "description": "Connector or key type name.",
+            "schema": {
+              "pattern": "^[a-z][0-9a-z-]*[0-9a-z]$",
+              "example": "adobe-workfront-promise",
+              "type": "string"
+            }
+          },
+          {
+            "name": "variant",
+            "required": true,
+            "in": "path",
+            "description": "Asset rendition.",
+            "schema": {
+              "example": "icon",
+              "type": "string",
+              "enum": [
+                "icon",
+                "color"
+              ]
+            }
+          },
+          {
+            "name": "size",
+            "required": true,
+            "in": "path",
+            "description": "Asset size in pixels.",
+            "schema": {
+              "example": 128,
+              "type": "number",
+              "enum": [
+                32,
+                64,
+                128,
+                256,
+                512
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PNG image",
+            "content": {
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid name, variant, or size"
+          },
+          "404": {
+            "description": "Asset not found"
+          }
+        },
+        "summary": "Get a connector asset",
+        "tags": [
+          "Connections"
+        ],
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ]
+      }
+    },
     "/api/v3/keys": {
       "get": {
         "description": "Returns a paginated, filterable list of keys in the organization that the requesting user is permitted to view. Supply `teamId` in the property query to restrict results to one team.",
@@ -3663,6 +3748,87 @@
         "summary": "Delete key",
         "tags": [
           "Keys"
+        ]
+      }
+    },
+    "/api/v3/keys/assets/{name}/{variant}/{size}": {
+      "get": {
+        "description": "Returns a key type PNG asset (`icon` or `color` rendition) at the requested size. Public — no authentication required.",
+        "operationId": "KeyAssetsV3Controller_getKeyAsset_v3",
+        "parameters": [
+          {
+            "name": "name",
+            "required": true,
+            "in": "path",
+            "description": "Connector or key type name.",
+            "schema": {
+              "pattern": "^[a-z][0-9a-z-]*[0-9a-z]$",
+              "example": "adobe-workfront-promise",
+              "type": "string"
+            }
+          },
+          {
+            "name": "variant",
+            "required": true,
+            "in": "path",
+            "description": "Asset rendition.",
+            "schema": {
+              "example": "icon",
+              "type": "string",
+              "enum": [
+                "icon",
+                "color"
+              ]
+            }
+          },
+          {
+            "name": "size",
+            "required": true,
+            "in": "path",
+            "description": "Asset size in pixels.",
+            "schema": {
+              "example": 128,
+              "type": "number",
+              "enum": [
+                32,
+                64,
+                128,
+                256,
+                512
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PNG image",
+            "content": {
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid name, variant, or size"
+          },
+          "404": {
+            "description": "Asset not found"
+          }
+        },
+        "summary": "Get a key type asset",
+        "tags": [
+          "Keys"
+        ],
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
         ]
       }
     },
@@ -5210,6 +5376,173 @@
         "summary": "Get a hook queue item by ID",
         "tags": [
           "Hooks"
+        ]
+      }
+    },
+    "/api/v3/hooks/assets/{name}/{variant}/{size}": {
+      "get": {
+        "description": "Returns a hook manifest's branding PNG (icon or full-color logo) at the requested size. Accepts both the canonical (stored) and public hook type name. Public endpoint -- no authentication required.",
+        "operationId": "HookAssetsController_getAsset_v3",
+        "parameters": [
+          {
+            "name": "name",
+            "required": true,
+            "in": "path",
+            "description": "Hook type name (canonical or public alias).",
+            "schema": {
+              "example": "adobe-workfront",
+              "type": "string"
+            }
+          },
+          {
+            "name": "variant",
+            "required": true,
+            "in": "path",
+            "description": "Asset variant: `icon` is the flat/mono glyph, `color` is the full-color logo.",
+            "schema": {
+              "enum": [
+                "icon",
+                "color"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "size",
+            "required": true,
+            "in": "path",
+            "description": "Square PNG size, in pixels.",
+            "schema": {
+              "enum": [
+                "32",
+                "64",
+                "128",
+                "256",
+                "512"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PNG asset retrieved successfully.",
+            "content": {
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "Bad request",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Access denied",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ResourceNotFound",
+                  "status": 404,
+                  "title": "Resource not found",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get a hook asset",
+        "tags": [
+          "Hooks"
+        ],
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
         ]
       }
     },
@@ -7121,15 +7454,6 @@
         "operationId": "UserV3Controller_getMe_v3",
         "parameters": [
           {
-            "name": "includeHeadlessOrgs",
-            "required": false,
-            "in": "query",
-            "description": "Include headless-fusion organizations (internal/admin use)",
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
             "name": "x-organization-id",
             "in": "header",
             "required": true,
@@ -7390,7 +7714,7 @@
     },
     "/api/v3/users/{userId}": {
       "get": {
-        "description": "Returns one user by id, scoped to the organization named by `x-organization-id`.",
+        "description": "Returns one user by ID, scoped to the organization named by `x-organization-id`.",
         "operationId": "UserV3Controller_getUser_v3",
         "parameters": [
           {
@@ -7527,7 +7851,7 @@
             "Region": []
           }
         ],
-        "summary": "Get a single user in an organization",
+        "summary": "Get user by ID",
         "tags": [
           "Users"
         ]
@@ -7535,14 +7859,14 @@
     },
     "/api/v3/users": {
       "get": {
-        "description": "Returns the users of the organization named by `x-organization-id` (always required), with search, sort and cursor pagination. Optionally narrow to a team within the org via `?property=teamId==<id>`.",
+        "description": "Returns the users of the organization named by `x-organization-id`, with search, sort and cursor pagination. Optionally narrow to a team within the org via `?property=teamId==<id>`.",
         "operationId": "UserV3Controller_listUsers_v3",
         "parameters": [
           {
             "name": "property",
             "required": false,
             "in": "query",
-            "description": "```\nProperty filters. Can be repeated and are AND-ed together.\n\nAllowed fields:\n- id\n- name\n- email\n- lastLogin\n- teamId\n\nSupported operators:\n- ==  (equals)\n- !=  (not equals)\n- >   (greater than)\n- >=  (greater than or equal)\n- <   (less than)\n- <=  (less than or equal)\n- ~   (case-insensitive regex match)\n\nSpecial cases:\n- field           → field exists\n- !field          → field does not exist\n```",
+            "description": "```\nProperty filters. Can be repeated and are AND-ed together.\n\nAllowed fields:\n- id (multi-value)\n- name\n- email\n- lastLogin\n- teamId\n\nFields marked \"multi-value\" accept comma-separated values with == and !=.\nExample: property=id==123,456\n\nSupported operators:\n- ==  (equals)\n- !=  (not equals)\n- >   (greater than)\n- >=  (greater than or equal)\n- <   (less than)\n- <=  (less than or equal)\n- ~   (case-insensitive regex match)\n\nSpecial cases:\n- field           → field exists\n- !field          → field does not exist\n```",
             "schema": {
               "example": [
                 "teamId==3849"
@@ -7689,7 +8013,7 @@
             "Region": []
           }
         ],
-        "summary": "List users in an organization",
+        "summary": "List users",
         "tags": [
           "Users"
         ]
@@ -7712,7 +8036,7 @@
             "name": "property",
             "required": false,
             "in": "query",
-            "description": "```\nProperty filters. Can be repeated and are AND-ed together.\n\nAllowed fields:\n- id\n- name\n- externalId\n\nSupported operators:\n- ==  (equals)\n- !=  (not equals)\n- >   (greater than)\n- >=  (greater than or equal)\n- <   (less than)\n- <=  (less than or equal)\n- ~   (case-insensitive regex match)\n\nSpecial cases:\n- field           → field exists\n- !field          → field does not exist\n```",
+            "description": "```\nProperty filters. Can be repeated and are AND-ed together.\n\nAllowed fields:\n- id\n- name\n\nSupported operators:\n- ==  (equals)\n- !=  (not equals)\n- >   (greater than)\n- >=  (greater than or equal)\n- <   (less than)\n- <=  (less than or equal)\n- ~   (case-insensitive regex match)\n\nSpecial cases:\n- field           → field exists\n- !field          → field does not exist\n```",
             "schema": {
               "example": [
                 "teamId==3849"
@@ -7859,7 +8183,7 @@
     },
     "/api/v3/teams/{teamId}": {
       "get": {
-        "description": "Returns one team by id within the organization named by `x-organization-id`. The caller must have team view permission on it.",
+        "description": "Returns one team by ID within the organization named by `x-organization-id`. The caller must have team view permission on it.",
         "operationId": "TeamV3Controller_getTeam_v3",
         "parameters": [
           {
@@ -7996,13 +8320,13 @@
             "Region": []
           }
         ],
-        "summary": "Get a single team by id",
+        "summary": "Get a team by ID",
         "tags": [
           "Teams"
         ]
       },
       "delete": {
-        "description": "Soft-deletes the team, stops its scenarios, writes an activity log + event, and removes the team’s authz relationships.",
+        "description": "Soft-deletes the team, stops its scenarios, writes an activity log.",
         "operationId": "TeamV3Controller_deleteTeam_v3",
         "parameters": [
           {
@@ -8132,7 +8456,7 @@
             "Region": []
           }
         ],
-        "summary": "Delete a single team",
+        "summary": "Delete team",
         "tags": [
           "Teams"
         ]
@@ -8140,7 +8464,7 @@
     },
     "/api/v3/organizations": {
       "get": {
-        "description": "Returns every organization the caller can view (ORG_VIEW), with search, sort and cursor pagination. The caller must have organization view permission on the `x-organization-id` org.",
+        "description": "Returns every organization the caller can view, with search, sort and cursor pagination. The caller must have organization view permission on the `x-organization-id` org.",
         "operationId": "OrganizationV3Controller_listOrganizations_v3",
         "parameters": [
           {
@@ -8294,7 +8618,7 @@
             "Region": []
           }
         ],
-        "summary": "List the caller’s organizations",
+        "summary": "List organizations",
         "tags": [
           "Organizations"
         ]
@@ -8432,6 +8756,319 @@
         "summary": "Get the current organization",
         "tags": [
           "Organizations"
+        ]
+      }
+    },
+    "/api/v3/dlqs": {
+      "get": {
+        "description": "Sort by +created or -created (default). To page, pass `_page.next` from the previous response as `start` (a `created` timestamp), keeping the same `orderby` and `limit`.",
+        "operationId": "DlqV3Controller_list_v3",
+        "parameters": [
+          {
+            "name": "x-organization-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "scenarioId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "property",
+            "required": false,
+            "in": "query",
+            "description": "```\nProperty filters. Can be repeated and are AND-ed together.\n\nAllowed fields:\n- id\n- scenarioId\n- teamId\n- created\n- size\n- resolved\n- retry\n- attempts\n- executionId\n\nSupported operators:\n- ==  (equals)\n- !=  (not equals)\n- >   (greater than)\n- >=  (greater than or equal)\n- <   (less than)\n- <=  (less than or equal)\n- ~   (case-insensitive regex match)\n\nSpecial cases:\n- field           → field exists\n- !field          → field does not exist\n```",
+            "schema": {
+              "example": [
+                "teamId==3849"
+              ],
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "start",
+            "required": false,
+            "in": "query",
+            "description": "Paging cursor. Must correspond to \"orderby\" field and used only when it is set.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            },
+            "description": "Maximum number of items to return. Must be a positive integer. Range 1–200."
+          },
+          {
+            "name": "orderby",
+            "required": false,
+            "in": "query",
+            "description": "Sort property and direction, e.g. +id (ascending) or -id (descending). Allowed fields: created.",
+            "schema": {
+              "example": "+id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DlqSearchResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "Bad request",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Access denied",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ResourceNotFound",
+                  "status": 404,
+                  "title": "Resource not found",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "List/search DLQs for a scenario",
+        "tags": [
+          "DLQs v3"
+        ]
+      }
+    },
+    "/api/v3/dlqs/{id}": {
+      "get": {
+        "operationId": "DlqV3Controller_get_v3",
+        "parameters": [
+          {
+            "name": "x-organization-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "84a63c7308cf48abb63dbf935b1aa22f",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DlqV3Dto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Not permitted to view this DLQ",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ResourceNotFound",
+                  "status": 404,
+                  "title": "DLQ not found",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "Get a single DLQ by id",
+        "tags": [
+          "DLQs v3"
         ]
       }
     }
@@ -10425,7 +11062,7 @@
           "accountName": {
             "type": "string",
             "description": "Connector type identifier. Prefixed with `app#` for SDK-based connectors.",
-            "example": "workfront-workfront"
+            "example": "adobe-workfront-oauth2"
           },
           "accountLabel": {
             "type": "string",
@@ -10589,7 +11226,7 @@
           "accountName": {
             "type": "string",
             "description": "Connector type identifier. Prefixed with `app#` for SDK-based connectors.",
-            "example": "workfront-workfront"
+            "example": "adobe-workfront-oauth2"
           },
           "accountLabel": {
             "type": "string",
@@ -10668,8 +11305,8 @@
           },
           "type": {
             "type": "string",
-            "description": "Connector account type (e.g. `oauth`, `basic`, `apikey`).",
-            "example": "oauth"
+            "description": "Connector type identifier (same value as `accountName`, without the `app#` prefix).",
+            "example": "adobe-workfront-promise"
           },
           "valid": {
             "type": "boolean",
@@ -10920,7 +11557,7 @@
           "name": {
             "type": "string",
             "description": "Display name of the hook, assigned when the hook is created.",
-            "example": "My gateway-webhook webhook"
+            "example": "My custom-webhook webhook"
           },
           "teamId": {
             "type": "number",
@@ -10969,8 +11606,8 @@
           },
           "typeName": {
             "type": "string",
-            "description": "Type name that identifies the hook's integration. Workfront hooks begin with 'workfront-workfront' or 'workfront-maestro'.",
-            "example": "gateway-webhook"
+            "description": "Type name that identifies the hook's integration, e.g. 'custom-webhook', 'adobe-workfront' / 'adobe-workfront-legacy', or 'workfront-planning' / 'workfront-planning-legacy'.",
+            "example": "custom-webhook"
           },
           "data": {
             "type": "object",
@@ -11057,8 +11694,8 @@
           },
           "type": {
             "type": "string",
-            "description": "Subtype of the dependency. Set for connection (connector identity) and key (key type); omitted for a data structure.",
-            "example": "workfront-workfront"
+            "description": "Subtype of the dependency. Set for connection (public connector name, as returned by account-manager) and key (key type); omitted for a data structure.",
+            "example": "adobe-workfront-promise"
           }
         },
         "required": [
@@ -11093,7 +11730,7 @@
           "name": {
             "type": "string",
             "description": "Display name of the hook, assigned when the hook is created.",
-            "example": "My gateway-webhook webhook"
+            "example": "My custom-webhook webhook"
           },
           "teamId": {
             "type": "number",
@@ -11142,8 +11779,8 @@
           },
           "typeName": {
             "type": "string",
-            "description": "Type name that identifies the hook's integration. Workfront hooks begin with 'workfront-workfront' or 'workfront-maestro'.",
-            "example": "gateway-webhook"
+            "description": "Type name that identifies the hook's integration, e.g. 'custom-webhook', 'adobe-workfront' / 'adobe-workfront-legacy', or 'workfront-planning' / 'workfront-planning-legacy'.",
+            "example": "custom-webhook"
           },
           "data": {
             "type": "object",
@@ -12262,11 +12899,6 @@
             "description": "Last login (ISO 8601).",
             "nullable": true
           },
-          "type": {
-            "type": "string",
-            "description": "Discriminator, always 'user'.",
-            "example": "user"
-          },
           "imsUserId": {
             "type": "string",
             "description": "IMS user id, when the user is provisioned in the scoping organization."
@@ -12281,8 +12913,7 @@
           "localeId",
           "countryId",
           "features",
-          "avatar",
-          "type"
+          "avatar"
         ]
       },
       "UsersSearchResponseDto": {
@@ -12322,7 +12953,7 @@
         "properties": {
           "id": {
             "type": "number",
-            "description": "Team id.",
+            "description": "Team ID.",
             "example": 777
           },
           "name": {
@@ -12332,27 +12963,14 @@
           },
           "organizationId": {
             "type": "number",
-            "description": "Owning organization id.",
+            "description": "Owning organization ID.",
             "example": 12989
-          },
-          "deleted": {
-            "type": "boolean",
-            "description": "Whether the team is deleted (always false on these routes).",
-            "example": false
-          },
-          "externalId": {
-            "type": "object",
-            "description": "External team id.",
-            "nullable": true,
-            "example": "team-ext"
           }
         },
         "required": [
           "id",
           "name",
-          "organizationId",
-          "deleted",
-          "externalId"
+          "organizationId"
         ]
       },
       "TeamsSearchResponseDto": {
@@ -12399,12 +13017,6 @@
             "type": "string",
             "description": "Team name.",
             "example": "Marketing"
-          },
-          "externalId": {
-            "type": "object",
-            "description": "External team id set by the integrating system.",
-            "nullable": true,
-            "example": "team-ext-1"
           }
         },
         "required": [
@@ -12465,7 +13077,7 @@
           },
           "imsMigrated": {
             "type": "boolean",
-            "description": "Whether the caller is linked to this organization through IMS (has a user_ims_data row for it).",
+            "description": "Whether the caller is linked to this organization through IMS.",
             "example": true
           },
           "teams": {
@@ -12511,6 +13123,115 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/OrganizationListItemDto"
+            }
+          }
+        },
+        "required": [
+          "_page",
+          "_links",
+          "items"
+        ]
+      },
+      "DlqV3Dto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "DLQ record ID.",
+            "example": "84a63c7308cf48abb63dbf935b1aa22f"
+          },
+          "scenarioId": {
+            "type": "number",
+            "description": "Automation (scenario) ID.",
+            "example": 1
+          },
+          "teamId": {
+            "type": "number",
+            "description": "Team ID associated with the DLQ.",
+            "example": 17750
+          },
+          "reason": {
+            "type": "string",
+            "description": "Reason the execution failed.",
+            "example": "Failed to process the event"
+          },
+          "created": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Time the DLQ record was created (UTC).",
+            "example": "2021-09-29T14:00:00.000Z"
+          },
+          "size": {
+            "type": "number",
+            "description": "Size of the failed execution in bytes.",
+            "example": 256
+          },
+          "resolved": {
+            "type": "boolean",
+            "description": "Whether the DLQ has been resolved.",
+            "example": true
+          },
+          "retry": {
+            "type": "boolean",
+            "description": "Whether this DLQ is eligible for retry.",
+            "example": true
+          },
+          "attempts": {
+            "type": "number",
+            "description": "Number of retry attempts (zero when absent).",
+            "example": 3
+          },
+          "storage": {
+            "type": "number",
+            "description": "Numeric storage selector for the execution bundle.",
+            "example": 3
+          },
+          "index": {
+            "type": "number",
+            "description": "DLQ index within its automation and execution.",
+            "example": 0
+          },
+          "executionId": {
+            "type": "string",
+            "description": "ID of the failed execution.",
+            "example": "fd536f7baf54472ba088c98fac2d4956"
+          }
+        },
+        "required": [
+          "id",
+          "scenarioId",
+          "reason",
+          "created",
+          "size",
+          "resolved",
+          "retry",
+          "attempts",
+          "executionId"
+        ]
+      },
+      "DlqSearchResponseDto": {
+        "type": "object",
+        "properties": {
+          "_page": {
+            "description": "Pagination metadata",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PageMetadataDto"
+              }
+            ]
+          },
+          "_links": {
+            "description": "Pagination links",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PageLinksDto"
+              }
+            ]
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DlqV3Dto"
             }
           }
         },
