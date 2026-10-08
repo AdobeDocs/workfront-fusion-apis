@@ -77,8 +77,8 @@
       "description": "Endpoints for listing and reading the organizations the caller can access"
     },
     {
-      "name": "DLQs v3",
-      "description": "Organization-scoped v3 DLQ endpoints (list/search, single get)."
+      "name": "Incomplete Executions",
+      "description": "Endpoints for managing incomplete executions within your organization. These endpoints allow you to list all incomplete executions scoped to a scenario and retrieve full details for a specific incomplete execution."
     }
   ],
   "paths": {
@@ -7458,7 +7458,8 @@
             "in": "header",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "12989"
             }
           }
         ],
@@ -7732,7 +7733,8 @@
             "in": "header",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "12989"
             }
           }
         ],
@@ -7913,7 +7915,8 @@
             "in": "header",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "12989"
             }
           }
         ],
@@ -8029,7 +8032,8 @@
             "in": "header",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "12989"
             }
           },
           {
@@ -8191,7 +8195,8 @@
             "in": "header",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "12989"
             }
           },
           {
@@ -8334,7 +8339,8 @@
             "in": "header",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "12989"
             }
           },
           {
@@ -8472,7 +8478,8 @@
             "in": "header",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "12989"
             }
           },
           {
@@ -8634,7 +8641,8 @@
             "in": "header",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "12989"
             }
           }
         ],
@@ -8761,7 +8769,7 @@
     },
     "/api/v3/dlqs": {
       "get": {
-        "description": "Sort by +created or -created (default). To page, pass `_page.next` from the previous response as `start` (a `created` timestamp), keeping the same `orderby` and `limit`.",
+        "description": "Retrieves a cursor-paginated list of incomplete executions (DLQs) for an automation scenario. Supports sorting by creation date (`+created`, `-created`) and filtering via `property`. Pass `_page.next` from the previous response as `start` in subsequent requests to advance the cursor.",
         "operationId": "DlqV3Controller_list_v3",
         "parameters": [
           {
@@ -8776,6 +8784,7 @@
             "name": "scenarioId",
             "required": true,
             "in": "query",
+            "description": "Automation scenario whose DLQs are listed.",
             "schema": {
               "type": "number"
             }
@@ -8784,7 +8793,7 @@
             "name": "property",
             "required": false,
             "in": "query",
-            "description": "```\nProperty filters. Can be repeated and are AND-ed together.\n\nAllowed fields:\n- id\n- scenarioId\n- teamId\n- created\n- size\n- resolved\n- retry\n- attempts\n- executionId\n\nSupported operators:\n- ==  (equals)\n- !=  (not equals)\n- >   (greater than)\n- >=  (greater than or equal)\n- <   (less than)\n- <=  (less than or equal)\n- ~   (case-insensitive regex match)\n\nSpecial cases:\n- field           → field exists\n- !field          → field does not exist\n```",
+            "description": "```\nProperty filters. Can be repeated and are AND-ed together.\n\nAllowed fields:\n- id\n- teamId\n- created\n- size\n- resolved\n- retry\n- attempts\n- executionId\n\nSupported operators:\n- ==  (equals)\n- !=  (not equals)\n- >   (greater than)\n- >=  (greater than or equal)\n- <   (less than)\n- <=  (less than or equal)\n- ~   (case-insensitive regex match)\n\nSpecial cases:\n- field           → field exists\n- !field          → field does not exist\n```",
             "schema": {
               "example": [
                 "teamId==3849"
@@ -8829,7 +8838,7 @@
         ],
         "responses": {
           "200": {
-            "description": "",
+            "description": "Paginated list of DLQ records matching the query criteria.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8848,11 +8857,118 @@
                 "example": {
                   "type": "BadRequest",
                   "status": 400,
-                  "title": "Bad request",
+                  "title": "Invalid query parameters or filter expressions",
                   "report": {
                     "request-id": "abc-123-def-456",
                     "x-organization-id": "2332"
                   }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Access denied",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "List DLQs for a scenario",
+        "tags": [
+          "Incomplete Executions"
+        ]
+      }
+    },
+    "/api/v3/dlqs/{id}": {
+      "get": {
+        "description": "Returns full details of an incomplete execution (DLQ) by record ID, including failure reason, execution tracking IDs, and retry attempt counters.",
+        "operationId": "DlqV3Controller_get_v3",
+        "parameters": [
+          {
+            "name": "x-organization-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Unique string identifier of the DLQ record.",
+            "schema": {
+              "example": "84a63c7308cf48abb63dbf935b1aa22f",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "DLQ record details retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DlqV3Dto"
                 }
               }
             }
@@ -8905,7 +9021,7 @@
                 "example": {
                   "type": "ResourceNotFound",
                   "status": 404,
-                  "title": "Resource not found",
+                  "title": "DLQ record not found",
                   "report": {
                     "request-id": "abc-123-def-456",
                     "x-organization-id": "2332"
@@ -8942,133 +9058,9 @@
             "Region": []
           }
         ],
-        "summary": "List/search DLQs for a scenario",
+        "summary": "Get DLQ by ID",
         "tags": [
-          "DLQs v3"
-        ]
-      }
-    },
-    "/api/v3/dlqs/{id}": {
-      "get": {
-        "operationId": "DlqV3Controller_get_v3",
-        "parameters": [
-          {
-            "name": "x-organization-id",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "example": "84a63c7308cf48abb63dbf935b1aa22f",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DlqV3Dto"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Authentication required",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
-                },
-                "example": {
-                  "type": "Unauthorized",
-                  "status": 401,
-                  "title": "Authentication required",
-                  "report": {
-                    "request-id": "abc-123-def-456",
-                    "x-organization-id": "2332"
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Access denied",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
-                },
-                "example": {
-                  "type": "Forbidden",
-                  "status": 403,
-                  "title": "Not permitted to view this DLQ",
-                  "report": {
-                    "request-id": "abc-123-def-456",
-                    "x-organization-id": "2332"
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Resource not found",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
-                },
-                "example": {
-                  "type": "ResourceNotFound",
-                  "status": 404,
-                  "title": "DLQ not found",
-                  "report": {
-                    "request-id": "abc-123-def-456",
-                    "x-organization-id": "2332"
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Server error",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
-                },
-                "example": {
-                  "type": "InternalServerError",
-                  "status": 500,
-                  "title": "Server error",
-                  "report": {
-                    "request-id": "abc-123-def-456",
-                    "x-organization-id": "2332"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "Authorization": [],
-            "Organization ID": [],
-            "API Key": [],
-            "Region": []
-          }
-        ],
-        "summary": "Get a single DLQ by id",
-        "tags": [
-          "DLQs v3"
+          "Incomplete Executions"
         ]
       }
     }
@@ -13180,16 +13172,6 @@
             "type": "number",
             "description": "Number of retry attempts (zero when absent).",
             "example": 3
-          },
-          "storage": {
-            "type": "number",
-            "description": "Numeric storage selector for the execution bundle.",
-            "example": 3
-          },
-          "index": {
-            "type": "number",
-            "description": "DLQ index within its automation and execution.",
-            "example": 0
           },
           "executionId": {
             "type": "string",
