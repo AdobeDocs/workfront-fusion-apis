@@ -7448,6 +7448,162 @@
         ]
       }
     },
+    "/api/v3/data-structures/{id}/clone": {
+      "post": {
+        "description": "Copies the specification and strict mode to the source team or another team in the same organization. Requires organization view, source data structure view, and permission to add data structures to the resolved target team.",
+        "operationId": "DataStructuresControllerV3_clone_v3",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Data structure ID",
+            "schema": {
+              "example": 123,
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CloneDataStructureDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Data structure cloned successfully.",
+            "headers": {
+              "Location": {
+                "description": "URL of the cloned data structure.",
+                "schema": {
+                  "type": "string",
+                  "example": "/api/v3/data-structures/456"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataStructureResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "Invalid data structure ID or clone request",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Not allowed to clone to the target team",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ResourceNotFound",
+                  "status": 404,
+                  "title": "Data structure not found",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Failed to clone data structure.",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "Clone a data structure",
+        "tags": [
+          "Data Structures"
+        ]
+      }
+    },
     "/api/v3/users/me": {
       "get": {
         "description": "Returns the profile of the caller identified by the auth token, plus their full organization- and team-role arrays. Distinct from `GET /users/:userId`. The caller must have organization view permission on the `x-organization-id` org.",
@@ -7458,8 +7614,7 @@
             "in": "header",
             "required": true,
             "schema": {
-              "type": "string",
-              "example": "12989"
+              "type": "string"
             }
           }
         ],
@@ -7733,8 +7888,7 @@
             "in": "header",
             "required": true,
             "schema": {
-              "type": "string",
-              "example": "12989"
+              "type": "string"
             }
           }
         ],
@@ -7915,8 +8069,7 @@
             "in": "header",
             "required": true,
             "schema": {
-              "type": "string",
-              "example": "12989"
+              "type": "string"
             }
           }
         ],
@@ -8032,8 +8185,7 @@
             "in": "header",
             "required": true,
             "schema": {
-              "type": "string",
-              "example": "12989"
+              "type": "string"
             }
           },
           {
@@ -8195,8 +8347,7 @@
             "in": "header",
             "required": true,
             "schema": {
-              "type": "string",
-              "example": "12989"
+              "type": "string"
             }
           },
           {
@@ -8339,8 +8490,7 @@
             "in": "header",
             "required": true,
             "schema": {
-              "type": "string",
-              "example": "12989"
+              "type": "string"
             }
           },
           {
@@ -8478,8 +8628,7 @@
             "in": "header",
             "required": true,
             "schema": {
-              "type": "string",
-              "example": "12989"
+              "type": "string"
             }
           },
           {
@@ -8641,8 +8790,7 @@
             "in": "header",
             "required": true,
             "schema": {
-              "type": "string",
-              "example": "12989"
+              "type": "string"
             }
           }
         ],
@@ -12662,6 +12810,23 @@
           "teamId",
           "spec"
         ]
+      },
+      "CloneDataStructureDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Clone name. Defaults to the source name plus \" (clone)\".",
+            "minLength": 1,
+            "maxLength": 128,
+            "example": "Customer Profile (clone)"
+          },
+          "teamId": {
+            "type": "integer",
+            "description": "Target team in the same organization. Defaults to the source team.",
+            "example": 10
+          }
+        }
       },
       "UserOrganizationRoleDto": {
         "type": "object",
