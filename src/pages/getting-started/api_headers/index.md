@@ -86,7 +86,7 @@ See the [Authentication guide](../credentials/index.md) for detailed instruction
 Authorization: Bearer {access_token}
 ```
 
-See the [Authentication guide](../credentials/index.md) for detailed instructions on obtaining access tokens.
+See the [Authentication guide](../authentication/index.md#call-the-rest-api) for detailed instructions on obtaining access tokens.
 
 ## Common Error Responses
 

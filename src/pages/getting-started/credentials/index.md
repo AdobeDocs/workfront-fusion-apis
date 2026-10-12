@@ -1,6 +1,6 @@
 ---
 title: Create Credentials - Workfront Fusion API
-description: This guide explains how to create credentials for the Workfront Fusion API.
+description: Step 1 of setting up access to the Workfront Fusion API. Create an OAuth Server-to-Server credential (technical account) in the Adobe Developer Console.
 keywords:
   - Workfront Fusion API
   - Fusion API Authentication
@@ -14,52 +14,95 @@ keywords:
   - Create Credentials
   - Credentials
   - OAuth Server-to-Server
+  - Technical Account
 contributors:
   - 'https://github.com/annieTechno'
 hideBreadcrumbNav: true
 og:
   title: Create Credentials - Workfront Fusion API
-  description: This guide explains how to create credentials for the Workfront Fusion API.
+  description: Step 1 of setting up access to the Workfront Fusion API. Create an OAuth Server-to-Server credential (technical account) in the Adobe Developer Console.
 twitter:
   card: summary
   title: Create Credentials - Workfront Fusion API
-  description: This guide explains how to create credentials for the Workfront Fusion API.
+  description: Step 1 of setting up access to the Workfront Fusion API. Create an OAuth Server-to-Server credential (technical account) in the Adobe Developer Console.
 ---
 
-# Get Credentials
+# Step 1: Create Credentials
+
+Create the OAuth Server-to-Server credential for your technical account.
+
+## Overview
+
+Create an **OAuth Server-to-Server** credential in the Adobe Developer Console. This credential provisions the **technical account** that you use everywhere else: when calling the Fusion API directly and when creating an Adobe Fusion connector connection inside a scenario.
 
 <InlineAlert variant="info" slots="text" />
 
-This page contains instructions for **IMS organization admins  only** to create project credentials for their teams. If you are a developer and your admin has shared a valid key with you, head over to the [quickstart guide](../index.md).
+This page is for **organization admins** who create project credentials for their teams. If your admin has already shared a Client ID and Client Secret with you, skip to [Authentication](../authentication/index.md).
 
-## Access Adobe Developer Console
+**Where this fits:** **1. Create credentials** → 2. [Give the technical account access](../technical_accounts/index.md) → 3. [Call the API](../authentication/index.md#call-the-rest-api) or [use the Adobe Fusion connector](../authentication/index.md#use-the-adobe-fusion-connector)
 
-Navigate to the __API and services__ section. Search for __"Adobe Fusion"__ API.
+## Before you begin
+
+* Developer access to the [Adobe Developer Console](https://developer.adobe.com/console).
+* An organization that has a Workfront Fusion product license.
+
+<InlineAlert variant="warning" slots="text" />
+
+Can't find the Adobe Fusion API? Make sure you are signed in to the Developer Console under the organization that has the Workfront Fusion product license.
+
+## Create the project and credential
+
+1. Go to the [Adobe Developer Console](https://developer.adobe.com/console) and open an existing project, or create a new one.
+2. Click **Add to Project**, then select **API**.
+3. Select **Adobe Fusion**. This grants access to scenarios, blueprints and other Fusion resources.
+   * *Optional:* also add **Adobe Workfront** if you want the same credential to write results back to Workfront.
+4. On the **Select authentication type** screen, choose **OAuth Server-to-Server**, then click **Next**.
+5. Give the credential a clear name (for example, `Adobe Fusion API Access`), click **Next**, then click **Save configured API**.
+6. If your organization has multiple Fusion instances, select the instance that the credential should be associated with.
+
+When you're done, the project overview lists **Adobe Fusion** (and **Adobe Workfront**, if added) under **Products & services**, and the **OAuth Server-to-Server** credential under **Credentials**.
+
+![Project overview with Adobe Workfront and Adobe Fusion APIs and the OAuth Server-to-Server credential](./project_overview.png)
+
+**Shortcut:** You can also go to **API and services**, search for **Adobe Fusion**, and click **Create project** on the product card. It creates a project with the Fusion API and an OAuth Server-to-Server credential in one step.
 
 ![API and services page - Fusion API card](./devconsole.png)
 
-Can't find the Adobe Fusion? Make sure you are accessing the Developer Console from the organization that has a Workfront Fusion product license. 
+## Collect the credential details
 
-## Create a new project
+In the project, select **OAuth Server-to-Server** in the left navigation and open the **Credential details** tab. Note these values. You'll need them in the next steps:
 
-1. On the Fusion API product card, click Create project.
-2. On the modal that opens, click Save configured API.
-3. On the next screen you can see your client ID (API key).
-4. If the IMS org has multiple instances, select the instance that you want the API client to be associated with.
-5. To get your client secret, select **OAuth Server-to-Server** in the left navigation, then click **Retrieve client secret**.
+| Value | Where it's used |
+|---|---|
+| **Client ID** | Requesting an access token, the `x-api-key` header, and the Adobe Fusion connector connection |
+| **Client Secret** (click **Retrieve client secret**) | Requesting an access token and the Adobe Fusion connector connection |
+| **Organization ID** (`...@AdobeOrg`) | Identifies your Adobe (IMS) organization |
+| **Technical Account Email** (ends in `@techacct.adobe.com`) | Finding the technical account in the Admin Console and in Fusion ([Step 2](../technical_accounts/index.md)) |
 
-__To make calls to the Fusion API, developer(s) need a valid client ID (API key) and an access token__. Since organization admins are the only ones who can access these projects in the Console, using the __Generate access token__ button on the credential overview page is not ideal.
+![Credential details tab showing Client ID, Client Secret, Scopes, Technical Account Email and Organization ID](./credential_details.png)
 
-<InlineAlert variant="info" slots="text" />
+<InlineAlert variant="warning" slots="text" />
 
-Instead of sharing access tokens, we recommend sharing the __client ID__ and __client secret__ with developers who need access to the API. This way, they can programmatically generate new access tokens as each access token expires after 24 hours.
+**Treat the Client Secret like a password.** The Client ID and Organization ID are identifiers, but the Client Secret grants access. Store it securely (for example, in a secrets manager), and never paste it into email, chat or client-side code. If it's ever exposed, rotate it from this same screen.
+
+## Check the scopes
+
+On the **Scopes** tab, confirm that each service you added has scopes. The Fusion API token request uses `openid,AdobeID,profile,additional_info.projectedProductContext`. Use the copy control next to a service if you need to record its scope string.
+
+![Scopes assigned per service with a copy control](./scopes.png)
 
 ## Share credentials with developers
 
-After you have successfully configured your project in Developer Console:
+To call the Fusion API, developers need a **Client ID** and an **access token**. Only organization admins can open these projects in the Console, so the **Generate access token** button isn't a practical way to share access. Access tokens also expire every 24 hours.
 
-- In the __Generate access tokens__ block, select __View cURL command__.
-- Copy the command and share with developers in your org. It should look similar to the following:
+<InlineAlert variant="info" slots="text" />
+
+Share the **Client ID** and **Client Secret** securely instead of access tokens. Developers can then generate new tokens programmatically whenever they need them.
+
+To give developers a ready-made token request:
+
+1. In the **Generate access token** block, select **View cURL command**.
+2. Copy the command and share it with developers in your organization. It looks similar to this:
 
 ```bash
 curl -X POST 'https://ims-na1.adobelogin.com/ims/token/v3' \
@@ -67,15 +110,6 @@ curl -X POST 'https://ims-na1.adobelogin.com/ims/token/v3' \
 -d 'grant_type=client_credentials&client_id={client_id}&client_secret={client_secret}&scope=openid,AdobeID,profile,additional_info.projectedProductContext'
 ```
 
-Read more about generating access tokens in the [authentication guide](../index.md). 
+## Next step
 
-## Next steps
-
-Once your developers have their credentials, they can:
-
-- Follow the [authentication guide](../index.md) to generate access tokens
-- Explore the [API Reference](../../api/index.md) to discover available endpoints
-- Build automations using the Fusion API to manage scenarios, connections, hooks, and executions
-
-<InlineAlert variant="info" slots="text" />
-To manage technical account permissions and assign them to specific Fusion teams, refer to the [Technical Accounts guide](../technical_accounts/index.md).
+A new technical account **can't see any scenarios yet**. Continue to [Step 2: Give the technical account access](../technical_accounts/index.md).
