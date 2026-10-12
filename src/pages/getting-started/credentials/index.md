@@ -29,6 +29,10 @@ twitter:
 
 # Step 1: Create Credentials
 
+Create the OAuth Server-to-Server credential for your technical account.
+
+## Overview
+
 Create an **OAuth Server-to-Server** credential in the Adobe Developer Console. This credential provisions the **technical account** that you use everywhere else: when calling the Fusion API directly and when creating an Adobe Fusion connector connection inside a scenario.
 
 <InlineAlert variant="info" slots="text" />

@@ -30,6 +30,10 @@ twitter:
 
 # Authentication
 
+Authenticate Workfront Fusion API requests with Adobe IMS access tokens.
+
+## Overview
+
 Every Workfront Fusion API request must include an access token from [Adobe Identity Management System (IMS)](https://developer.adobe.com/developer-console/docs/guides/authentication/). The API supports both IMS token types:
 
 * **User authentication:** requests run as a Fusion user and have that user's access.
@@ -39,15 +43,13 @@ This page covers server-to-server authentication. For user tokens, see [IMS user
 
 ## Setup at a glance
 
-| Step | Where | Who | Result |
-|---|---|---|---|
-| **1. [Create credentials](../credentials/index.md)** | Adobe Developer Console | A developer with Console access | Client ID, Client Secret and Technical Account Email |
-| **2. [Give the technical account access](../technical_accounts/index.md)** | Workfront Fusion, plus the Adobe Admin Console for organization-wide access or admin-level actions | A Fusion organization admin, plus an Admin Console System Administrator if needed | The technical account can reach the teams, or the whole organization, that you choose |
-| **3. Connect** | Your code or a Fusion scenario | A developer or scenario builder | [Call the REST API](#call-the-rest-api) or [use the Adobe Fusion connector](#use-the-adobe-fusion-connector) |
+| Step | Where | Result |
+|---|---|---|
+| **1. [Create credentials](../credentials/index.md)** | Adobe Developer Console | Client ID, Client Secret and Technical Account Email |
+| **2. [Give the technical account access](../technical_accounts/index.md)** | Workfront Fusion, plus the Adobe Admin Console for organization-wide access or admin-level actions | The technical account can reach the teams, or the whole organization, that you choose |
+| **3. Connect** | Your code or a Fusion scenario | [Call the REST API](#call-the-rest-api) or [use the Adobe Fusion connector](#use-the-adobe-fusion-connector) |
 
-<InlineAlert variant="warning" slots="text" />
-
-**Don't skip step 2.** A new technical account has no team and no role, so it can't see any data. Its requests authenticate but return empty results.
+A new technical account has no team or role, so its requests return empty results until you complete step 2.
 
 ## Call the REST API
 
@@ -129,16 +131,15 @@ Complete [step 1](../credentials/index.md) and [step 2](../technical_accounts/in
 1. In a scenario, add any **Adobe Fusion** module.
 2. Next to **Connection**, click **Add**.
 3. Set **Connection type** to **IMS Server to server**.
-4. Fill in the fields:
-
-   | Field | Value |
-   |---|---|
-   | **Connection name** | A descriptive label, for example `Fusion Admin (S2S)` |
-   | **Client ID** | From the credential's [Credential details](../credentials/index.md#collect-the-credential-details) tab |
-   | **Client Secret** | From the same tab (**Retrieve client secret**) |
-   | **Fusion Organization ID** | The number in your Fusion **Org overview** URL: `.../organization/{organizationId}/dashboard`. This isn't the `...@AdobeOrg` ID. |
-
+4. Fill in the fields as described in the following table.
 5. Click **Continue**.
+
+| Field | Value |
+|---|---|
+| **Connection name** | A descriptive label, for example `Fusion Admin (S2S)` |
+| **Client ID** | From the credential's [Credential details](../credentials/index.md#collect-the-credential-details) tab |
+| **Client Secret** | From the same tab (**Retrieve client secret**) |
+| **Fusion Organization ID** | The number in your Fusion **Org overview** URL, `.../organization/{organizationId}/dashboard`. Not the `...@AdobeOrg` ID. |
 
 ![Create a connection dialog with the IMS Server to server connection type](./create_connection.png)
 
@@ -152,11 +153,8 @@ Run a list module once, for example **List records** for scenarios. You should s
 
 ## Security best practices
 
-* **Protect the Client Secret.** Store it in a secrets manager. Never put it in source code, client-side code, email or chat.
-* **Share credentials securely.** Give developers the Client ID and Client Secret through a secure channel, not access tokens.
-* **Grant least privilege.** Prefer team access. Use Organization Owner only when the integration needs every team.
-* **Use one credential per integration,** so you can rotate or revoke each one independently.
-* **Rotate the Client Secret** if it's exposed, and on the schedule your security policy requires. Do this on the credential's **Credential details** tab in the Developer Console.
+* Store the Client Secret securely, for example in a secrets manager. Never share it in code, email or chat.
+* If the Client Secret is exposed, rotate it on the credential's **Credential details** tab in the Developer Console.
 
 ## Troubleshooting
 

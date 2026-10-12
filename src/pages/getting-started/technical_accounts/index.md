@@ -14,9 +14,13 @@ hideBreadcrumbNav: true
 
 # Step 2: Give the Technical Account Access
 
+Choose what the technical account can reach in Workfront Fusion, and grant that access.
+
+## Overview
+
 **Where this fits:** 1. [Create credentials](../credentials/index.md) → **2. Give the technical account access** → 3. [Call the API](../authentication/index.md#call-the-rest-api) or [use the Adobe Fusion connector](../authentication/index.md#use-the-adobe-fusion-connector)
 
-When you create an OAuth Server-to-Server credential, a technical account is added to your Fusion organization as an **organization member on no team**. **By default it can't see anything.** Requests authenticate, but they return little or no data. In this step, you decide how much the technical account can reach, and then grant that access.
+When you create an OAuth Server-to-Server credential, a technical account is added to your Fusion organization as an **organization member on no team**. **By default it can't see anything.** Requests authenticate, but they return little or no data.
 
 ## Choose an access level
 
