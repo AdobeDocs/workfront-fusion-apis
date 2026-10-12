@@ -1,9 +1,42 @@
----
-title: Changelog
-description: Changelog for Workfront Fusion APIs
----
-
 # Changelog
+
+## October 12, 2026
+
+### Added
+
+- `GET` **List scenarios that depend on a resource**
+- `DELETE` **Delete scenario**
+- `DELETE` **Delete connection**
+- `DELETE` **Delete key**
+- `GET` **List hooks that depend on a resource**
+- `POST` **Clone a hook**
+- `DELETE` **Delete hook**
+- `GET` **Get hook dependencies**
+- `GET` **List data stores that depend on a resource**
+- `DELETE` **Delete data store**
+- `DELETE` **Delete data store records**
+- `DELETE` **Delete data structure**
+- `POST` **Clone a data structure**
+- `GET` **Get the authorised user**
+- `GET` **Get user by ID**
+- `GET` **List users**
+- `GET` **List teams in an organization**
+- `GET` **Get a team by ID**
+- `DELETE` **Delete team**
+- `GET` **List organizations**
+- `GET` **Get the current organization**
+- `GET` **List DLQs for a scenario**
+- `GET` **Get DLQ by ID**
+
+### Modified
+
+- `GET` **Get scenario by ID**
+    - Added parameter: `fields`
+- `GET` **List scenarios**
+    - Added parameter: `fields`
+- `GET` **Get scenario dependencies**
+    - Changed response field type: `items[].kind` (added allowed value: `scenario`)
+---
 
 ## September 2, 2026
 
@@ -48,7 +81,7 @@ description: Changelog for Workfront Fusion APIs
     - Added response field: `dataStructureId`
     - Removed response field: `datastructureId`
 
-<HorizontalLine />
+---
 
 ## June 17, 2026
 
@@ -94,7 +127,7 @@ description: Changelog for Workfront Fusion APIs
     - Removed path parameter: `orgId`
     - Added parameter: `x-organization-id`
 
-<HorizontalLine />
+---
 
 ## February 1, 2026
 
@@ -105,4 +138,4 @@ description: Changelog for Workfront Fusion APIs
 - `GET` **Get operations count**
 - `GET` **Get operations summary**
 
-<HorizontalLine />
+---
