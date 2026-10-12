@@ -36,7 +36,7 @@
     - Added parameter: `fields`
 - `GET` **Get scenario dependencies**
     - Changed response field type: `items[].kind` (added allowed value: `scenario`)
----
+
 
 ## September 2, 2026
 
@@ -81,7 +81,6 @@
     - Added response field: `dataStructureId`
     - Removed response field: `datastructureId`
 
----
 
 ## June 17, 2026
 
@@ -127,7 +126,6 @@
     - Removed path parameter: `orgId`
     - Added parameter: `x-organization-id`
 
----
 
 ## February 1, 2026
 
@@ -137,5 +135,3 @@
 - `GET` **Export activity logs**
 - `GET` **Get operations count**
 - `GET` **Get operations summary**
-
----
