@@ -22,17 +22,19 @@ The Fusion API is currently in an **experimental phase** as we actively develop 
 
 ## Getting Started with Integration
 
-To begin integrating with the Workfront Fusion API, follow these steps:
+You can use the Fusion API in two ways: **call the REST API** from your own code, or use the **Adobe Fusion connector** inside a Fusion scenario. Requests can be authenticated as a Fusion **user** or as a **technical account** (OAuth Server-to-Server). Both are supported for API calls and in the Adobe Fusion connector.
 
-1. **[Credentials](./credentials/index.md)** - Set up OAuth Server-to-Server authentication through the Adobe Developer Console
+Most integrations use a technical account. Start with the **[Authentication overview](./authentication/index.md)**, then follow these steps:
 
-2. **[Authentication Guide](./authentication/index.md)** - Learn how to generate and use access tokens to securely call the Fusion API
+1. **[Create credentials](./credentials/index.md)** - In the Adobe Developer Console, add the Adobe Fusion API with an OAuth Server-to-Server credential. This creates the technical account.
 
-3. **[API Headers](./api_headers/index.md)** - Understand the required headers for properly formatting your API requests
+2. **[Give the technical account access](./technical_accounts/index.md)** - Add it to teams for team access, or make it an Organization Owner for organization-wide access. Organization-wide access and admin-level actions, such as activity logs, also need admin access in the Adobe Admin Console. Without this step, requests return no data.
 
-4. **[Technical Accounts](./technical_accounts/index.md)** - Configure permissions for technical accounts to control access
+3. Then choose your path:
+   * **Call the REST API** - [Generate an access token](./authentication/index.md#call-the-rest-api) and send it with the [required API headers](./api_headers/index.md).
+   * **Use the Adobe Fusion connector** - [Create an IMS Server to server connection](./authentication/index.md#use-the-adobe-fusion-connector) in a scenario.
 
-5. **[Usage Notes](./usage_notes/index.md)** - Review API usage guidelines and best practices
+4. **[Usage Notes](./usage_notes/index.md)** - Review API usage guidelines and best practices.
 
 ## Current Features
 
