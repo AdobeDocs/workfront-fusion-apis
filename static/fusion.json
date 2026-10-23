@@ -78,7 +78,7 @@
     },
     {
       "name": "Incomplete Executions",
-      "description": "Endpoints for managing incomplete executions within your organization. These endpoints allow you to list all incomplete executions scoped to a scenario and retrieve full details for a specific incomplete execution."
+      "description": "Endpoints for managing incomplete executions within your organization. These endpoints allow you to list all incomplete executions scoped to a scenario, retrieve full details for a specific incomplete execution, view its scenario blueprint and failed data bundle, update the blueprint or failing module before a retry, and delete incomplete executions."
     }
   ],
   "paths": {
@@ -383,7 +383,7 @@
             "name": "fields",
             "required": false,
             "in": "query",
-            "description": "Comma-separated list of fields to include in the response.\n\nAllowed fields:\n- id\n- name\n- teamId\n- description\n- folderId\n- usedPackages\n- isInvalid\n- isActive\n- isLocked\n- isPaused\n- isWaiting\n- sequential\n- lastEdit\n- scheduling\n- hookId\n- deleted\n- deletedBy\n- blueprint",
+            "description": "Comma-separated list of fields to include in the response.\n\nAllowed fields:\n- id\n- name\n- teamId\n- description\n- folderId\n- usedPackages\n- isInvalid\n- isActive\n- isLocked\n- isPaused\n- isWaiting\n- sequential\n- lastEdit\n- scheduling\n- hookId\n- deleted\n- deletedBy\n- blueprint\n- debug",
             "schema": {
               "example": "id,name",
               "type": "string"
@@ -916,6 +916,142 @@
           }
         ],
         "summary": "Get scenario dependencies",
+        "tags": [
+          "Scenarios"
+        ]
+      }
+    },
+    "/api/v3/scenarios/validate": {
+      "post": {
+        "description": "Structurally validates the given blueprint against the team (module references, connections, required fields) without creating a scenario or persisting any change.",
+        "operationId": "ScenariosControllerV3_validateBlueprint_v3",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidateBlueprintRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Blueprint is structurally valid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidateBlueprintResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "Bad request",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Access denied",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ResourceNotFound",
+                  "status": 404,
+                  "title": "Resource not found",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "Validate a blueprint",
         "tags": [
           "Scenarios"
         ]
@@ -3232,6 +3368,247 @@
         ]
       }
     },
+    "/api/v3/connections/{connectionId}/clone": {
+      "post": {
+        "description": "Creates a new connection with the same credentials and settings as the source connection.\n\n- `teamId` defaults to the source connection's team; `name` defaults to `\"{source name} (clone)\"`.\n- Requires edit permission on the source connection and permission to add connections to the target team.\n- The source connection is tested first; if the test fails, nothing is created and `400` is returned.\n- External-system references (`extRefs`) are not copied.",
+        "operationId": "ConnectionsV3Controller_cloneConnection_v3",
+        "parameters": [
+          {
+            "name": "connectionId",
+            "required": true,
+            "in": "path",
+            "description": "Numeric ID of the connection to clone.",
+            "schema": {
+              "example": 12345,
+              "type": "number"
+            }
+          },
+          {
+            "name": "x-organization-id",
+            "in": "header",
+            "description": "Fusion organization ID the request is made in. Required for non-headless callers; headless callers are resolved from the IMS organization (`x-gw-ims-org-id`).",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "12345"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CloneConnectionV3BodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Connection cloned successfully. The `Location` header points to the new connection.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CloneConnectionV3ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "teamId must not be less than 1",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "You do not have permission to add connections to team 12345.",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ResourceNotFound",
+                  "status": 404,
+                  "title": "Connection not found",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "Clone a connection",
+        "tags": [
+          "Connections"
+        ]
+      }
+    },
+    "/api/v3/connections/assets/{name}/{variant}/{size}": {
+      "get": {
+        "description": "Returns a connector PNG asset (`icon` or `color` rendition) at the requested size. Requires a valid IMS user token; no specific permission is needed. `name` accepts both the new connector names (e.g. `adobe-workfront-promise`) and their legacy aliases (e.g. `workfront-workfront3`).",
+        "operationId": "ConnectionAssetsV3Controller_getConnectionAsset_v3",
+        "parameters": [
+          {
+            "name": "name",
+            "required": true,
+            "in": "path",
+            "description": "Connector or key type name.",
+            "schema": {
+              "pattern": "^[a-z][0-9a-z-]*[0-9a-z]$",
+              "example": "adobe-workfront-promise",
+              "type": "string"
+            }
+          },
+          {
+            "name": "variant",
+            "required": true,
+            "in": "path",
+            "description": "Asset rendition.",
+            "schema": {
+              "example": "icon",
+              "type": "string",
+              "enum": [
+                "icon",
+                "color"
+              ]
+            }
+          },
+          {
+            "name": "size",
+            "required": true,
+            "in": "path",
+            "description": "Asset size in pixels.",
+            "schema": {
+              "example": 128,
+              "type": "number",
+              "enum": [
+                32,
+                64,
+                128,
+                256,
+                512
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PNG image",
+            "content": {
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid name, variant, or size"
+          },
+          "403": {
+            "description": "Missing or invalid token"
+          },
+          "404": {
+            "description": "Asset not found"
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "Get a connector asset",
+        "tags": [
+          "Connections"
+        ]
+      }
+    },
     "/api/v3/keys": {
       "get": {
         "description": "Returns a paginated, filterable list of keys in the organization that the requesting user is permitted to view. Supply `teamId` in the property query to restrict results to one team.",
@@ -3670,6 +4047,90 @@
         ]
       }
     },
+    "/api/v3/keys/assets/{name}/{variant}/{size}": {
+      "get": {
+        "description": "Returns a key type PNG asset (`icon` or `color` rendition) at the requested size. Requires a valid IMS user token; no specific permission is needed.",
+        "operationId": "KeyAssetsV3Controller_getKeyAsset_v3",
+        "parameters": [
+          {
+            "name": "name",
+            "required": true,
+            "in": "path",
+            "description": "Connector or key type name.",
+            "schema": {
+              "pattern": "^[a-z][0-9a-z-]*[0-9a-z]$",
+              "example": "adobe-workfront-promise",
+              "type": "string"
+            }
+          },
+          {
+            "name": "variant",
+            "required": true,
+            "in": "path",
+            "description": "Asset rendition.",
+            "schema": {
+              "example": "icon",
+              "type": "string",
+              "enum": [
+                "icon",
+                "color"
+              ]
+            }
+          },
+          {
+            "name": "size",
+            "required": true,
+            "in": "path",
+            "description": "Asset size in pixels.",
+            "schema": {
+              "example": 128,
+              "type": "number",
+              "enum": [
+                32,
+                64,
+                128,
+                256,
+                512
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PNG image",
+            "content": {
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid name, variant, or size"
+          },
+          "403": {
+            "description": "Missing or invalid token"
+          },
+          "404": {
+            "description": "Asset not found"
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "Get a key type asset",
+        "tags": [
+          "Keys"
+        ]
+      }
+    },
     "/api/v3/hooks/dependents": {
       "get": {
         "description": "Reverse dependency lookup. Returns the hooks (id, name) in the organization that reference the given resource (`kind` + `id`). Only `kind=connection` is supported. Returns an empty array when nothing depends on it.",
@@ -3814,7 +4275,7 @@
     },
     "/api/v3/hooks/{hookId}/clone": {
       "post": {
-        "description": "Creates a copy of an existing hook. The clone is created in the source hook's team by default, or in the team given by `teamId` in the request body; the caller must have permission to add hooks to the resolved team. Reference replacements (connection, data structure, key) can be supplied to re-point the clone at other resources.",
+        "description": "Creates a copy of a hook in the source hook's team, or in the team set by `teamId`. You need permission to add hooks to that team.\n\nCall `GET /api/v3/hooks/{hookId}/dependencies` first to see which connection, data structure, and key the hook uses. Only those can be swapped via `replacements`.\n\nWhen cloning into another team, you must provide a connection from that team. Data structures and keys are copied automatically.",
         "operationId": "HooksV3Controller_clone_v3",
         "parameters": [
           {
@@ -5217,6 +5678,173 @@
         ]
       }
     },
+    "/api/v3/hooks/assets/{name}/{variant}/{size}": {
+      "get": {
+        "description": "Returns a hook manifest's branding PNG (icon or full-color logo) at the requested size. Accepts both the canonical (stored) and public hook type name. Requires a valid user token; no permissions are checked.",
+        "operationId": "HookAssetsController_getAsset_v3",
+        "parameters": [
+          {
+            "name": "name",
+            "required": true,
+            "in": "path",
+            "description": "Hook type name (canonical or public alias).",
+            "schema": {
+              "example": "adobe-workfront",
+              "type": "string"
+            }
+          },
+          {
+            "name": "variant",
+            "required": true,
+            "in": "path",
+            "description": "Asset variant: `icon` is the flat/mono glyph, `color` is the full-color logo.",
+            "schema": {
+              "enum": [
+                "icon",
+                "color"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "size",
+            "required": true,
+            "in": "path",
+            "description": "Square PNG size, in pixels.",
+            "schema": {
+              "enum": [
+                "32",
+                "64",
+                "128",
+                "256",
+                "512"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PNG asset retrieved successfully.",
+            "content": {
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "Bad request",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Access denied",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ResourceNotFound",
+                  "status": 404,
+                  "title": "Resource not found",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "Get a hook asset",
+        "tags": [
+          "Hooks"
+        ]
+      }
+    },
     "/api/v3/data-stores": {
       "get": {
         "operationId": "DataStoresV3Controller_list_v3",
@@ -5967,7 +6595,7 @@
         ]
       },
       "delete": {
-        "description": "Force delete of multiple records — the delete always proceeds and reports per-key outcomes. Pass record keys in `id` (comma-separated or repeated), or `all=true` to delete every key. `except` applies only with `all=true`. Returns the keys deleted plus any that failed, and downgrades to 409 when any key failed.",
+        "description": "Force delete of one or more records — the delete always proceeds and reports per-key outcomes. Pass record keys in `id` (comma-separated or repeated), or `all=true` to delete every key. `except` applies only with `all=true`. Returns the keys deleted plus any that failed, and downgrades to 409 when any key failed.",
         "operationId": "DataStoresDataV3Controller_deleteDataMulti_v3",
         "parameters": [
           {
@@ -6480,6 +7108,396 @@
           }
         ],
         "summary": "Get Execution",
+        "tags": [
+          "Logs"
+        ]
+      }
+    },
+    "/api/v3/logs/{executionId}/details": {
+      "get": {
+        "description": "Returns a paginated list of the execution's activity events, such as messages, warnings and errors.",
+        "operationId": "PublicLogController_getExecutionDetails[1]_v3",
+        "parameters": [
+          {
+            "name": "executionId",
+            "required": true,
+            "in": "path",
+            "description": "The unique identifier for the execution.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "scenarioId",
+            "required": false,
+            "in": "query",
+            "description": "Scenario identifier. Mutually exclusive with dlqId.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dlqId",
+            "required": false,
+            "in": "query",
+            "description": "Incomplete execution (DLQ) identifier. Mutually exclusive with scenarioId.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "property",
+            "required": false,
+            "in": "query",
+            "description": "```\nProperty filters. Can be repeated and are AND-ed together.\n\nAllowed fields and operators:\n- id         == != > >= < <=\n- type       == !=\n- level      == != > >= < <=\n- message    == != ~\n\nOperators:\n- ==  (equals)\n- !=  (not equals)\n- >   (greater than)\n- >=  (greater than or equal)\n- <   (less than)\n- <=  (less than or equal)\n- ~   (case-insensitive regex match)\n\nPrefix with ! to negate (e.g. !level==2). Any other operator returns 400.\n```",
+            "schema": {
+              "example": [
+                "level>=4"
+              ],
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "start",
+            "required": false,
+            "in": "query",
+            "description": "Opaque cursor for the next page, encoding the last event's position: pass `_page.next` from the previous response as-is, with the same `orderby`. Omit for the first page.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            },
+            "description": "Maximum number of items to return. Must be a positive integer. Range 1–200."
+          },
+          {
+            "name": "orderby",
+            "required": false,
+            "in": "query",
+            "description": "Sort direction by id: +id (ascending, default) or -id (descending).",
+            "schema": {
+              "example": "+id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetailSearchResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "Bad Request: exactly one of scenarioId or dlqId is required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Access denied",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ResourceNotFound",
+                  "status": 404,
+                  "title": "Not Found",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "Get Execution Details",
+        "tags": [
+          "Logs"
+        ]
+      }
+    },
+    "/api/v3/logs/{executionId}/bundles": {
+      "get": {
+        "description": "Returns a paginated list of a module's input and output data (\"bundles\") for a single execution, in a fixed order: cycle, module, operation, input before output, page. Custom ordering is not supported.",
+        "operationId": "PublicLogController_getExecutionBundles[1]_v3",
+        "parameters": [
+          {
+            "name": "executionId",
+            "required": true,
+            "in": "path",
+            "description": "The unique identifier for the execution.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "scenarioId",
+            "required": false,
+            "in": "query",
+            "description": "Scenario identifier. Mutually exclusive with dlqId.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dlqId",
+            "required": false,
+            "in": "query",
+            "description": "Incomplete execution (DLQ) identifier. Mutually exclusive with scenarioId.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "property",
+            "required": false,
+            "in": "query",
+            "description": "```\nProperty filters. Can be repeated and are AND-ed together.\n\nAllowed fields and operators:\n- cycle      == != > >= < <=\n- module     == != > >= < <=\n- operation  == != > >= < <=\n- input      == !=\n\nOperators:\n- ==  (equals)\n- !=  (not equals)\n- >   (greater than)\n- >=  (greater than or equal)\n- <   (less than)\n- <=  (less than or equal)\n\nPrefix with ! to negate (e.g. !module==3). Any other operator returns 400.\n```",
+            "schema": {
+              "example": [
+                "module==3"
+              ],
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "start",
+            "required": false,
+            "in": "query",
+            "description": "Opaque cursor for the next page, encoding the last bundle's `cycle`, `module`, `operation`, `input`, `page` and `error`: pass `_page.next` from the previous response as-is. Omit for the first page.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            },
+            "description": "Maximum number of items to return. Must be a positive integer. Range 1–200."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BundleSearchResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "Bad Request: exactly one of scenarioId or dlqId is required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Access denied",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ResourceNotFound",
+                  "status": 404,
+                  "title": "Not Found",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "Get Execution Bundles",
         "tags": [
           "Logs"
         ]
@@ -8596,6 +9614,177 @@
         "tags": [
           "Incomplete Executions"
         ]
+      },
+      "delete": {
+        "description": "Permanently deletes incomplete executions (DLQs) for an automation scenario. Select records using `id=a,b` (up to 50) or `all=true` (with optional `except=`). Requires Automation Edit permission on the scenario because this operation can delete records in bulk. Returns deleted and failed IDs. Returns HTTP 409 if any record fails while still removing valid items.",
+        "operationId": "DlqV3Controller_deleteMany_v3",
+        "parameters": [
+          {
+            "name": "x-organization-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "scenarioId",
+            "required": true,
+            "in": "query",
+            "description": "Automation scenario whose DLQs are deleted.",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "id",
+            "required": false,
+            "in": "query",
+            "description": "Ids to delete. Comma-separated (`id=1,2,3`) or repeated (`id=1&id=2`). Mutually exclusive with `all`.",
+            "schema": {
+              "example": [
+                "1",
+                "2",
+                "3"
+              ],
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "all",
+            "required": false,
+            "in": "query",
+            "description": "Delete every resource in scope. Mutually exclusive with `id`.",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "except",
+            "required": false,
+            "in": "query",
+            "description": "Ids to exclude. Only allowed together with `all=true`.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All requested DLQs were deleted successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DlqDeleteResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "Invalid query parameters",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Access denied",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "One or more DLQs could not be deleted; valid records were still deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DlqDeleteResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "Delete DLQs for a scenario",
+        "tags": [
+          "Incomplete Executions"
+        ]
       }
     },
     "/api/v3/dlqs/{id}": {
@@ -8719,6 +9908,435 @@
           }
         ],
         "summary": "Get DLQ by ID",
+        "tags": [
+          "Incomplete Executions"
+        ]
+      },
+      "patch": {
+        "description": "Updates the stored blueprint snapshot and/or failing module ID so the execution run can resume with corrected configuration. At least one field is required. A new blueprint is validated against the scenario team before it is saved; connections and webhooks must belong to that team.",
+        "operationId": "DlqV3Controller_patch_v3",
+        "parameters": [
+          {
+            "name": "x-organization-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Unique string identifier of the DLQ record to update.",
+            "schema": {
+              "example": "84a63c7308cf48abb63dbf935b1aa22f",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/DlqPatchV3Dto"
+                  }
+                ],
+                "anyOf": [
+                  {
+                    "required": [
+                      "blueprint"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "moduleId"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "DLQ record updated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DlqV3Dto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "BadRequest",
+                  "status": 400,
+                  "title": "Missing fields or blueprint failed validation",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Access denied",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ResourceNotFound",
+                  "status": 404,
+                  "title": "DLQ record not found",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "Update DLQ blueprint or module",
+        "tags": [
+          "Incomplete Executions"
+        ]
+      }
+    },
+    "/api/v3/dlqs/{id}/blueprint": {
+      "get": {
+        "description": "Retrieves the automation blueprint snapshot captured at the time of execution failure, along with the failing module ID, sequence counters, and failure reason. Modules reference connections and webhooks as `connection` and `hook`, and designer sample data is omitted.",
+        "operationId": "DlqV3Controller_getBlueprint_v3",
+        "parameters": [
+          {
+            "name": "x-organization-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Unique string identifier of the DLQ record.",
+            "schema": {
+              "example": "84a63c7308cf48abb63dbf935b1aa22f",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stored scenario blueprint retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DlqBlueprintV3Dto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Access denied",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ResourceNotFound",
+                  "status": 404,
+                  "title": "DLQ or blueprint not found",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "Get DLQ blueprint",
+        "tags": [
+          "Incomplete Executions"
+        ]
+      }
+    },
+    "/api/v3/dlqs/{id}/bundle": {
+      "get": {
+        "description": "Returns the data the failed execution was processing when the error occurred, keyed by module ID. This is the stored snapshot that a retry runs again, not the execution log.",
+        "operationId": "DlqV3Controller_getBundle_v3",
+        "parameters": [
+          {
+            "name": "x-organization-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Unique string identifier of the DLQ record.",
+            "schema": {
+              "example": "84a63c7308cf48abb63dbf935b1aa22f",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The execution data bundle: an object keyed by module ID, each value holding that module output.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "example": {
+                    "1": {
+                      "id": 98765,
+                      "name": "New task",
+                      "status": "NEW"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Unauthorized",
+                  "status": 401,
+                  "title": "Authentication required",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "Forbidden",
+                  "status": 403,
+                  "title": "Access denied",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "ResourceNotFound",
+                  "status": 404,
+                  "title": "DLQ or bundle not found",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "InternalServerError",
+                  "status": 500,
+                  "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Authorization": [],
+            "Organization ID": [],
+            "API Key": [],
+            "Region": []
+          }
+        ],
+        "summary": "Get DLQ data bundle",
         "tags": [
           "Incomplete Executions"
         ]
@@ -9798,6 +11416,308 @@
         },
         "required": [
           "items"
+        ]
+      },
+      "ValidateBlueprintRequestDto": {
+        "type": "object",
+        "properties": {
+          "teamId": {
+            "type": "number",
+            "description": "Team ID to validate the blueprint against.",
+            "example": 88
+          },
+          "blueprint": {
+            "type": "object",
+            "description": "Blueprint to validate.",
+            "example": {
+              "flow": [
+                {
+                  "id": 1,
+                  "mapper": {
+                    "n": "1",
+                    "style": {
+                      "imageReference": {}
+                    },
+                    "locale": "en-US",
+                    "prompt": "ocean and pineapple cocktail",
+                    "extension": "default",
+                    "structure": {
+                      "imageReference": {}
+                    }
+                  },
+                  "module": "adobe-firefly:generateAnImage2",
+                  "version": 1,
+                  "metadata": {
+                    "expect": [
+                      {
+                        "name": "prompt",
+                        "type": "text",
+                        "label": "Prompt",
+                        "required": true
+                      },
+                      {
+                        "name": "modelVersion",
+                        "type": "select",
+                        "label": "Model version",
+                        "validate": {
+                          "enum": [
+                            "image3",
+                            "image3_custom",
+                            "image4_standard",
+                            "image4_ultra",
+                            "image4_custom"
+                          ]
+                        }
+                      },
+                      {
+                        "name": "n",
+                        "type": "number",
+                        "label": "Number of variations"
+                      },
+                      {
+                        "name": "extension",
+                        "type": "select",
+                        "label": "Generated image format",
+                        "required": true,
+                        "validate": {
+                          "enum": [
+                            "jpeg",
+                            "png",
+                            "webp",
+                            "default"
+                          ]
+                        }
+                      },
+                      {
+                        "name": "negativePrompt",
+                        "type": "text",
+                        "label": "Negative prompt"
+                      },
+                      {
+                        "name": "contentClass",
+                        "type": "select",
+                        "label": "Content class",
+                        "validate": {
+                          "enum": [
+                            "photo",
+                            "art"
+                          ]
+                        }
+                      },
+                      {
+                        "name": "seeds",
+                        "type": "array",
+                        "label": "Seeds"
+                      },
+                      {
+                        "name": "size",
+                        "type": "select",
+                        "label": "Size",
+                        "validate": {
+                          "enum": [
+                            "2048,2048",
+                            "1024,1024",
+                            "2304,1792",
+                            "1792,2304",
+                            "2688,1536",
+                            "1344,768",
+                            "1152,896",
+                            "896,1152"
+                          ]
+                        }
+                      },
+                      {
+                        "name": "visualIntensity",
+                        "type": "number",
+                        "label": "Visual intensity"
+                      },
+                      {
+                        "name": "locale",
+                        "type": "text",
+                        "label": "Locale"
+                      },
+                      {
+                        "name": "tileable",
+                        "type": "boolean",
+                        "label": "Tileable"
+                      },
+                      {
+                        "name": "structure",
+                        "spec": [
+                          {
+                            "name": "imageReference",
+                            "spec": [
+                              {
+                                "name": "source",
+                                "type": "select",
+                                "label": "Source",
+                                "validate": {
+                                  "enum": [
+                                    "file",
+                                    "presignedUrl"
+                                  ]
+                                }
+                              },
+                              {
+                                "name": "strength",
+                                "type": "number",
+                                "label": "Strength"
+                              }
+                            ],
+                            "type": "collection",
+                            "label": "Image reference"
+                          }
+                        ],
+                        "type": "collection",
+                        "label": "Structure"
+                      },
+                      {
+                        "name": "style",
+                        "spec": [
+                          {
+                            "name": "imageReference",
+                            "spec": [
+                              {
+                                "name": "source",
+                                "type": "select",
+                                "label": "Source",
+                                "validate": {
+                                  "enum": [
+                                    "file",
+                                    "presignedUrl"
+                                  ]
+                                }
+                              },
+                              {
+                                "name": "strength",
+                                "type": "number",
+                                "label": "Strength"
+                              },
+                              {
+                                "name": "presets",
+                                "type": "array",
+                                "label": "Presets"
+                              }
+                            ],
+                            "type": "collection",
+                            "label": "Image reference"
+                          }
+                        ],
+                        "type": "collection",
+                        "label": "Style"
+                      }
+                    ],
+                    "restore": {
+                      "size": {
+                        "mode": "chose",
+                        "label": ""
+                      },
+                      "seeds": {
+                        "mode": "chose",
+                        "items": []
+                      },
+                      "style": {
+                        "nested": {
+                          "imageReference": {
+                            "nested": {
+                              "source": {
+                                "mode": "chose",
+                                "label": ""
+                              },
+                              "presets": {
+                                "mode": "chose",
+                                "items": []
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "tileable": {
+                        "mode": "chose"
+                      },
+                      "extension": {
+                        "mode": "chose",
+                        "label": "Default"
+                      },
+                      "structure": {
+                        "nested": {
+                          "imageReference": {
+                            "nested": {
+                              "source": {
+                                "mode": "chose",
+                                "label": ""
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "connection": {
+                        "label": "My Adobe Firefly Connection connection"
+                      },
+                      "contentClass": {
+                        "mode": "chose",
+                        "label": ""
+                      },
+                      "modelVersion": {
+                        "mode": "chose",
+                        "label": ""
+                      }
+                    },
+                    "designer": {
+                      "x": 0,
+                      "y": 0
+                    },
+                    "parameters": [
+                      {
+                        "name": "connection",
+                        "type": "account",
+                        "label": "Connection",
+                        "required": true
+                      }
+                    ]
+                  },
+                  "parameters": {
+                    "connection": 23252
+                  }
+                }
+              ],
+              "name": "Integration Adobe Firefly",
+              "metadata": {
+                "instant": false,
+                "version": 1,
+                "designer": {
+                  "orphans": []
+                },
+                "scenario": {
+                  "dlq": false,
+                  "dataloss": false,
+                  "maxErrors": 3,
+                  "autoCommit": true,
+                  "roundtrips": 1,
+                  "sequential": false,
+                  "confidential": false,
+                  "autoCommitTriggerLast": true
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "teamId",
+          "blueprint"
+        ]
+      },
+      "ValidateBlueprintResponseDto": {
+        "type": "object",
+        "properties": {
+          "valid": {
+            "type": "boolean",
+            "description": "Whether the blueprint is structurally valid.",
+            "example": true
+          }
+        },
+        "required": [
+          "valid"
         ]
       },
       "ReplacementDto": {
@@ -11046,6 +12966,42 @@
           "items"
         ]
       },
+      "CloneConnectionV3BodyDto": {
+        "type": "object",
+        "properties": {
+          "teamId": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Target team for the clone. Defaults to the source connection's team; the caller must have permission to add connections to the resolved team.",
+            "example": 12345
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 128,
+            "description": "Name for the cloned connection. Defaults to `\"{source name} (clone)\"`.",
+            "example": "My Connection (clone)"
+          }
+        }
+      },
+      "CloneConnectionV3ResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "ID of the cloned connection.",
+            "example": 12346
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the cloned connection.",
+            "example": "My Connection (clone)"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
       "KeyTypeName": {
         "type": "string",
         "enum": [
@@ -12127,6 +14083,340 @@
           "items"
         ]
       },
+      "CursorPageMetadataDto": {
+        "type": "object",
+        "properties": {
+          "orderby": {
+            "type": "string",
+            "description": "Sort order expression",
+            "example": "+id"
+          },
+          "start": {
+            "type": "string",
+            "description": "Opaque cursor the current page was requested with.",
+            "example": "WzIsIjIwMjYtMDItMjdUMjI6Mzg6NTkuODQ2WiJd"
+          },
+          "next": {
+            "type": "string",
+            "description": "Opaque cursor for the next page. Pass it back unchanged as `start`. Absent on the last page.",
+            "example": "WzQsIjIwMjYtMDItMjdUMjI6Mzk6MDAuMTAyWiJd"
+          },
+          "property": {
+            "description": "Applied `property` filter expression(s) from the request",
+            "example": [
+              "teamId==304"
+            ],
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          "type": {
+            "type": "string",
+            "description": "Resource type filter"
+          },
+          "count": {
+            "type": "number",
+            "description": "Number of items in the current page",
+            "example": 100
+          }
+        },
+        "required": [
+          "count"
+        ]
+      },
+      "SourceDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Kind of component that emitted the event. Currently always `module`.",
+            "enum": [
+              "module",
+              "cycle",
+              "route",
+              "execution",
+              "system",
+              "other"
+            ],
+            "example": "module"
+          },
+          "id": {
+            "description": "Identifier of the module in the scenario blueprint.",
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the module within its app.",
+            "example": "SetVariable2"
+          },
+          "app": {
+            "type": "string",
+            "description": "App the module belongs to.",
+            "example": "util"
+          },
+          "version": {
+            "type": "string",
+            "description": "Version of the app the module belongs to.",
+            "example": "1.13.4"
+          },
+          "data": {
+            "type": "object",
+            "description": "Module state at the time of the event (e.g. the last processed item of a trigger). Shape depends on the module.",
+            "additionalProperties": true,
+            "example": {
+              "lastId": 0,
+              "lastDate": "2025-01-01T20:14:00.000Z",
+              "sameDateIds": []
+            }
+          },
+          "variables": {
+            "type": "object",
+            "description": "Scenario variables at the time of the event. Shape depends on the scenario.",
+            "additionalProperties": true,
+            "example": {
+              "key": true
+            }
+          },
+          "stack": {
+            "type": "string",
+            "description": "Stack trace associated with the event, when available.",
+            "example": "This is an example stack"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "name",
+          "app",
+          "version"
+        ]
+      },
+      "PublicDetailErrorDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Error or warning class name.",
+            "example": "InvalidConfigurationError"
+          },
+          "desc": {
+            "type": "string",
+            "description": "Human-readable error or warning message.",
+            "example": "This is an example description"
+          },
+          "suberrors": {
+            "type": "array",
+            "description": "Nested errors that caused this one, in the same `name` / `desc` / `suberrors` shape.",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "PublicDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Sequence number of the event within the execution, starting at 1. Not unique: the sequence can restart when an execution is resumed.",
+            "example": 1
+          },
+          "type": {
+            "type": "number",
+            "description": "Event type code: `1` initialize, `2` finalize, `3` cycle start, `4` cycle end, `5` operation start, `6` operation end, `7` commit start, `8` commit end, `9` rollback start, `10` rollback end, `11` routing start, `12` module initialize, `13` module finalize, `14` bundle filtered out, `15` aggregation failed, `16` operation directive, `17` error handler invoked, `18` bundle passed the filter, `20` message, `21` module message, `22` module warning, `23` module error, `24` scenario started, `25` scenario completed, `26` scenario metadata.",
+            "example": 12
+          },
+          "executionId": {
+            "type": "string",
+            "description": "Identifier of the execution the event belongs to. A 32-character lowercase string.",
+            "example": "ad0c54594a2d403380b677aa29e8057f"
+          },
+          "level": {
+            "type": "number",
+            "description": "Event severity: `1` no status, `2` success, `3` warning, `4` error, `5` fatal.",
+            "enum": [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "example": 2
+          },
+          "message": {
+            "type": "string",
+            "description": "Free-text message of the event. Often null.",
+            "nullable": true,
+            "example": "Operation completed."
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Event time, as an ISO 8601 timestamp in UTC.",
+            "example": "2026-02-27T22:38:59.846Z"
+          },
+          "time": {
+            "type": "number",
+            "description": "Time elapsed since the execution started, in milliseconds.",
+            "example": 24
+          },
+          "source": {
+            "description": "Component (usually a module) that emitted the event.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SourceDto"
+              }
+            ]
+          },
+          "details": {
+            "description": "Errors or warnings attached to the event. Present on warning and error events.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicDetailErrorDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "executionId",
+          "level",
+          "time"
+        ]
+      },
+      "DetailSearchResponseDto": {
+        "type": "object",
+        "properties": {
+          "_page": {
+            "description": "Pagination metadata",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CursorPageMetadataDto"
+              }
+            ]
+          },
+          "_links": {
+            "description": "Pagination links",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PageLinksDto"
+              }
+            ]
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicDetailDto"
+            }
+          }
+        },
+        "required": [
+          "_page",
+          "_links",
+          "items"
+        ]
+      },
+      "PublicBundleDataDto": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "description": "Time the bundles were recorded, as an ISO 8601 timestamp in UTC.",
+            "example": "2026-02-27T22:38:59.846Z"
+          },
+          "cycle": {
+            "type": "number",
+            "description": "Cycle number of the execution, starting at 1.",
+            "example": 1
+          },
+          "module": {
+            "type": "number",
+            "description": "Identifier of the module in the scenario blueprint.",
+            "example": 3
+          },
+          "operation": {
+            "type": "number",
+            "description": "Sequence number of the module operation within the cycle, starting at 1.",
+            "example": 1
+          },
+          "input": {
+            "type": "boolean",
+            "description": "Bundle direction: `true` = bundles the module received, `false` = bundles the module produced.",
+            "example": true
+          },
+          "error": {
+            "type": "boolean",
+            "description": "Whether the bundles belong to the module's error-handler run rather than its regular run.",
+            "example": false
+          },
+          "data": {
+            "description": "Bundles, each a JSON-encoded string. An operation with many bundles is split across consecutive items. A bundle too large to store is replaced by a JSON string with an `error` message and a truncated `data` preview.",
+            "example": [
+              "{\"url\":\"https://example.com\",\"method\":\"GET\",\"statusCode\":200}"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "timestamp",
+          "cycle",
+          "module",
+          "operation",
+          "input",
+          "error",
+          "data"
+        ]
+      },
+      "BundleSearchResponseDto": {
+        "type": "object",
+        "properties": {
+          "_page": {
+            "description": "Pagination metadata",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CursorPageMetadataDto"
+              }
+            ]
+          },
+          "_links": {
+            "description": "Pagination links",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PageLinksDto"
+              }
+            ]
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicBundleDataDto"
+            }
+          }
+        },
+        "required": [
+          "_page",
+          "_links",
+          "items"
+        ]
+      },
       "DataStructureBaseDto": {
         "type": "object",
         "properties": {
@@ -12801,6 +15091,21 @@
           "items"
         ]
       },
+      "DlqPatchV3Dto": {
+        "type": "object",
+        "properties": {
+          "blueprint": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Replacement blueprint for the failed run, in the v3 format returned by GET /dlqs/{id}/blueprint (`connection`/`hook`). Required unless moduleId is provided."
+          },
+          "moduleId": {
+            "type": "number",
+            "description": "ID of the failing module the DLQ resumes from. At least one of this field or blueprint is required.",
+            "example": 3
+          }
+        }
+      },
       "DlqV3Dto": {
         "type": "object",
         "properties": {
@@ -12898,6 +15203,65 @@
           "_page",
           "_links",
           "items"
+        ]
+      },
+      "DlqDeleteResponseDto": {
+        "type": "object",
+        "properties": {
+          "deleted": {
+            "description": "Ids that were deleted.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "failed": {
+            "description": "Ids that could not be deleted, with a reason.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeleteFailureDto"
+            }
+          }
+        },
+        "required": [
+          "deleted",
+          "failed"
+        ]
+      },
+      "DlqBlueprintV3Dto": {
+        "type": "object",
+        "properties": {
+          "blueprint": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "The scenario blueprint stored with the failed run, in the v3 format: modules reference connections and webhooks as `connection` and `hook`."
+          },
+          "teamId": {
+            "type": "number",
+            "description": "Team that owns the automation.",
+            "example": 17750
+          },
+          "moduleId": {
+            "type": "number",
+            "description": "ID of the module that failed.",
+            "example": 3
+          },
+          "moduleSequenceId": {
+            "type": "number",
+            "description": "Module id sequence of the automation; the designer continues numbering new modules from it.",
+            "example": 12
+          },
+          "reason": {
+            "type": "string",
+            "description": "Error message that stopped the run.",
+            "example": "Failed to process the event"
+          }
+        },
+        "required": [
+          "blueprint",
+          "moduleId",
+          "moduleSequenceId",
+          "reason"
         ]
       }
     },
