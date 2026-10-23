@@ -14083,31 +14083,102 @@
           "items"
         ]
       },
+      "CursorPageMetadataDto": {
+        "type": "object",
+        "properties": {
+          "orderby": {
+            "type": "string",
+            "description": "Sort order expression",
+            "example": "+id"
+          },
+          "start": {
+            "type": "string",
+            "description": "Opaque cursor the current page was requested with.",
+            "example": "WzIsIjIwMjYtMDItMjdUMjI6Mzg6NTkuODQ2WiJd"
+          },
+          "next": {
+            "type": "string",
+            "description": "Opaque cursor for the next page. Pass it back unchanged as `start`. Absent on the last page.",
+            "example": "WzQsIjIwMjYtMDItMjdUMjI6Mzk6MDAuMTAyWiJd"
+          },
+          "property": {
+            "description": "Applied `property` filter expression(s) from the request",
+            "example": [
+              "teamId==304"
+            ],
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          "type": {
+            "type": "string",
+            "description": "Resource type filter"
+          },
+          "count": {
+            "type": "number",
+            "description": "Number of items in the current page",
+            "example": 100
+          }
+        },
+        "required": [
+          "count"
+        ]
+      },
       "SourceDto": {
         "type": "object",
         "properties": {
           "type": {
             "type": "string",
+            "description": "Kind of component that emitted the event. Currently always `module`.",
+            "enum": [
+              "module",
+              "cycle",
+              "route",
+              "execution",
+              "system",
+              "other"
+            ],
             "example": "module"
           },
           "id": {
-            "type": "object",
-            "example": "ad0c54594a2d403380b677aa29e8057f"
+            "description": "Identifier of the module in the scenario blueprint.",
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "example": 1
           },
           "name": {
             "type": "string",
+            "description": "Name of the module within its app.",
             "example": "SetVariable2"
           },
           "app": {
             "type": "string",
+            "description": "App the module belongs to.",
             "example": "util"
           },
           "version": {
             "type": "string",
+            "description": "Version of the app the module belongs to.",
             "example": "1.13.4"
           },
           "data": {
             "type": "object",
+            "description": "Module state at the time of the event (e.g. the last processed item of a trigger). Shape depends on the module.",
+            "additionalProperties": true,
             "example": {
               "lastId": 0,
               "lastDate": "2025-01-01T20:14:00.000Z",
@@ -14116,12 +14187,15 @@
           },
           "variables": {
             "type": "object",
+            "description": "Scenario variables at the time of the event. Shape depends on the scenario.",
+            "additionalProperties": true,
             "example": {
               "key": true
             }
           },
           "stack": {
             "type": "string",
+            "description": "Stack trace associated with the event, when available.",
             "example": "This is an example stack"
           }
         },
@@ -14130,10 +14204,7 @@
           "id",
           "name",
           "app",
-          "version",
-          "data",
-          "variables",
-          "stack"
+          "version"
         ]
       },
       "PublicDetailErrorDto": {
@@ -14141,14 +14212,17 @@
         "properties": {
           "name": {
             "type": "string",
+            "description": "Error or warning class name.",
             "example": "InvalidConfigurationError"
           },
           "desc": {
             "type": "string",
+            "description": "Human-readable error or warning message.",
             "example": "This is an example description"
           },
           "suberrors": {
             "type": "array",
+            "description": "Nested errors that caused this one, in the same `name` / `desc` / `suberrors` shape.",
             "items": {
               "type": "object"
             }
@@ -14160,36 +14234,57 @@
         "properties": {
           "id": {
             "type": "number",
+            "description": "Sequence number of the event within the execution, starting at 1. Not unique: the sequence can restart when an execution is resumed.",
             "example": 1
           },
           "type": {
             "type": "number",
-            "example": 1
+            "description": "Event type code: `1` initialize, `2` finalize, `3` cycle start, `4` cycle end, `5` operation start, `6` operation end, `7` commit start, `8` commit end, `9` rollback start, `10` rollback end, `11` routing start, `12` module initialize, `13` module finalize, `14` bundle filtered out, `15` aggregation failed, `16` operation directive, `17` error handler invoked, `18` bundle passed the filter, `20` message, `21` module message, `22` module warning, `23` module error, `24` scenario started, `25` scenario completed, `26` scenario metadata.",
+            "example": 12
           },
           "executionId": {
             "type": "string",
+            "description": "Identifier of the execution the event belongs to. A 32-character lowercase string.",
             "example": "ad0c54594a2d403380b677aa29e8057f"
           },
           "level": {
             "type": "number",
+            "description": "Event severity: `1` no status, `2` success, `3` warning, `4` error, `5` fatal.",
+            "enum": [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
             "example": 2
           },
           "message": {
-            "type": "string"
+            "type": "string",
+            "description": "Free-text message of the event. Often null.",
+            "nullable": true,
+            "example": "Operation completed."
           },
           "timestamp": {
-            "format": "date-time",
             "type": "string",
-            "example": "2021-09-01T00:00:00.000Z"
+            "description": "Event time, as an ISO 8601 timestamp in UTC.",
+            "example": "2026-02-27T22:38:59.846Z"
           },
           "time": {
             "type": "number",
+            "description": "Time elapsed since the execution started, in milliseconds.",
             "example": 24
           },
           "source": {
-            "$ref": "#/components/schemas/SourceDto"
+            "description": "Component (usually a module) that emitted the event.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SourceDto"
+              }
+            ]
           },
           "details": {
+            "description": "Errors or warnings attached to the event. Present on warning and error events.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/PublicDetailErrorDto"
@@ -14211,7 +14306,7 @@
             "description": "Pagination metadata",
             "allOf": [
               {
-                "$ref": "#/components/schemas/PageMetadataDto"
+                "$ref": "#/components/schemas/CursorPageMetadataDto"
               }
             ]
           },
@@ -14241,30 +14336,36 @@
         "properties": {
           "timestamp": {
             "type": "string",
+            "description": "Time the bundles were recorded, as an ISO 8601 timestamp in UTC.",
             "example": "2026-02-27T22:38:59.846Z"
           },
           "cycle": {
             "type": "number",
+            "description": "Cycle number of the execution, starting at 1.",
             "example": 1
           },
           "module": {
             "type": "number",
+            "description": "Identifier of the module in the scenario blueprint.",
             "example": 3
           },
           "operation": {
             "type": "number",
+            "description": "Sequence number of the module operation within the cycle, starting at 1.",
             "example": 1
           },
           "input": {
             "type": "boolean",
+            "description": "Bundle direction: `true` = bundles the module received, `false` = bundles the module produced.",
             "example": true
           },
           "error": {
             "type": "boolean",
-            "example": false,
-            "description": "Whether the module ran as an error handler."
+            "description": "Whether the bundles belong to the module's error-handler run rather than its regular run.",
+            "example": false
           },
           "data": {
+            "description": "Bundles, each a JSON-encoded string. An operation with many bundles is split across consecutive items. A bundle too large to store is replaced by a JSON string with an `error` message and a truncated `data` preview.",
             "example": [
               "{\"url\":\"https://example.com\",\"method\":\"GET\",\"statusCode\":200}"
             ],
@@ -14291,7 +14392,7 @@
             "description": "Pagination metadata",
             "allOf": [
               {
-                "$ref": "#/components/schemas/PageMetadataDto"
+                "$ref": "#/components/schemas/CursorPageMetadataDto"
               }
             ]
           },
