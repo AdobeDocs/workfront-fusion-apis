@@ -1,5 +1,21 @@
 # Changelog
 
+## October 23, 2026
+
+### Added
+
+- `POST` **Validate a blueprint**
+- `POST` **Clone a connection**
+- `GET` **Get a connector asset**
+- `GET` **Get a key type asset**
+- `GET` **Get a hook asset**
+- `GET` **Get Execution Details**
+- `GET` **Get Execution Bundles**
+- `DELETE` **Delete DLQs for a scenario**
+- `PATCH` **Update DLQ blueprint or module**
+- `GET` **Get DLQ blueprint**
+- `GET` **Get DLQ data bundle**
+
 ## October 12, 2026
 
 ### Added
