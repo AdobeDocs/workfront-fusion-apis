@@ -1,5 +1,23 @@
 # Changelog
 
+## October 29, 2026
+
+### Modified
+
+- `GET` **List Executions**
+    - `scenarioId` and `dlqId` can be omitted for organization-wide search
+    - Added response field: `items[].errorCode`
+    - Added response field: `items[].errorMessage`
+    - Added response field: `items[].deactivated`
+    - Added response field: `items[].deactivationReason`
+    - Changed response field type: `items[].modules[]` (now an object with `package`, `module`, `operations`)
+- `GET` **Get Execution**
+    - Added response field: `errorCode`
+    - Added response field: `errorMessage`
+    - Added response field: `deactivated`
+    - Added response field: `deactivationReason`
+    - Changed response field type: `modules[]` (now an object with `package`, `module`, `operations`)
+
 ## October 23, 2026
 
 ### Added
