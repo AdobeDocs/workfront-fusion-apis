@@ -2046,7 +2046,7 @@
             "name": "property",
             "required": false,
             "in": "query",
-            "description": "```\nProperty filters. Can be repeated and are AND-ed together.\n\nAllowed fields:\n- timestamp\n- messageId\n- userId\n- userName\n- teamId\n- teamName\n- entity\n- entityId\n- action\n- message\n\nSupported operators:\n- ==  (equals)\n- !=  (not equals)\n- >   (greater than)\n- >=  (greater than or equal)\n- <   (less than)\n- <=  (less than or equal)\n- ~   (case-insensitive regex match)\n\nSpecial cases:\n- field           → field exists\n- !field          → field does not exist\n```",
+            "description": "```\nProperty filters. Can be repeated and are AND-ed together.\n\nAllowed fields:\n- timestamp\n- messageId\n- userId\n- userName\n- teamId\n- teamName\n- entity\n- entityId\n- action (multi-value)\n- message\n\nFields marked \"multi-value\" accept comma-separated values with == and !=.\nExample: property=action==123,456\n\nSupported operators:\n- ==  (equals)\n- !=  (not equals)\n- >   (greater than)\n- >=  (greater than or equal)\n- <   (less than)\n- <=  (less than or equal)\n- ~   (case-insensitive regex match)\n\nSpecial cases:\n- field           → field exists\n- !field          → field does not exist\n```",
             "schema": {
               "example": [
                 "teamId==3849"
@@ -2217,7 +2217,7 @@
             "name": "property",
             "required": false,
             "in": "query",
-            "description": "```\nProperty filters. Can be repeated and are AND-ed together.\n\nAllowed fields:\n- timestamp\n- messageId\n- userId\n- userName\n- teamId\n- teamName\n- entity\n- entityId\n- action\n- message\n\nSupported operators:\n- ==  (equals)\n- !=  (not equals)\n- >   (greater than)\n- >=  (greater than or equal)\n- <   (less than)\n- <=  (less than or equal)\n- ~   (case-insensitive regex match)\n\nSpecial cases:\n- field           → field exists\n- !field          → field does not exist\n```",
+            "description": "```\nProperty filters. Can be repeated and are AND-ed together.\n\nAllowed fields:\n- timestamp\n- messageId\n- userId\n- userName\n- teamId\n- teamName\n- entity\n- entityId\n- action (multi-value)\n- message\n\nFields marked \"multi-value\" accept comma-separated values with == and !=.\nExample: property=action==123,456\n\nSupported operators:\n- ==  (equals)\n- !=  (not equals)\n- >   (greater than)\n- >=  (greater than or equal)\n- <   (less than)\n- <=  (less than or equal)\n- ~   (case-insensitive regex match)\n\nSpecial cases:\n- field           → field exists\n- !field          → field does not exist\n```",
             "schema": {
               "example": [
                 "teamId==3849"
@@ -6799,7 +6799,7 @@
     },
     "/api/v3/logs": {
       "get": {
-        "description": "Returns a paginated list of executions for the specified resource. To narrow results, filter by status — for example, use `property=status==3` to see failed executions or `property=status==2` to see executions that completed with warnings.",
+        "description": "Lists executions you can access within the organization. Provide one resource identifier to limit results to that resource, or omit all identifiers to list organization executions of one kind: scenario executions by default, or incomplete executions with `property=kind==dlq`. Use `property=status==3` to return only failed executions. Organization-wide listing sorts by `timestamp` only and filters on `id`, `kind`, `teamId`, `status`, `timestamp`, `deactivated`, `type`, `trigger`, `errorCode`, and `errorMessage`; other sorts and filters require a resource identifier. Use `limit` and `start` to paginate results.",
         "operationId": "PublicLogController_getExecutions[1]_v3",
         "parameters": [
           {
@@ -6834,7 +6834,7 @@
             "name": "property",
             "required": false,
             "in": "query",
-            "description": "```\nProperty filters. Can be repeated and are AND-ed together.\n\nAllowed fields:\n- id\n- status\n- timestamp\n- duration\n- bundles\n- operations\n- transfer\n\nSupported operators:\n- ==  (equals)\n- !=  (not equals)\n- >   (greater than)\n- >=  (greater than or equal)\n- <   (less than)\n- <=  (less than or equal)\n- ~   (case-insensitive regex match)\n\nSpecial cases:\n- field           → field exists\n- !field          → field does not exist\n```",
+            "description": "```\nProperty filters. Can be repeated and are AND-ed together.\n\nAllowed fields:\n- id\n- type\n- kind\n- teamId\n- status\n- trigger\n- timestamp\n- duration\n- bundles\n- operations\n- transfer\n- errorCode\n- errorMessage\n- deactivated\n\nSupported operators:\n- ==  (equals)\n- !=  (not equals)\n- >   (greater than)\n- >=  (greater than or equal)\n- <   (less than)\n- <=  (less than or equal)\n- ~   (case-insensitive regex match)\n\nSpecial cases:\n- field           → field exists\n- !field          → field does not exist\n\nMultiple values (status, kind, teamId, type, trigger, errorCode):\n- status==2,3     → matches any listed value\n- status!=2,3     → matches none of the listed values\n- at most 10 comma-separated values, with == or != only\n- organization-wide listing accepts a single kind\n\nError message:\n- errorMessage~timeout → error message contains \"timeout\" (case-insensitive, literal text, no regex)\n```",
             "schema": {
               "example": [
                 "teamId==3849"
@@ -6849,7 +6849,7 @@
             "name": "start",
             "required": false,
             "in": "query",
-            "description": "Paging cursor. Must correspond to \"orderby\" field and used only when it is set.",
+            "description": "Opaque pagination cursor. Pass `_page.next` from the previous response unchanged, together with the same orderby; the next page starts strictly after the last returned execution. A raw value of the primary sort field (legacy) is still accepted as an inclusive bound.",
             "schema": {
               "type": "string"
             }
@@ -6870,9 +6870,9 @@
             "name": "orderby",
             "required": false,
             "in": "query",
-            "description": "Sort property and direction, e.g. +id (ascending) or -id (descending). Allowed fields: timestamp, duration, bundles, operations.",
+            "description": "Sort property and direction, e.g. -timestamp (newest first) or +timestamp (oldest first). Allowed fields: timestamp, duration, bundles, operations, id. Ties are broken by id. Without scenarioId or dlqId, only timestamp is allowed.",
             "schema": {
-              "example": "+id",
+              "example": "-timestamp",
               "type": "string"
             }
           }
@@ -6898,7 +6898,7 @@
                 "example": {
                   "type": "BadRequest",
                   "status": 400,
-                  "title": "Bad Request: exactly one of scenarioId or dlqId is required",
+                  "title": "Bad Request: provide at most one resource identifier: scenarioId or dlqId",
                   "report": {
                     "request-id": "abc-123-def-456",
                     "x-organization-id": "2332"
@@ -6956,6 +6956,25 @@
                   "type": "InternalServerError",
                   "status": 500,
                   "title": "Server error",
+                  "report": {
+                    "request-id": "abc-123-def-456",
+                    "x-organization-id": "2332"
+                  }
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Gateway timeout",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "type": "GatewayTimeout",
+                  "status": 504,
+                  "title": "Gateway Timeout: execution search took too long. Narrow the filters or time range and try again.",
                   "report": {
                     "request-id": "abc-123-def-456",
                     "x-organization-id": "2332"
@@ -13887,6 +13906,80 @@
           "failed"
         ]
       },
+      "CursorPageMetadataDto": {
+        "type": "object",
+        "properties": {
+          "orderby": {
+            "type": "string",
+            "description": "Sort order expression",
+            "example": "+id"
+          },
+          "start": {
+            "type": "string",
+            "description": "Opaque cursor the current page was requested with.",
+            "example": "WzIsIjIwMjYtMDItMjdUMjI6Mzg6NTkuODQ2WiJd"
+          },
+          "next": {
+            "type": "string",
+            "description": "Opaque cursor for the next page. Pass it back unchanged as `start`. Absent on the last page.",
+            "example": "WzQsIjIwMjYtMDItMjdUMjI6Mzk6MDAuMTAyWiJd"
+          },
+          "property": {
+            "description": "Applied `property` filter expression(s) from the request",
+            "example": [
+              "teamId==304"
+            ],
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          "type": {
+            "type": "string",
+            "description": "Resource type filter"
+          },
+          "count": {
+            "type": "number",
+            "description": "Number of items in the current page",
+            "example": 100
+          }
+        },
+        "required": [
+          "count"
+        ]
+      },
+      "ExecutionModuleDto": {
+        "type": "object",
+        "properties": {
+          "package": {
+            "type": "string",
+            "description": "App/connector package of the module.",
+            "example": "gateway"
+          },
+          "module": {
+            "type": "string",
+            "description": "Module name.",
+            "example": "CustomWebHook"
+          },
+          "operations": {
+            "type": "number",
+            "description": "Operations performed by the module.",
+            "example": 1
+          }
+        },
+        "required": [
+          "package",
+          "module",
+          "operations"
+        ]
+      },
       "ExecutionDto": {
         "type": "object",
         "properties": {
@@ -13897,7 +13990,7 @@
           },
           "type": {
             "type": "string",
-            "description": "How the execution was run. `auto` = scheduled/automatic run, `manual` = user-initiated run-once.",
+            "description": "How the execution was run. `auto` = scheduled/automatic run, `manual` = user-initiated run-once. Filterable, e.g. `type==manual`.",
             "enum": [
               "auto",
               "manual"
@@ -13906,7 +13999,7 @@
           },
           "kind": {
             "type": "string",
-            "description": "Type of entity this execution belongs to. `scenario` = automation scenario, `dlq` = incomplete execution.",
+            "description": "Type of entity this execution belongs to. `scenario` = automation scenario, `dlq` = incomplete execution. Filterable by a comma-separated list, e.g. `kind==scenario,dlq`; organization-wide listing accepts one kind.",
             "enum": [
               "scenario",
               "dlq"
@@ -13915,12 +14008,12 @@
           },
           "kindId": {
             "type": "string",
-            "description": "Identifier of the parent entity referenced by `kind` (the scenario or DLQ id). Numeric id represented as a string.",
+            "description": "Identifier of the parent entity referenced by `kind` (the scenario, agent, or DLQ id). Represented as a string.",
             "example": "87"
           },
           "teamId": {
             "type": "number",
-            "description": "Identifier of the team that owns the parent automation.",
+            "description": "Identifier of the team that owns the parent automation. Filterable by a comma-separated list, e.g. `teamId==1,2`.",
             "example": 1
           },
           "organizationId": {
@@ -13935,7 +14028,7 @@
           },
           "status": {
             "type": "number",
-            "description": "Execution result status code: `0` running, `1` success, `2` warning, `3` error.",
+            "description": "Execution result status code: `0` running, `1` success, `2` warning, `3` error. Filterable by a comma-separated list, e.g. `status==2,3`.",
             "enum": [
               0,
               1,
@@ -13946,7 +14039,7 @@
           },
           "trigger": {
             "type": "string",
-            "description": "Trigger type that initiated this execution: `webhook` (incoming HTTP trigger), `chat` (agent chat), `a2a` (agent-to-agent), `mcp` (MCP tool call), `scheduled` (time-based).",
+            "description": "Trigger type that initiated this execution: `webhook` (incoming HTTP trigger), `chat` (agent chat), `a2a` (agent-to-agent), `mcp` (MCP tool call), `scheduled` (time-based). Filterable, e.g. `trigger==webhook,mcp`.",
             "enum": [
               "webhook",
               "chat",
@@ -14003,7 +14096,7 @@
             ],
             "type": "array",
             "items": {
-              "type": "array"
+              "$ref": "#/components/schemas/ExecutionModuleDto"
             }
           },
           "processing": {
@@ -14028,6 +14121,26 @@
               "confidential": false,
               "timeout": 2400000
             }
+          },
+          "errorCode": {
+            "type": "string",
+            "description": "Readable code of the execution error, when present. Filterable, e.g. `errorCode==TIMEOUT` or `errorCode==TIMEOUT,LIMIT`.",
+            "example": "TIMEOUT"
+          },
+          "errorMessage": {
+            "type": "string",
+            "description": "Execution error message, when present. Filterable; `~` is a case-insensitive \"contains\" match on the literal text, e.g. `errorMessage~timeout`.",
+            "example": "Connection timeout"
+          },
+          "deactivated": {
+            "type": "boolean",
+            "description": "Whether the execution deactivated its scenario, when deactivation details are available.",
+            "example": false
+          },
+          "deactivationReason": {
+            "type": "string",
+            "description": "Reason recorded when the execution deactivated its scenario.",
+            "example": "Scenario has encountered an error while being processed."
           }
         },
         "required": [
@@ -14058,7 +14171,7 @@
             "description": "Pagination metadata",
             "allOf": [
               {
-                "$ref": "#/components/schemas/PageMetadataDto"
+                "$ref": "#/components/schemas/CursorPageMetadataDto"
               }
             ]
           },
@@ -14081,55 +14194,6 @@
           "_page",
           "_links",
           "items"
-        ]
-      },
-      "CursorPageMetadataDto": {
-        "type": "object",
-        "properties": {
-          "orderby": {
-            "type": "string",
-            "description": "Sort order expression",
-            "example": "+id"
-          },
-          "start": {
-            "type": "string",
-            "description": "Opaque cursor the current page was requested with.",
-            "example": "WzIsIjIwMjYtMDItMjdUMjI6Mzg6NTkuODQ2WiJd"
-          },
-          "next": {
-            "type": "string",
-            "description": "Opaque cursor for the next page. Pass it back unchanged as `start`. Absent on the last page.",
-            "example": "WzQsIjIwMjYtMDItMjdUMjI6Mzk6MDAuMTAyWiJd"
-          },
-          "property": {
-            "description": "Applied `property` filter expression(s) from the request",
-            "example": [
-              "teamId==304"
-            ],
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              }
-            ]
-          },
-          "type": {
-            "type": "string",
-            "description": "Resource type filter"
-          },
-          "count": {
-            "type": "number",
-            "description": "Number of items in the current page",
-            "example": 100
-          }
-        },
-        "required": [
-          "count"
         ]
       },
       "SourceDto": {
